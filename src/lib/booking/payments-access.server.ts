@@ -113,16 +113,15 @@ export async function createGuestReservation(input: {
         p_status: "held",
         p_currency: "USD",
         p_total_cents: input.total_cents,
-        p_policy_version: (input.policy_version ?? null) as string,
+        ...(input.policy_version ? { p_policy_version: input.policy_version } : {}),
         p_hold_expires_at: holdExpiresAt,
         p_checkin_date: input.checkin_date,
         p_checkout_date: input.checkout_date,
         p_adults: input.adults,
         p_children: input.children,
-        p_created_by: null as unknown as string,
         p_units: JSON.stringify(input.units),
         p_owner_type: "reservation",
-        p_group_id: null as unknown as string,
+        // p_created_by and p_group_id omitted -> SQL DEFAULT NULL
       });
       if (error) throw new Error(error.message);
       const res = data as { reservation_id: string; booking_reference: string; status: string };

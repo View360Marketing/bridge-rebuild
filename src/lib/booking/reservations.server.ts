@@ -118,7 +118,7 @@ export async function createReservation(
     p_status: status,
     p_currency: currency,
     p_total_cents: input.total_cents,
-    p_policy_version: (input.policy_version ?? null) as string,
+    ...(input.policy_version ? { p_policy_version: input.policy_version } : {}),
     p_hold_expires_at: holdExpiresAt,
     p_checkin_date: input.checkin_date,
     p_checkout_date: input.checkout_date,
@@ -127,7 +127,7 @@ export async function createReservation(
     p_created_by: userId,
     p_units: JSON.stringify(input.units),
     p_owner_type: "reservation",
-    p_group_id: (input.group_id ?? null) as string,
+    ...(input.group_id ? { p_group_id: input.group_id } : {}),
   });
   if (error) throw new Error(error.message);
   return data as { reservation_id: string; booking_reference: string; status: string };
@@ -145,8 +145,8 @@ export async function createBlock(
     p_checkin_date: input.checkin_date,
     p_checkout_date: input.checkout_date,
     p_owner_type: input.owner_type,
-    p_reason: (input.reason ?? null) as string,
-    p_group_id: (input.group_id ?? null) as string,
+    ...(input.reason ? { p_reason: input.reason } : {}),
+    ...(input.group_id ? { p_group_id: input.group_id } : {}),
     p_created_by: userId,
   });
   if (error) throw new Error(error.message);

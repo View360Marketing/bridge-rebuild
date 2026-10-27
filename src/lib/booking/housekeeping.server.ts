@@ -236,8 +236,8 @@ export async function createMaintenanceBlock(
     p_checkout_date: input.checkout_date,
     p_owner_type: "maintenance",
     p_reason: input.reason,
-    p_group_id: null as unknown as string,
     p_created_by: userId,
+    // p_group_id omitted -> SQL DEFAULT NULL
   });
   if (error) throw new Error(error.message);
   return data as { block_id: string };

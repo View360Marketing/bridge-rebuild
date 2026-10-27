@@ -1542,24 +1542,24 @@ export type Database = {
     Functions: {
       acquire_inventory: {
         Args: {
-          p_adults: number
+          p_adults?: number
           p_booking_reference: string
-          p_checkin_date: string
-          p_checkout_date: string
-          p_children: number
-          p_created_by: string
+          p_checkin_date?: string
+          p_checkout_date?: string
+          p_children?: number
+          p_created_by?: string
           p_currency: string
-          p_group_id: string
+          p_group_id?: string
           p_guest_email: string
           p_guest_name: string
           p_guest_phone: string
-          p_hold_expires_at: string
-          p_owner_type: string
-          p_policy_version: string
+          p_hold_expires_at?: string
+          p_owner_type?: string
+          p_policy_version?: string
           p_source: string
           p_status: string
           p_total_cents: number
-          p_units: Json
+          p_units?: Json
         }
         Returns: Json
       }
@@ -1580,10 +1580,10 @@ export type Database = {
         Args: {
           p_checkin_date: string
           p_checkout_date: string
-          p_created_by: string
-          p_group_id: string
+          p_created_by?: string
+          p_group_id?: string
           p_owner_type: string
-          p_reason: string
+          p_reason?: string
           p_unit_id: string
         }
         Returns: Json
