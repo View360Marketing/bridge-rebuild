@@ -2,7 +2,7 @@ import React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
-import { Sparkles, Waves, ExternalLink, Phone, CheckCircle2 } from "lucide-react";
+import { Phone } from "lucide-react";
 
 export const Route = createFileRoute("/massage-wellness")({
   head: () => ({
@@ -46,20 +46,17 @@ function WellnessPage() {
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <a
-                  href="http://connoisseurtherapeuticbodywork.clinicsense.com/book/"
-                  target="_blank"
-                  rel="noreferrer"
+                  href="tel:+19319811281"
                   className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1f2b21] text-white font-medium px-6 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors shadow-sm"
                 >
-                  <span>Book Massage Online</span>
-                  <ExternalLink className="w-4 h-4" />
+                  <Phone className="w-4 h-4" />
+                  <span>Call/Text Jessica · 931-981-1281</span>
                 </a>
                 <a
-                  href="tel:+19317225589"
+                  href="sms:+19319811281"
                   className="bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 font-medium px-6 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors shadow-xs flex items-center gap-2"
                 >
-                  <Phone className="w-4 h-4" />
-                  <span>Call (931) 722-5589</span>
+                  <span>Text to Book Massage</span>
                 </a>
               </div>
             </div>
@@ -89,13 +86,11 @@ function WellnessPage() {
               </p>
               <div className="pt-2">
                 <a
-                  href="http://connoisseurtherapeuticbodywork.clinicsense.com/book/"
-                  target="_blank"
-                  rel="noreferrer"
+                  href="tel:+19319811281"
                   className="text-xs font-semibold uppercase tracking-wider text-[#2a382c] hover:underline inline-flex items-center gap-1"
                 >
-                  <span>Schedule Appointment</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Call/Text Jessica · 931-981-1281</span>
                 </a>
               </div>
             </div>
