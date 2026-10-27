@@ -17,6 +17,7 @@ import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as MassageWellnessRouteImport } from './routes/massage-wellness'
+import { Route as StayRouteImport } from './routes/stay'
 import { Route as TheAlpineRouteImport } from './routes/the-alpine'
 import { Route as WeddingsEventsRouteImport } from './routes/weddings-events'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -25,6 +26,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin/calendar'
 import { Route as AuthenticatedAdminReservationsRouteImport } from './routes/_authenticated/admin/reservations'
 import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin/rooms'
+import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -63,6 +65,11 @@ const GalleryRoute = GalleryRouteImport.update({
 const MassageWellnessRoute = MassageWellnessRouteImport.update({
   id: '/massage-wellness',
   path: '/massage-wellness',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StayRoute = StayRouteImport.update({
+  id: '/stay',
+  path: '/stay',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TheAlpineRoute = TheAlpineRouteImport.update({
@@ -107,6 +114,11 @@ const AuthenticatedAdminRoomsRoute = AuthenticatedAdminRoomsRouteImport.update({
   path: '/rooms',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
+  id: '/api/webhooks/stripe',
+  path: '/api/webhooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
+  '/stay': typeof StayRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -123,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -133,12 +147,14 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
+  '/stay': typeof StayRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -151,6 +167,7 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
+  '/stay': typeof StayRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -158,6 +175,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +188,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/gallery'
     | '/massage-wellness'
+    | '/stay'
     | '/the-alpine'
     | '/weddings-events'
     | '/admin'
@@ -177,6 +196,7 @@ export interface FileRouteTypes {
     | '/admin/calendar'
     | '/admin/reservations'
     | '/admin/rooms'
+    | '/api/webhooks/stripe'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,12 +207,14 @@ export interface FileRouteTypes {
     | '/events'
     | '/gallery'
     | '/massage-wellness'
+    | '/stay'
     | '/the-alpine'
     | '/weddings-events'
     | '/admin/login'
     | '/admin/calendar'
     | '/admin/reservations'
     | '/admin/rooms'
+    | '/api/webhooks/stripe'
     | '/admin'
   id:
     | '__root__'
@@ -204,6 +226,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/gallery'
     | '/massage-wellness'
+    | '/stay'
     | '/the-alpine'
     | '/weddings-events'
     | '/_authenticated/admin'
@@ -211,6 +234,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/reservations'
     | '/_authenticated/admin/rooms'
+    | '/api/webhooks/stripe'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -223,9 +247,11 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   GalleryRoute: typeof GalleryRoute
   MassageWellnessRoute: typeof MassageWellnessRoute
+  StayRoute: typeof StayRoute
   TheAlpineRoute: typeof TheAlpineRoute
   WeddingsEventsRoute: typeof WeddingsEventsRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -286,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MassageWellnessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stay': {
+      id: '/stay'
+      path: '/stay'
+      fullPath: '/stay'
+      preLoaderRoute: typeof StayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/the-alpine': {
       id: '/the-alpine'
       path: '/the-alpine'
@@ -342,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRoomsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/webhooks/stripe': {
+      id: '/api/webhooks/stripe'
+      path: '/api/webhooks/stripe'
+      fullPath: '/api/webhooks/stripe'
+      preLoaderRoute: typeof ApiWebhooksStripeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -382,9 +422,11 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   GalleryRoute: GalleryRoute,
   MassageWellnessRoute: MassageWellnessRoute,
+  StayRoute: StayRoute,
   TheAlpineRoute: TheAlpineRoute,
   WeddingsEventsRoute: WeddingsEventsRoute,
   AdminLoginRoute: AdminLoginRoute,
+  ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

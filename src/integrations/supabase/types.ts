@@ -324,49 +324,97 @@ export type Database = {
         }
         Relationships: []
       }
+      inbound_events: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string | null
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider: string
+          provider_event_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider: string
+          provider_event_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string | null
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          provider_event_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       integration_settings: {
         Row: {
           advance_notice_days: number
+          balance_deadline_days: number | null
           booking_horizon_days: number | null
           bootstrap_completed_at: string | null
           currency: string
           default_checkin_time: string
           default_checkout_time: string
           default_hold_minutes: number
+          deposit_percent: number | null
           expected_room_count: number
           id: number
           instant_booking_enabled: boolean
           inventory_authority: string
+          stripe_configured: boolean
+          stripe_environment: string
           timezone: string
           updated_at: string
         }
         Insert: {
           advance_notice_days?: number
+          balance_deadline_days?: number | null
           booking_horizon_days?: number | null
           bootstrap_completed_at?: string | null
           currency?: string
           default_checkin_time?: string
           default_checkout_time?: string
           default_hold_minutes?: number
+          deposit_percent?: number | null
           expected_room_count?: number
           id?: number
           instant_booking_enabled?: boolean
           inventory_authority?: string
+          stripe_configured?: boolean
+          stripe_environment?: string
           timezone?: string
           updated_at?: string
         }
         Update: {
           advance_notice_days?: number
+          balance_deadline_days?: number | null
           booking_horizon_days?: number | null
           bootstrap_completed_at?: string | null
           currency?: string
           default_checkin_time?: string
           default_checkout_time?: string
           default_hold_minutes?: number
+          deposit_percent?: number | null
           expected_room_count?: number
           id?: number
           instant_booking_enabled?: boolean
           inventory_authority?: string
+          stripe_configured?: boolean
+          stripe_environment?: string
           timezone?: string
           updated_at?: string
         }
@@ -418,6 +466,187 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outbox_jobs: {
+        Row: {
+          attempts: number
+          created_at: string
+          dedup_key: string | null
+          id: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          reservation_id: string | null
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          dedup_key?: string | null
+          id?: string
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          reservation_id?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          dedup_key?: string | null
+          id?: string
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          reservation_id?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outbox_jobs_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_attempts: {
+        Row: {
+          created_at: string
+          currency: string
+          environment: string
+          expected_amount_cents: number
+          expires_at: string | null
+          id: string
+          idempotency_key: string
+          provider: string
+          provider_account_id: string | null
+          provider_checkout_url: string | null
+          provider_payment_intent_id: string | null
+          provider_session_id: string | null
+          reservation_id: string
+          scope: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          environment?: string
+          expected_amount_cents: number
+          expires_at?: string | null
+          id?: string
+          idempotency_key: string
+          provider?: string
+          provider_account_id?: string | null
+          provider_checkout_url?: string | null
+          provider_payment_intent_id?: string | null
+          provider_session_id?: string | null
+          reservation_id: string
+          scope?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          environment?: string
+          expected_amount_cents?: number
+          expires_at?: string | null
+          id?: string
+          idempotency_key?: string
+          provider?: string
+          provider_account_id?: string | null
+          provider_checkout_url?: string | null
+          provider_payment_intent_id?: string | null
+          provider_session_id?: string | null
+          reservation_id?: string
+          scope?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_attempts_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount_cents: number
+          captured_at: string | null
+          created_at: string
+          currency: string
+          environment: string
+          id: string
+          payment_attempt_id: string | null
+          provider: string
+          provider_account_id: string | null
+          provider_transaction_id: string
+          reservation_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          captured_at?: string | null
+          created_at?: string
+          currency?: string
+          environment?: string
+          id?: string
+          payment_attempt_id?: string | null
+          provider?: string
+          provider_account_id?: string | null
+          provider_transaction_id: string
+          reservation_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          captured_at?: string | null
+          created_at?: string
+          currency?: string
+          environment?: string
+          id?: string
+          payment_attempt_id?: string | null
+          provider?: string
+          provider_account_id?: string | null
+          provider_transaction_id?: string
+          reservation_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_payment_attempt_id_fkey"
+            columns: ["payment_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "payment_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
             referencedColumns: ["id"]
           },
         ]
@@ -698,6 +927,110 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      refunds: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          id: string
+          idempotency_key: string | null
+          payment_transaction_id: string
+          provider: string
+          provider_refund_id: string | null
+          reason: string | null
+          reservation_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          id?: string
+          idempotency_key?: string | null
+          payment_transaction_id: string
+          provider?: string
+          provider_refund_id?: string | null
+          reason?: string | null
+          reservation_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          idempotency_key?: string | null
+          payment_transaction_id?: string
+          provider?: string
+          provider_refund_id?: string | null
+          reason?: string | null
+          reservation_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_payment_transaction_id_fkey"
+            columns: ["payment_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reservation_access_capabilities: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          label: string | null
+          last_used_at: string | null
+          reservation_id: string
+          revoked_at: string | null
+          scope: string
+          token_hash: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          reservation_id: string
+          revoked_at?: string | null
+          scope?: string
+          token_hash: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          last_used_at?: string | null
+          reservation_id?: string
+          revoked_at?: string | null
+          scope?: string
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_access_capabilities_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
             referencedColumns: ["id"]
           },
         ]
@@ -1191,6 +1524,10 @@ export type Database = {
       release_reservation: {
         Args: { p_reservation_id: string }
         Returns: undefined
+      }
+      reservation_amount_due: {
+        Args: { p_reservation_id: string }
+        Returns: number
       }
     }
     Enums: {
