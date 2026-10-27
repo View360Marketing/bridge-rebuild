@@ -4,6 +4,7 @@ import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { MapPin, Phone, Mail, Clock, Compass, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { postTrackingEvent, buildTrackingPayload, INQUIRY_CATEGORY_FIELD_ID } from "@/lib/tracking";
 
 export const Route = createFileRoute("/contact-us")({
   head: () => ({
@@ -40,6 +41,25 @@ function ContactPage() {
     }
     setSubmitted(true);
     toast.success("Thank you! Your inquiry has been sent to our team.");
+
+    const payload = buildTrackingPayload("contact-form", "Contact Form");
+    payload.formData = {
+      first_name: name,
+      email,
+      phone,
+      calendar_notes: message,
+    };
+    payload.formLabels = {
+      first_name: "Full Name",
+      email: "Email",
+      phone: "Phone",
+      calendar_notes: "Your Message",
+    };
+    postTrackingEvent(payload, {
+      customFields: {
+        [INQUIRY_CATEGORY_FIELD_ID]: { value: eventType, label: "Inquiry Category" },
+      },
+    });
   };
 
   return (

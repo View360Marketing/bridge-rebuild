@@ -64,7 +64,7 @@ function StayIndexPage() {
     setSearched(true);
   }
 
-  const units = searched ? avail?.available ?? [] : (allUnits ?? []);
+  const units = searched ? (avail?.available ?? []) : (allUnits ?? []);
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-stone-800 font-sans">
@@ -155,9 +155,7 @@ function StayIndexPage() {
             </div>
           )}
 
-          {searching && (
-            <p className="text-stone-500 text-sm">Searching availability…</p>
-          )}
+          {searching && <p className="text-stone-500 text-sm">Searching availability…</p>}
 
           {!searching && units.length === 0 && (
             <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
@@ -217,13 +215,17 @@ type UnitCardProps = {
 };
 
 function UnitCard(props: UnitCardProps) {
-  const petFriendly =
-    props.pet_policy === "pets_allowed" || props.pet_policy === "pets_negotiable";
+  const petFriendly = props.pet_policy === "pets_allowed" || props.pet_policy === "pets_negotiable";
   return (
     <Link
       to="/stay/$unitId"
       params={{ unitId: props.id }}
-      search={{ checkin: props.checkin, checkout: props.checkout, adults: props.adults, children: props.children }}
+      search={{
+        checkin: props.checkin,
+        checkout: props.checkout,
+        adults: props.adults,
+        children: props.children,
+      }}
       className="group bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
     >
       <div className="aspect-[4/3] bg-gradient-to-br from-[#2a382c] to-[#3e5340] flex items-center justify-center">
@@ -250,9 +252,7 @@ function UnitCard(props: UnitCardProps) {
           <span className="flex items-center gap-1">
             <Bath className="w-3.5 h-3.5" /> {props.bathrooms}
           </span>
-          {petFriendly && (
-            <span className="text-[#3e5340] font-semibold">Pet-friendly</span>
-          )}
+          {petFriendly && <span className="text-[#3e5340] font-semibold">Pet-friendly</span>}
         </div>
         <div className="mt-4 pt-4 border-t border-stone-100 flex items-center justify-between">
           {props.base_rate_cents > 0 ? (
