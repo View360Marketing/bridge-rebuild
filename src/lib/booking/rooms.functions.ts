@@ -87,6 +87,22 @@ export const archiveUnitFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => archiveUnit(context.supabase, data.id));
 
+export const publishUnitFn = createServerFn({ method: "POST" })
+  .validator((d) => z.object({ id: z.string(), published: z.boolean() }).parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) =>
+    updateUnit(context.supabase, data.id, { is_published: data.published }),
+  );
+
+export const setPrimaryImageFn = createServerFn({ method: "POST" })
+  .validator((d) => z.object({ id: z.string(), primary_image_url: z.string().nullable() }).parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) =>
+    updateUnit(context.supabase, data.id, {
+      primary_image_url: data.primary_image_url ?? undefined,
+    }),
+  );
+
 export const addUnitMediaFn = createServerFn({ method: "POST" })
   .validator((d) =>
     z

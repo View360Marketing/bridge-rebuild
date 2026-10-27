@@ -2,6 +2,41 @@
 
 Track exact implemented routes/tables, executed tests, and outstanding configuration. Update every stage.
 
+## Accommodation reconciliation — 2026-10-27
+
+**Root cause of "0 units" on /admin/rooms**: the `is_staff`/`is_admin`/`is_manager`/`has_role`
+SECURITY DEFINER helper functions had no `GRANT EXECUTE` to `authenticated`/`anon`, so every RLS
+policy that called them failed with "permission denied for function is_staff" and returned zero
+rows. Fixed by migration `20261027215401_grant_execute_on_the_is_staff_is_admin.sql`.
+
+**Reconciliation table** (10 listings with verified Airbnb IDs; 6 with durable photos):
+
+| Unit code | Name | Airbnb ID | Photo | Published |
+|---|---|---|---|---|
+| CABIN-FRANK | Frank's Retreat | 1309595693133521444 | yes | yes |
+| CABIN-JESSIE | Jessie's Hideaway | 1309383340152249544 | yes | yes |
+| ROOM-01 | Serene Cedar's Edge Room 1 | 1268148035432490604 | yes | yes |
+| ROOM-11 | Gateway to Nature's beauty Rm 11 | 1267441178635327527 | yes | yes |
+| ROOM-12 | Gateway to Nature's beauty Rm 12 | airbnb-rm-12 (host profile) | no | yes |
+| ROOM-24 | Serenity at Rock Retreat Room 24 | airbnb-rm-24 (host profile) | no | yes |
+| ROOM-31 | Frontier Hideaway Room 31 | airbnb-rm-31 (host profile) | no | yes |
+| ROOM-42 | Owls Nest Room 42 | airbnb-rm-42 (host profile) | no | yes |
+| ROOM-44 | Owls Nest Room 44 | 1268247504470492270 | yes | yes |
+| ROOM-51 | Hillside Haven Room 51 | 1268242762366408975 | yes | yes |
+
+**Photos**: 6 Airbnb cover images downloaded to durable app-owned storage
+(`vibe.filesafe.space/.../assets/*.jpeg`) and set as `primary_image_url`.
+
+**Access limitation**: The Airbnb host profile (`airbnb.com/users/show/244417704`) and authenticated
+hosting inventory (`airbnb.com/hosting/listings`) require an Airbnb session this environment does
+not have. 4 listings (ROOM-12/24/31/42) are matched to the host profile but lack individual listing
+IDs and photos. To finish the full 30-listing import I need the public listing URLs or a listing
+export.
+
+**Admin rooms page**: rebuilt with edit, publish/unpublish, photo management (add/delete/set cover),
+CSV import, and filter tabs (all/published/draft/archived) showing real counts and missing-info
+badges. Split into `RoomUI.tsx`, `UnitForm.tsx`, `PhotoManager.tsx`, `CsvImportModal.tsx`.
+
 ## Stage 1 — Foundation ✅ (implemented; not launch-ready)
 
 ### Implemented

@@ -45,6 +45,13 @@ export type UnitRow = {
   is_archived: boolean;
   is_closed: boolean;
   sort_order: number;
+  primary_image_url: string | null;
+  airbnb_listing_id: string | null;
+  airbnb_url: string | null;
+  ical_import_url: string | null;
+  ical_export_token: string | null;
+  ical_sync_status: string | null;
+  ical_last_synced_at: string | null;
 };
 
 export type UnitMediaRow = {
@@ -78,6 +85,9 @@ export type UnitInput = {
   is_published?: boolean | undefined;
   is_closed?: boolean | undefined;
   sort_order?: number | undefined;
+  primary_image_url?: string | null | undefined;
+  airbnb_listing_id?: string | null | undefined;
+  airbnb_url?: string | null | undefined;
 };
 
 export type MediaInput = {
@@ -143,6 +153,9 @@ export async function upsertUnit(supabase: SupabaseClient, input: UnitInput): Pr
       is_archived: false,
       is_closed: input.is_closed ?? false,
       sort_order: input.sort_order ?? 0,
+      primary_image_url: input.primary_image_url ?? null,
+      airbnb_listing_id: input.airbnb_listing_id ?? null,
+      airbnb_url: input.airbnb_url ?? null,
     })
     .select()
     .single();

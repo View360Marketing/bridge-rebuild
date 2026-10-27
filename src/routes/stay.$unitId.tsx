@@ -113,7 +113,15 @@ function UnitDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-7">
               <div className="aspect-[4/3] bg-gradient-to-br from-[#2a382c] to-[#3e5340] rounded-2xl overflow-hidden flex items-center justify-center">
-                <BedDouble className="w-20 h-20 text-white/30" />
+                {unit.primary_image_url ? (
+                  <img
+                    src={unit.primary_image_url}
+                    alt={unit.public_name ?? unit.unit_code}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <BedDouble className="w-20 h-20 text-white/30" />
+                )}
               </div>
               <div className="mt-6">
                 <span className="text-xs font-bold uppercase tracking-widest text-[#3e5340]">

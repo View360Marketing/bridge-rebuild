@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,12 +8,31 @@ import {
   listRoomTypesFn,
   listUnitsFn,
   upsertUnitFn,
+  updateUnitFn,
   archiveUnitFn,
+  publishUnitFn,
+  setPrimaryImageFn,
+  listUnitMediaFn,
+  addUnitMediaFn,
+  deleteUnitMediaFn,
   validateCsvImportFn,
   confirmCsvImportFn,
 } from "@/lib/booking/rooms.functions";
-import { CSV_COLUMNS } from "@/lib/booking/rooms.server";
-import { Plus, Archive, Upload, FileDown, X } from "lucide-react";
+import type { UnitRow } from "@/lib/booking/rooms.server";
+import { UnitForm } from "@/components/admin/UnitForm";
+import { PhotoManager } from "@/components/admin/PhotoManager";
+import { CsvImportModal } from "@/components/admin/CsvImportModal";
+import {
+  Plus,
+  Archive,
+  Upload,
+  Pencil,
+  Eye,
+  EyeOff,
+  ImagePlus,
+  ExternalLink,
+  AlertCircle,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/rooms")({
   head: () => ({
@@ -31,7 +50,13 @@ function RoomsPage() {
   const listRoomTypes = useServerFn(listRoomTypesFn);
   const listUnits = useServerFn(listUnitsFn);
   const createUnit = useServerFn(upsertUnitFn);
+  const updateUnit = useServerFn(updateUnitFn);
   const archive = useServerFn(archiveUnitFn);
+  const publish = useServerFn(publishUnitFn);
+  const setPrimary = useServerFn(setPrimaryImageFn);
+  const listMedia = useServerFn(listUnitMediaFn);
+  const addMedia = useServerFn(addUnitMediaFn);
+  const deleteMedia = useServerFn(deleteUnitMediaFn);
   const validateCsv = useServerFn(validateCsvImportFn);
   const confirmCsv = useServerFn(confirmCsvImportFn);
 
@@ -41,7 +66,10 @@ function RoomsPage() {
 
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [editing, setEditing] = useState<UnitRow | null>(null);
+  const [managingPhotos, setManagingPhotos] = useState<UnitRow | null>(null);
   const [saving, setSaving] = useState(false);
+  const [filter, setFilter] = useState<"all" | "published" | "draft" | "archived">("all");
 
   async function refresh() {
     await qc.invalidateQueries({ queryKey: ["admin-units"] });
@@ -53,6 +81,19 @@ function RoomsPage() {
       await createUnit({ data: input as never });
       toast.success("Unit created");
       setShowForm(false);
+      await refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+    setSaving(false);
+  }
+
+  async function handleUpdate(id: string, patch: Record<string, unknown>) {
+    setSaving(true);
+    try {
+      await updateUnit({ data: { id, patch } as never });
+      toast.success("Unit updated");
+      setEditing(null);
       await refresh();
     } catch (e) {
       toast.error((e as Error).message);
@@ -72,12 +113,48 @@ function RoomsPage() {
     }
   }
 
+  async function handlePublish(id: string, published: boolean) {
+    try {
+      await publish({ data: { id, published } });
+      toast.success(published ? "Unit published" : "Unit unpublished");
+      await refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
+  async function handleSetPrimary(id: string, url: string | null) {
+    try {
+      await setPrimary({ data: { id, primary_image_url: url } });
+      await refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
+  const all = (units.data ?? []) as UnitRow[];
+  const filtered = all.filter((u) => {
+    if (filter === "published") return u.is_published && !u.is_archived;
+    if (filter === "draft") return !u.is_published && !u.is_archived;
+    if (filter === "archived") return u.is_archived;
+    return true;
+  });
+  const counts = {
+    all: all.length,
+    published: all.filter((u) => u.is_published && !u.is_archived).length,
+    draft: all.filter((u) => !u.is_published && !u.is_archived).length,
+    archived: all.filter((u) => u.is_archived).length,
+  };
+
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h1 className="font-serif text-3xl font-bold text-stone-900">Rooms & Properties</h1>
-          <p className="text-sm text-stone-500 mt-1">{units.data?.length ?? 0} units configured</p>
+          <p className="text-sm text-stone-500 mt-1">
+            {counts.all} units · {counts.published} published · {counts.draft} draft ·{" "}
+            {counts.archived} archived
+          </p>
         </div>
         <div className="flex gap-2">
           <button
@@ -95,69 +172,50 @@ function RoomsPage() {
         </div>
       </div>
 
+      <div className="flex gap-1 mb-6 border-b border-stone-200">
+        {(["all", "published", "draft", "archived"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-4 py-2 text-sm font-medium capitalize border-b-2 -mb-px transition-colors ${
+              filter === f
+                ? "border-[#2a382c] text-[#2a382c]"
+                : "border-transparent text-stone-500 hover:text-stone-700"
+            }`}
+          >
+            {f} ({counts[f]})
+          </button>
+        ))}
+      </div>
+
       {units.isLoading && <p className="text-sm text-stone-500">Loading units…</p>}
       {units.isError && (
-        <p className="text-sm text-red-600">Error: {(units.error as Error).message}</p>
-      )}
-
-      {units.data && units.data.length === 0 && (
-        <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
-          <p className="text-stone-500 text-sm">
-            No units yet. Add one or import a CSV to get started.
-          </p>
+        <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-sm text-rose-800">
+          <p className="font-medium">Unable to load units</p>
+          <p className="mt-1 text-rose-700">{(units.error as Error).message}</p>
         </div>
       )}
 
-      {units.data && units.data.length > 0 && (
+      {units.data && filtered.length === 0 && (
+        <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
+          <p className="font-medium text-stone-800">
+            {filter === "all" ? "No units yet" : `No ${filter} units`}
+          </p>
+          <p className="text-sm text-stone-500 mt-1">Add one or import a CSV to get started.</p>
+        </div>
+      )}
+
+      {filtered.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {units.data.map((u) => (
-            <div
+          {filtered.map((u) => (
+            <UnitCard
               key={u.id}
-              className="bg-white rounded-2xl border border-stone-200 p-4 flex flex-col gap-2 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="font-mono text-xs text-stone-400">{u.unit_code}</p>
-                  <p className="font-serif text-lg font-bold text-stone-900 truncate">
-                    {u.public_name || "—"}
-                  </p>
-                </div>
-                {!u.is_archived && (
-                  <button
-                    onClick={() => handleArchive(u.id)}
-                    className="shrink-0 text-stone-300 hover:text-red-600 transition-colors"
-                    aria-label={`Archive ${u.public_name || u.unit_code}`}
-                  >
-                    <Archive className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-              <span className="text-xs text-stone-500 capitalize">{u.unit_kind}</span>
-              <div className="flex items-center gap-3 text-xs text-stone-600">
-                <span>{u.max_guests} guests</span>
-                <span className="text-stone-300">·</span>
-                <span>${(u.base_rate_cents / 100).toFixed(0)}/night</span>
-              </div>
-              <div className="pt-1">
-                {u.is_archived ? (
-                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-400">
-                    Archived
-                  </span>
-                ) : u.is_closed ? (
-                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-700">
-                    Closed
-                  </span>
-                ) : u.is_published ? (
-                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
-                    Published
-                  </span>
-                ) : (
-                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-500">
-                    Draft
-                  </span>
-                )}
-              </div>
-            </div>
+              unit={u}
+              onEdit={() => setEditing(u)}
+              onArchive={() => handleArchive(u.id)}
+              onPublish={() => handlePublish(u.id, !u.is_published)}
+              onManagePhotos={() => setManagingPhotos(u)}
+            />
           ))}
         </div>
       )}
@@ -172,8 +230,30 @@ function RoomsPage() {
         />
       )}
 
+      {editing && (
+        <UnitForm
+          properties={properties.data ?? []}
+          roomTypes={roomTypes.data ?? []}
+          unit={editing}
+          onClose={() => setEditing(null)}
+          onSubmit={(input) => handleUpdate(editing.id, input)}
+          saving={saving}
+        />
+      )}
+
+      {managingPhotos && (
+        <PhotoManager
+          unit={managingPhotos}
+          listMedia={listMedia}
+          addMedia={addMedia}
+          deleteMedia={deleteMedia}
+          onSetPrimary={(url) => handleSetPrimary(managingPhotos.id, url)}
+          onClose={() => setManagingPhotos(null)}
+        />
+      )}
+
       {showImport && (
-        <CsvImport
+        <CsvImportModal
           onClose={() => setShowImport(false)}
           onValidate={validateCsv}
           onConfirm={async (csv) => {
@@ -189,382 +269,124 @@ function RoomsPage() {
   );
 }
 
-function UnitForm({
-  properties,
-  roomTypes,
-  onClose,
-  onSubmit,
-  saving,
+function UnitCard({
+  unit,
+  onEdit,
+  onArchive,
+  onPublish,
+  onManagePhotos,
 }: {
-  properties: { id: string; name: string }[];
-  roomTypes: { id: string; name: string }[];
-  onClose: () => void;
-  onSubmit: (input: Record<string, unknown>) => void;
-  saving: boolean;
+  unit: UnitRow;
+  onEdit: () => void;
+  onArchive: () => void;
+  onPublish: () => void;
+  onManagePhotos: () => void;
 }) {
-  type UnitFormState = {
-    unit_code: string;
-    public_name: string;
-    property_id: string;
-    room_type_id: string;
-    unit_kind: string;
-    max_guests: string;
-    max_adults: string;
-    max_children: string;
-    bedrooms: string;
-    beds: string;
-    bathrooms: string;
-    pet_policy: string;
-    base_rate_cents: string;
-    cleaning_fee_cents: string;
-    description: string;
-    is_published: string;
-  };
-  const [form, setForm] = useState<UnitFormState>({
-    unit_code: "",
-    public_name: "",
-    property_id: "",
-    room_type_id: "",
-    unit_kind: "room",
-    max_guests: "2",
-    max_adults: "2",
-    max_children: "0",
-    bedrooms: "1",
-    beds: "1",
-    bathrooms: "1",
-    pet_policy: "no_pets",
-    base_rate_cents: "0",
-    cleaning_fee_cents: "0",
-    description: "",
-    is_published: "false",
-  });
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    onSubmit({
-      unit_code: form.unit_code,
-      public_name: form.public_name || undefined,
-      property_id: form.property_id || undefined,
-      room_type_id: form.room_type_id || undefined,
-      unit_kind: form.unit_kind,
-      description: form.description || undefined,
-      max_guests: Number(form.max_guests),
-      max_adults: Number(form.max_adults),
-      max_children: Number(form.max_children),
-      bedrooms: Number(form.bedrooms),
-      beds: Number(form.beds),
-      bathrooms: Number(form.bathrooms),
-      pet_policy: form.pet_policy,
-      base_rate_cents: Number(form.base_rate_cents),
-      cleaning_fee_cents: Number(form.cleaning_fee_cents),
-      is_published: form.is_published === "true",
-    });
-  }
+  const missingInfo: string[] = [];
+  if (!unit.public_name) missingInfo.push("name");
+  if (!unit.description) missingInfo.push("description");
+  if (unit.base_rate_cents === 0) missingInfo.push("rate");
+  if (!unit.primary_image_url) missingInfo.push("photo");
 
   return (
-    <Modal onClose={onClose} title="Add Unit">
-      <form onSubmit={submit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Unit Code *">
-            <input
-              required
-              value={form.unit_code}
-              onChange={(e) => setForm({ ...form, unit_code: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Public Name">
-            <input
-              value={form.public_name}
-              onChange={(e) => setForm({ ...form, public_name: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Property">
-            <select
-              value={form.property_id}
-              onChange={(e) => setForm({ ...form, property_id: e.target.value })}
-              className={inputCls}
-            >
-              <option value="">—</option>
-              {properties.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Room Type">
-            <select
-              value={form.room_type_id}
-              onChange={(e) => setForm({ ...form, room_type_id: e.target.value })}
-              className={inputCls}
-            >
-              <option value="">—</option>
-              {roomTypes.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Kind">
-            <select
-              value={form.unit_kind}
-              onChange={(e) => setForm({ ...form, unit_kind: e.target.value })}
-              className={inputCls}
-            >
-              <option value="room">Room</option>
-              <option value="cabin">Cabin</option>
-              <option value="rv_site">RV Site</option>
-              <option value="suite">Suite</option>
-            </select>
-          </Field>
-          <Field label="Pet Policy">
-            <select
-              value={form.pet_policy}
-              onChange={(e) => setForm({ ...form, pet_policy: e.target.value })}
-              className={inputCls}
-            >
-              <option value="no_pets">No Pets</option>
-              <option value="pets_allowed">Pets Allowed</option>
-              <option value="pets_negotiable">Pets Negotiable</option>
-            </select>
-          </Field>
-          <Field label="Max Guests">
-            <input
-              type="number"
-              value={form.max_guests}
-              onChange={(e) => setForm({ ...form, max_guests: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Max Adults">
-            <input
-              type="number"
-              value={form.max_adults}
-              onChange={(e) => setForm({ ...form, max_adults: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Max Children">
-            <input
-              type="number"
-              value={form.max_children}
-              onChange={(e) => setForm({ ...form, max_children: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Bedrooms">
-            <input
-              type="number"
-              value={form.bedrooms}
-              onChange={(e) => setForm({ ...form, bedrooms: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Beds">
-            <input
-              type="number"
-              value={form.beds}
-              onChange={(e) => setForm({ ...form, beds: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Bathrooms">
-            <input
-              type="number"
-              value={form.bathrooms}
-              onChange={(e) => setForm({ ...form, bathrooms: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Base Rate (cents)">
-            <input
-              type="number"
-              value={form.base_rate_cents}
-              onChange={(e) => setForm({ ...form, base_rate_cents: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Cleaning Fee (cents)">
-            <input
-              type="number"
-              value={form.cleaning_fee_cents}
-              onChange={(e) => setForm({ ...form, cleaning_fee_cents: e.target.value })}
-              className={inputCls}
-            />
-          </Field>
-        </div>
-        <Field label="Description">
-          <textarea
-            rows={3}
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className={inputCls}
+    <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+      <div className="aspect-[4/3] bg-gradient-to-br from-[#2a382c] to-[#3e5340] relative">
+        {unit.primary_image_url ? (
+          <img
+            src={unit.primary_image_url}
+            alt={unit.public_name ?? unit.unit_code}
+            className="w-full h-full object-cover"
           />
-        </Field>
-        <Field label="Publish immediately?">
-          <select
-            value={form.is_published}
-            onChange={(e) => setForm({ ...form, is_published: e.target.value })}
-            className={inputCls}
-          >
-            <option value="false">No (draft)</option>
-            <option value="true">Yes</option>
-          </select>
-        </Field>
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-4 py-2.5 rounded-xl bg-[#2a382c] text-white text-sm disabled:opacity-60"
-          >
-            {saving ? "Saving…" : "Create Unit"}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-function CsvImport({
-  onClose,
-  onValidate,
-  onConfirm,
-}: {
-  onClose: () => void;
-  onValidate: (input: { data: { csv: string } }) => Promise<{
-    total: number;
-    valid: number;
-    invalid: number;
-    rows: { valid: boolean; errors: string[]; row: Record<string, string> }[];
-  }>;
-  onConfirm: (csv: string) => Promise<void>;
-}) {
-  const [csv, setCsv] = useState("");
-  const [result, setResult] = useState<Awaited<ReturnType<typeof onValidate>> | null>(null);
-  const [checking, setChecking] = useState(false);
-
-  const template = CSV_COLUMNS.join(",");
-
-  async function dryRun() {
-    setChecking(true);
-    try {
-      const res = await onValidate({ data: { csv } });
-      setResult(res);
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
-    setChecking(false);
-  }
-
-  return (
-    <Modal onClose={onClose} title="Import Units (CSV)">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-stone-500">Columns: {template}</p>
-          <button
-            onClick={() => {
-              const blob = new Blob([template + "\n"], { type: "text/csv" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "bridges-units-template.csv";
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-            className="inline-flex items-center gap-1.5 text-xs text-[#2a382c] font-semibold"
-          >
-            <FileDown className="w-3.5 h-3.5" /> Download template
-          </button>
-        </div>
-        <textarea
-          rows={8}
-          value={csv}
-          onChange={(e) => setCsv(e.target.value)}
-          placeholder={`${template}\nCABIN-01,The Cedar Cabin,,,cabin,...`}
-          className={inputCls + " font-mono text-xs"}
-        />
-        <div className="flex gap-2">
-          <button
-            onClick={dryRun}
-            disabled={checking || !csv}
-            className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm disabled:opacity-60"
-          >
-            {checking ? "Validating…" : "Dry run (validate)"}
-          </button>
-          <button
-            onClick={() => onConfirm(csv)}
-            disabled={!result || result.invalid > 0 || result.valid === 0}
-            className="px-4 py-2.5 rounded-xl bg-[#2a382c] text-white text-sm disabled:opacity-60"
-          >
-            Confirm import
-          </button>
-        </div>
-        {result && (
-          <div className="text-xs space-y-2">
-            <p className="text-stone-600">
-              {result.valid} valid, {result.invalid} invalid of {result.total} rows.
-            </p>
-            {result.rows
-              .filter((r) => !r.valid)
-              .map((r, i) => (
-                <p key={i} className="text-red-600">
-                  {r.errors.join(" ")}
-                </p>
-              ))}
+        ) : (
+          <div className="flex items-center justify-center h-full text-white/30 text-3xl font-mono">
+            {unit.unit_code}
           </div>
         )}
+        <div className="absolute top-2 right-2 flex gap-1">
+          {unit.is_archived ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-stone-800/80 text-white">
+              Archived
+            </span>
+          ) : unit.is_closed ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-amber-600/80 text-white">
+              Closed
+            </span>
+          ) : unit.is_published ? (
+            <span className="text-xs px-2 py-1 rounded-full bg-emerald-600/80 text-white">
+              Published
+            </span>
+          ) : (
+            <span className="text-xs px-2 py-1 rounded-full bg-stone-600/80 text-white">Draft</span>
+          )}
+        </div>
       </div>
-    </Modal>
-  );
-}
 
-const inputCls =
-  "w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#2a382c]";
+      <div className="p-4 flex flex-col gap-2 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="font-mono text-xs text-stone-400">{unit.unit_code}</p>
+            <p className="font-serif text-lg font-bold text-stone-900 truncate">
+              {unit.public_name || "—"}
+            </p>
+          </div>
+        </div>
+        <span className="text-xs text-stone-500 capitalize">{unit.unit_kind}</span>
+        <div className="flex items-center gap-3 text-xs text-stone-600">
+          <span>{unit.max_guests} guests</span>
+          <span className="text-stone-300">·</span>
+          <span>${(unit.base_rate_cents / 100).toFixed(0)}/night</span>
+        </div>
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="block text-xs font-medium text-stone-600 mb-1">{label}</span>
-      {children}
-    </label>
-  );
-}
+        {unit.airbnb_url && (
+          <a
+            href={unit.airbnb_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-[#2a382c] hover:underline"
+          >
+            <ExternalLink className="w-3 h-3" /> Airbnb listing
+          </a>
+        )}
 
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl font-bold text-stone-900">{title}</h2>
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-700">
-            <X className="w-5 h-5" />
+        {missingInfo.length > 0 && !unit.is_archived && (
+          <div className="flex items-start gap-1.5 text-xs text-amber-700 bg-amber-50 rounded-lg px-2 py-1.5">
+            <AlertCircle className="w-3.5 h-3.5 mt-px shrink-0" />
+            <span>Needs: {missingInfo.join(", ")}</span>
+          </div>
+        )}
+
+        <div className="flex items-center gap-1 pt-2 mt-auto border-t border-stone-100">
+          <button
+            onClick={onEdit}
+            className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600"
+            title="Edit"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onManagePhotos}
+            className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600"
+            title="Manage photos"
+          >
+            <ImagePlus className="w-4 h-4" />
+          </button>
+          {!unit.is_archived && (
+            <button
+              onClick={onPublish}
+              className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600"
+              title={unit.is_published ? "Unpublish" : "Publish"}
+            >
+              {unit.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          )}
+          <button
+            onClick={onArchive}
+            className="p-1.5 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 ml-auto"
+            title="Archive"
+          >
+            <Archive className="w-4 h-4" />
           </button>
         </div>
-        {children}
       </div>
     </div>
   );

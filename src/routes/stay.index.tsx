@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { searchAvailabilityFn } from "@/lib/booking/reservations.functions";
 import { listPublishedUnitsFn, getInventoryAuthorityFn } from "@/lib/booking/rooms.functions";
 import { todayPropertyLocal, addDays, nightCount } from "@/lib/booking/dates";
+import type { UnitRow } from "@/lib/booking/rooms.server";
 import { BedDouble, Users, Bath, Search, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/stay/")({
@@ -182,6 +183,7 @@ function StayIndexPage() {
                 pet_policy={unit.pet_policy}
                 base_rate_cents={unit.base_rate_cents}
                 description={unit.description}
+                primary_image_url={(unit as UnitRow).primary_image_url ?? null}
                 checkin={checkin}
                 checkout={checkout}
                 adults={adults}
@@ -208,6 +210,7 @@ type UnitCardProps = {
   pet_policy: string;
   base_rate_cents: number;
   description: string | null;
+  primary_image_url: string | null;
   checkin: string;
   checkout: string;
   adults: number;
@@ -228,8 +231,16 @@ function UnitCard(props: UnitCardProps) {
       }}
       className="group bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
     >
-      <div className="aspect-[4/3] bg-gradient-to-br from-[#2a382c] to-[#3e5340] flex items-center justify-center">
-        <BedDouble className="w-14 h-14 text-white/30" />
+      <div className="aspect-[4/3] bg-gradient-to-br from-[#2a382c] to-[#3e5340] flex items-center justify-center overflow-hidden">
+        {props.primary_image_url ? (
+          <img
+            src={props.primary_image_url}
+            alt={props.public_name ?? props.unit_code}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <BedDouble className="w-14 h-14 text-white/30" />
+        )}
       </div>
       <div className="p-5 flex flex-col flex-1">
         <span className="text-xs font-bold uppercase tracking-widest text-[#3e5340]">
