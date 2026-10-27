@@ -50,6 +50,176 @@ export type Database = {
         }
         Relationships: []
       }
+      blocks: {
+        Row: {
+          checkin_date: string
+          checkout_date: string
+          created_at: string
+          created_by: string | null
+          group_id: string | null
+          id: string
+          owner_type: string
+          reason: string | null
+          unit_id: string
+        }
+        Insert: {
+          checkin_date: string
+          checkout_date: string
+          created_at?: string
+          created_by?: string | null
+          group_id?: string | null
+          id?: string
+          owner_type: string
+          reason?: string | null
+          unit_id: string
+        }
+        Update: {
+          checkin_date?: string
+          checkout_date?: string
+          created_at?: string
+          created_by?: string | null
+          group_id?: string | null
+          id?: string
+          owner_type?: string
+          reason?: string | null
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocks_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      date_rate_overrides: {
+        Row: {
+          created_at: string
+          id: string
+          nightly_cents: number
+          rate_plan_id: string | null
+          reason: string | null
+          stay_date: string
+          unit_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nightly_cents: number
+          rate_plan_id?: string | null
+          reason?: string | null
+          stay_date: string
+          unit_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nightly_cents?: number
+          rate_plan_id?: string | null
+          reason?: string | null
+          stay_date?: string
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "date_rate_overrides_rate_plan_id_fkey"
+            columns: ["rate_plan_id"]
+            isOneToOne: false
+            referencedRelation: "rate_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "date_rate_overrides_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fees: {
+        Row: {
+          amount_cents: number
+          basis: string
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_taxable: boolean
+          name: string
+        }
+        Insert: {
+          amount_cents?: number
+          basis?: string
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_taxable?: boolean
+          name: string
+        }
+        Update: {
+          amount_cents?: number
+          basis?: string
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_taxable?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      groups: {
+        Row: {
+          checkin_date: string | null
+          checkout_date: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          group_code: string
+          id: string
+          name: string
+          payment_responsibility: string
+          release_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          checkin_date?: string | null
+          checkout_date?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          group_code: string
+          id?: string
+          name: string
+          payment_responsibility?: string
+          release_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          checkin_date?: string | null
+          checkout_date?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          group_code?: string
+          id?: string
+          name?: string
+          payment_responsibility?: string
+          release_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       guests: {
         Row: {
           auth_user_id: string | null
@@ -83,10 +253,86 @@ export type Database = {
         }
         Relationships: []
       }
+      housekeeping_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          task_date: string
+          unit_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          task_date: string
+          unit_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          task_date?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "housekeeping_tasks_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idempotency_keys: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          operation: string
+          request_hash: string
+          result: Json | null
+          scope: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          operation: string
+          request_hash: string
+          result?: Json | null
+          scope: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          operation?: string
+          request_hash?: string
+          result?: Json | null
+          scope?: string
+        }
+        Relationships: []
+      }
       integration_settings: {
         Row: {
+          advance_notice_days: number
+          booking_horizon_days: number | null
           bootstrap_completed_at: string | null
           currency: string
+          default_checkin_time: string
+          default_checkout_time: string
+          default_hold_minutes: number
           expected_room_count: number
           id: number
           instant_booking_enabled: boolean
@@ -95,8 +341,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          advance_notice_days?: number
+          booking_horizon_days?: number | null
           bootstrap_completed_at?: string | null
           currency?: string
+          default_checkin_time?: string
+          default_checkout_time?: string
+          default_hold_minutes?: number
           expected_room_count?: number
           id?: number
           instant_booking_enabled?: boolean
@@ -105,8 +356,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          advance_notice_days?: number
+          booking_horizon_days?: number | null
           bootstrap_completed_at?: string | null
           currency?: string
+          default_checkin_time?: string
+          default_checkout_time?: string
+          default_hold_minutes?: number
           expected_room_count?: number
           id?: number
           instant_booking_enabled?: boolean
@@ -122,6 +378,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           expires_at: string | null
+          group_id: string | null
           id: string
           is_active: boolean
           owner_id: string | null
@@ -134,6 +391,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           expires_at?: string | null
+          group_id?: string | null
           id?: string
           is_active?: boolean
           owner_id?: string | null
@@ -146,6 +404,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           expires_at?: string | null
+          group_id?: string | null
           id?: string
           is_active?: boolean
           owner_id?: string | null
@@ -162,6 +421,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      policy_versions: {
+        Row: {
+          cancellation_policy: Json | null
+          checkin_rules: Json | null
+          created_at: string
+          house_rules: Json | null
+          id: string
+          is_active: boolean
+          version: string
+        }
+        Insert: {
+          cancellation_policy?: Json | null
+          checkin_rules?: Json | null
+          created_at?: string
+          house_rules?: Json | null
+          id?: string
+          is_active?: boolean
+          version: string
+        }
+        Update: {
+          cancellation_policy?: Json | null
+          checkin_rules?: Json | null
+          created_at?: string
+          house_rules?: Json | null
+          id?: string
+          is_active?: boolean
+          version?: string
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          code: string
+          created_at: string
+          discount_cents: number | null
+          discount_percent: number | null
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          is_active: boolean
+          max_redemptions: number | null
+          name: string
+          redemptions_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_cents?: number | null
+          discount_percent?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          name: string
+          redemptions_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_cents?: number | null
+          discount_percent?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          name?: string
+          redemptions_count?: number
+        }
+        Relationships: []
       }
       properties: {
         Row: {
@@ -242,33 +573,54 @@ export type Database = {
       }
       quotes: {
         Row: {
+          adults: number | null
+          children: number | null
           created_at: string
           currency: string
+          discount_cents: number
           expires_at: string | null
+          fees_cents: number
           id: string
+          nights: number | null
           policy_version: string | null
           reservation_id: string | null
           status: string
+          subtotal_cents: number
+          taxes_cents: number
           total_cents: number
         }
         Insert: {
+          adults?: number | null
+          children?: number | null
           created_at?: string
           currency?: string
+          discount_cents?: number
           expires_at?: string | null
+          fees_cents?: number
           id?: string
+          nights?: number | null
           policy_version?: string | null
           reservation_id?: string | null
           status?: string
+          subtotal_cents?: number
+          taxes_cents?: number
           total_cents?: number
         }
         Update: {
+          adults?: number | null
+          children?: number | null
           created_at?: string
           currency?: string
+          discount_cents?: number
           expires_at?: string | null
+          fees_cents?: number
           id?: string
+          nights?: number | null
           policy_version?: string | null
           reservation_id?: string | null
           status?: string
+          subtotal_cents?: number
+          taxes_cents?: number
           total_cents?: number
         }
         Relationships: [
@@ -277,6 +629,75 @@ export type Database = {
             columns: ["reservation_id"]
             isOneToOne: false
             referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rate_plans: {
+        Row: {
+          additional_adult_cents: number
+          additional_child_cents: number
+          base_nightly_cents: number
+          code: string
+          created_at: string
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          is_active: boolean
+          name: string
+          room_type_id: string | null
+          unit_id: string | null
+          updated_at: string
+          weekend_days: number[]
+          weekend_nightly_cents: number | null
+        }
+        Insert: {
+          additional_adult_cents?: number
+          additional_child_cents?: number
+          base_nightly_cents?: number
+          code: string
+          created_at?: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          room_type_id?: string | null
+          unit_id?: string | null
+          updated_at?: string
+          weekend_days?: number[]
+          weekend_nightly_cents?: number | null
+        }
+        Update: {
+          additional_adult_cents?: number
+          additional_child_cents?: number
+          base_nightly_cents?: number
+          code?: string
+          created_at?: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          room_type_id?: string | null
+          unit_id?: string | null
+          updated_at?: string
+          weekend_days?: number[]
+          weekend_nightly_cents?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rate_plans_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rate_plans_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
             referencedColumns: ["id"]
           },
         ]
@@ -331,11 +752,19 @@ export type Database = {
       }
       reservations: {
         Row: {
+          adults: number
+          amendment_of: string | null
           booking_reference: string
+          cancelled_at: string | null
+          checkin_date: string | null
+          checkout_date: string | null
+          children: number
           created_at: string
           created_by: string | null
           currency: string
+          group_id: string | null
           guest_id: string | null
+          hold_expires_at: string | null
           id: string
           paid_cents: number
           policy_version: string | null
@@ -346,11 +775,19 @@ export type Database = {
           version: number
         }
         Insert: {
+          adults?: number
+          amendment_of?: string | null
           booking_reference: string
+          cancelled_at?: string | null
+          checkin_date?: string | null
+          checkout_date?: string | null
+          children?: number
           created_at?: string
           created_by?: string | null
           currency?: string
+          group_id?: string | null
           guest_id?: string | null
+          hold_expires_at?: string | null
           id?: string
           paid_cents?: number
           policy_version?: string | null
@@ -361,11 +798,19 @@ export type Database = {
           version?: number
         }
         Update: {
+          adults?: number
+          amendment_of?: string | null
           booking_reference?: string
+          cancelled_at?: string | null
+          checkin_date?: string | null
+          checkout_date?: string | null
+          children?: number
           created_at?: string
           created_by?: string | null
           currency?: string
+          group_id?: string | null
           guest_id?: string | null
+          hold_expires_at?: string | null
           id?: string
           paid_cents?: number
           policy_version?: string | null
@@ -381,6 +826,60 @@ export type Database = {
             columns: ["guest_id"]
             isOneToOne: false
             referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restrictions: {
+        Row: {
+          closed_to_arrival: boolean
+          closed_to_departure: boolean
+          created_at: string
+          id: string
+          is_closed: boolean
+          max_stay: number | null
+          min_stay: number | null
+          room_type_id: string | null
+          stay_date: string
+          unit_id: string | null
+        }
+        Insert: {
+          closed_to_arrival?: boolean
+          closed_to_departure?: boolean
+          created_at?: string
+          id?: string
+          is_closed?: boolean
+          max_stay?: number | null
+          min_stay?: number | null
+          room_type_id?: string | null
+          stay_date: string
+          unit_id?: string | null
+        }
+        Update: {
+          closed_to_arrival?: boolean
+          closed_to_departure?: boolean
+          created_at?: string
+          id?: string
+          is_closed?: boolean
+          max_stay?: number | null
+          min_stay?: number | null
+          room_type_id?: string | null
+          stay_date?: string
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restrictions_room_type_id_fkey"
+            columns: ["room_type_id"]
+            isOneToOne: false
+            referencedRelation: "room_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restrictions_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
             referencedColumns: ["id"]
           },
         ]
@@ -418,6 +917,33 @@ export type Database = {
           is_archived?: boolean
           name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      taxes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          rate_percent: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          rate_percent: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          rate_percent?: number
         }
         Relationships: []
       }
@@ -587,6 +1113,70 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acquire_inventory: {
+        Args: {
+          p_adults: number
+          p_booking_reference: string
+          p_checkin_date: string
+          p_checkout_date: string
+          p_children: number
+          p_created_by: string
+          p_currency: string
+          p_group_id: string
+          p_guest_email: string
+          p_guest_name: string
+          p_guest_phone: string
+          p_hold_expires_at: string
+          p_owner_type: string
+          p_policy_version: string
+          p_source: string
+          p_status: string
+          p_total_cents: number
+          p_units: Json
+        }
+        Returns: Json
+      }
+      amend_reservation: {
+        Args: {
+          p_adults: number
+          p_children: number
+          p_created_by: string
+          p_new_checkin: string
+          p_new_checkout: string
+          p_new_total_cents: number
+          p_new_units: Json
+          p_reservation_id: string
+        }
+        Returns: Json
+      }
+      claim_block: {
+        Args: {
+          p_checkin_date: string
+          p_checkout_date: string
+          p_created_by: string
+          p_group_id: string
+          p_owner_type: string
+          p_reason: string
+          p_unit_id: string
+        }
+        Returns: Json
+      }
+      group_pickup: {
+        Args: {
+          p_adults: number
+          p_booking_reference: string
+          p_checkin_date: string
+          p_checkout_date: string
+          p_children: number
+          p_created_by: string
+          p_group_id: string
+          p_guest_email: string
+          p_guest_name: string
+          p_guest_phone: string
+          p_unit_id: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -597,6 +1187,11 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      release_block: { Args: { p_block_id: string }; Returns: undefined }
+      release_reservation: {
+        Args: { p_reservation_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:

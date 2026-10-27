@@ -22,6 +22,8 @@ import { Route as WeddingsEventsRouteImport } from './routes/weddings-events'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin/calendar'
+import { Route as AuthenticatedAdminReservationsRouteImport } from './routes/_authenticated/admin/reservations'
 import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin/rooms'
 
 const IndexRoute = IndexRouteImport.update({
@@ -88,6 +90,18 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminCalendarRoute =
+  AuthenticatedAdminCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminReservationsRoute =
+  AuthenticatedAdminReservationsRouteImport.update({
+    id: '/reservations',
+    path: '/reservations',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminRoomsRoute = AuthenticatedAdminRoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
@@ -106,6 +120,8 @@ export interface FileRoutesByFullPath {
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -120,6 +136,8 @@ export interface FileRoutesByTo {
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -137,6 +155,8 @@ export interface FileRoutesById {
   '/weddings-events': typeof WeddingsEventsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/_authenticated/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -154,6 +174,8 @@ export interface FileRouteTypes {
     | '/weddings-events'
     | '/admin'
     | '/admin/login'
+    | '/admin/calendar'
+    | '/admin/reservations'
     | '/admin/rooms'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -168,6 +190,8 @@ export interface FileRouteTypes {
     | '/the-alpine'
     | '/weddings-events'
     | '/admin/login'
+    | '/admin/calendar'
+    | '/admin/reservations'
     | '/admin/rooms'
     | '/admin'
   id:
@@ -184,6 +208,8 @@ export interface FileRouteTypes {
     | '/weddings-events'
     | '/_authenticated/admin'
     | '/admin/login'
+    | '/_authenticated/admin/calendar'
+    | '/_authenticated/admin/reservations'
     | '/_authenticated/admin/rooms'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -295,6 +321,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/calendar': {
+      id: '/_authenticated/admin/calendar'
+      path: '/calendar'
+      fullPath: '/admin/calendar'
+      preLoaderRoute: typeof AuthenticatedAdminCalendarRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/reservations': {
+      id: '/_authenticated/admin/reservations'
+      path: '/reservations'
+      fullPath: '/admin/reservations'
+      preLoaderRoute: typeof AuthenticatedAdminReservationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/rooms': {
       id: '/_authenticated/admin/rooms'
       path: '/rooms'
@@ -306,11 +346,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
+  AuthenticatedAdminReservationsRoute: typeof AuthenticatedAdminReservationsRoute
   AuthenticatedAdminRoomsRoute: typeof AuthenticatedAdminRoomsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
+  AuthenticatedAdminReservationsRoute: AuthenticatedAdminReservationsRoute,
   AuthenticatedAdminRoomsRoute: AuthenticatedAdminRoomsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }

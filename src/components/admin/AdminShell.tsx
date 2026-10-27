@@ -14,8 +14,14 @@ import {
 
 const NAV = [
   { key: "overview", label: "Overview", to: "/admin", icon: LayoutGrid, ready: true },
-  { key: "calendar", label: "Calendar", to: "/admin", icon: CalendarDays, ready: false },
-  { key: "reservations", label: "Reservations", to: "/admin", icon: ClipboardList, ready: false },
+  { key: "calendar", label: "Calendar", to: "/admin/calendar", icon: CalendarDays, ready: true },
+  {
+    key: "reservations",
+    label: "Reservations",
+    to: "/admin/reservations",
+    icon: ClipboardList,
+    ready: true,
+  },
   { key: "rooms", label: "Rooms & Properties", to: "/admin/rooms", icon: Building2, ready: true },
   { key: "rates", label: "Rates & Rules", to: "/admin", icon: DollarSign, ready: false },
   { key: "guests", label: "Guests", to: "/admin", icon: Users, ready: false },
