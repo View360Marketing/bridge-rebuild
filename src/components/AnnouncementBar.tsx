@@ -4,152 +4,160 @@ import { Phone } from "lucide-react";
 /**
  * Single-row announcement bar.
  *
- * The full announcement is long, so on viewports where it does not fit
- * naturally we render a seamless marquee ticker. When it fits, it stays
- * static. Motion pauses on hover/focus and respects prefers-reduced-motion
- * (a horizontally scrollable static row is shown instead).
+ * The ENTIRE announcement — every text segment, every bullet separator, and
+ * the phone link — lives inside ONE non-wrapping track (`width: max-content`,
+ * `white-space: nowrap`, `inline-flex` / `flex-wrap: nowrap`). The track can
+ * never form a second row because it is laid out at its natural content width
+ * inside a fixed-height viewport with `overflow: hidden`.
+ *
+ * When the content is wider than the viewport we animate the track as a
+ * seamless marquee (two identical copies, translateX(-50%)). When it fits
+ * naturally the track stays static. Reduced-motion users get a horizontally
+ * scrollable static row instead of animation. Motion pauses on hover/focus.
  */
-const ANNOUNCEMENT = [
+const TEXT_SEGMENTS = [
   "Now Booking 2027 Weddings and Retreats",
   "Reserve your date early and start planning your unforgettable event",
   "Weddings, retreats, and special gatherings are now being booked for 2027",
-  "Call us at 931-722-5589!",
 ];
 
 const SEPARATOR = "•";
 
-function AnnouncementTrack({ ariaHidden = false }: { ariaHidden?: boolean }) {
+const FULL_TEXT = [...TEXT_SEGMENTS, "Call us at 931-722-5589!"].join(` ${SEPARATOR} `);
+
+function Track({ ariaHidden = false }: { ariaHidden?: boolean }) {
   return (
-    <span className="inline-flex items-center whitespace-nowrap" aria-hidden={ariaHidden}>
-      {ANNOUNCEMENT.map((item, i) => (
+    <span
+      aria-hidden={ariaHidden}
+      style={{
+        display: "inline-flex",
+        flexWrap: "nowrap",
+        alignItems: "center",
+        whiteSpace: "nowrap",
+        flexShrink: 0,
+      }}
+    >
+      {TEXT_SEGMENTS.map((seg, i) => (
         <React.Fragment key={i}>
-          <span className="mx-3">{item}</span>
-          {i < ANNOUNCEMENT.length - 1 && (
-            <span className="text-white/70" aria-hidden="true">
-              {SEPARATOR}
-            </span>
-          )}
+          <span style={{ flexShrink: 0, whiteSpace: "nowrap" }} className="mx-3">
+            {seg}
+          </span>
+          <span
+            style={{ flexShrink: 0, whiteSpace: "nowrap" }}
+            className="text-white/60 mx-1"
+            aria-hidden="true"
+          >
+            {SEPARATOR}
+          </span>
         </React.Fragment>
       ))}
+      <a
+        href="tel:+19317225589"
+        aria-label="Call The Bridges at 931-722-5589"
+        className="mx-3 inline-flex items-center gap-1.5 text-white hover:text-white"
+        style={{ flexShrink: 0, whiteSpace: "nowrap" }}
+      >
+        <Phone className="w-3.5 h-3.5 shrink-0" />
+        <span>Call us at 931-722-5589!</span>
+      </a>
     </span>
   );
 }
 
 export function AnnouncementBar() {
-  const trackRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLSpanElement>(null);
   const [overflowing, setOverflowing] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updateReduced = () => setReducedMotion(mq.matches);
-    updateReduced();
-    mq.addEventListener("change", updateReduced);
-    return () => mq.removeEventListener("change", updateReduced);
+    const update = () => setReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
 
   useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    const check = () => {
-      const inner = el.querySelector<HTMLElement>("[data-track]");
-      if (!inner) return;
-      setOverflowing(inner.scrollWidth > el.clientWidth + 2);
-    };
+    const vp = viewportRef.current;
+    const tr = trackRef.current;
+    if (!vp || !tr) return;
+    const check = () => setOverflowing(tr.scrollWidth > vp.clientWidth + 1);
     check();
     const ro = new ResizeObserver(check);
-    ro.observe(el);
-    const innerEl = el.querySelector<HTMLElement>("[data-track]");
-    if (innerEl) ro.observe(innerEl);
+    ro.observe(vp);
+    ro.observe(tr);
     return () => ro.disconnect();
   }, []);
 
-  // Static row when it fits OR when reduced motion is requested.
-  if (!overflowing || reducedMotion) {
-    return (
-      <div className="bg-[#1b251e] text-white border-b border-white/10">
-        <div
-          ref={trackRef}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center overflow-x-auto"
-          style={{ scrollbarWidth: "thin" }}
-        >
-          <div
-            data-track
-            className="flex items-center whitespace-nowrap text-xs sm:text-sm font-medium"
-          >
-            {ANNOUNCEMENT.map((item, i) => (
-              <React.Fragment key={i}>
-                <span className="mx-2 first:ml-0">{item}</span>
-                {i < ANNOUNCEMENT.length - 1 && (
-                  <span className="text-white/60 mx-1" aria-hidden="true">
-                    {SEPARATOR}
-                  </span>
-                )}
-              </React.Fragment>
-            ))}
-            <a
-              href="tel:+19317225589"
-              className="ml-2 inline-flex items-center gap-1 text-white/90 hover:text-white shrink-0"
-              aria-label="Call The Bridges at 931-722-5589"
-            >
-              <Phone className="w-3.5 h-3.5" />
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const animate = overflowing && !reducedMotion;
 
-  // Seamless marquee ticker.
   return (
     <div
-      className="bg-[#1b251e] text-white border-b border-white/10 group"
+      className="bg-[#1b251e] text-white border-b border-white/10"
       onMouseEnter={(e) => {
-        e.currentTarget
-          .querySelectorAll<HTMLElement>("[data-marquee]")
-          .forEach((n) => (n.style.animationPlayState = "paused"));
+        if (!animate) return;
+        const m = e.currentTarget.querySelector<HTMLElement>("[data-marquee]");
+        if (m) m.style.animationPlayState = "paused";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget
-          .querySelectorAll<HTMLElement>("[data-marquee]")
-          .forEach((n) => (n.style.animationPlayState = "running"));
+        if (!animate) return;
+        const m = e.currentTarget.querySelector<HTMLElement>("[data-marquee]");
+        if (m) m.style.animationPlayState = "running";
       }}
       onFocusCapture={(e) => {
-        const target = e.currentTarget.querySelector<HTMLElement>("[data-marquee]");
-        if (target) target.style.animationPlayState = "paused";
+        if (!animate) return;
+        const m = e.currentTarget.querySelector<HTMLElement>("[data-marquee]");
+        if (m) m.style.animationPlayState = "paused";
       }}
       onBlurCapture={(e) => {
-        const target = e.currentTarget.querySelector<HTMLElement>("[data-marquee]");
-        if (target) target.style.animationPlayState = "running";
+        if (!animate) return;
+        const m = e.currentTarget.querySelector<HTMLElement>("[data-marquee]");
+        if (m) m.style.animationPlayState = "running";
       }}
     >
       <div
-        ref={trackRef}
-        className="h-10 overflow-hidden flex items-center"
-        aria-label={ANNOUNCEMENT.join(" • ")}
+        ref={viewportRef}
+        role="marquee"
+        aria-label={FULL_TEXT}
+        style={{
+          width: "100%",
+          minWidth: 0,
+          height: "2.5rem",
+          overflow: animate ? "hidden" : "auto",
+          display: "flex",
+          alignItems: "center",
+          scrollbarWidth: "thin",
+        }}
       >
-        <div
-          data-marquee
-          data-track
-          className="flex items-center whitespace-nowrap text-xs sm:text-sm font-medium will-change-transform"
+        <span
+          ref={trackRef}
+          data-marquee={animate ? "" : undefined}
+          className="text-xs sm:text-sm font-medium"
           style={{
-            animation: "announcement-marquee 38s linear infinite",
-            paddingLeft: "1rem",
+            display: "inline-flex",
+            flexWrap: "nowrap",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+            width: "max-content",
+            flexShrink: 0,
+            paddingLeft: animate ? undefined : "1rem",
+            ...(animate
+              ? {
+                  animation: "announcement-marquee 38s linear infinite",
+                  willChange: "transform",
+                }
+              : {}),
           }}
         >
-          <AnnouncementTrack />
-          {/* duplicate for seamless loop, hidden from AT */}
-          <AnnouncementTrack ariaHidden />
-          <AnnouncementTrack ariaHidden />
-        </div>
+          <Track />
+          {animate && <Track ariaHidden />}
+        </span>
       </div>
-      <style>{`
-        @keyframes announcement-marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-33.3333%); }
-        }
-      `}</style>
+      {animate && (
+        <style>{`@keyframes announcement-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
+      )}
     </div>
   );
 }
