@@ -53,9 +53,13 @@ export async function resolveAccessCapability(
     .select("id, reservation_id, scope, expires_at, revoked_at")
     .eq("token_hash", tokenHash)
     .single();
-  const c = cap as
-    | { id: string; reservation_id: string; scope: string; expires_at: string; revoked_at: string | null }
-    | null;
+  const c = cap as {
+    id: string;
+    reservation_id: string;
+    scope: string;
+    expires_at: string;
+    revoked_at: string | null;
+  } | null;
   if (!c) return null;
   if (c.revoked_at) return null;
   if (c.expires_at && new Date(c.expires_at) < new Date()) return null;
@@ -73,21 +77,25 @@ export async function resolveAccessCapability(
  * then creates an access capability. Does NOT confirm — payment is required.
  * Idempotent by the guest session idempotency key.
  */
-export async function createGuestReservation(
-  input: {
-    guest_name: string;
-    guest_email: string;
-    guest_phone?: string | undefined;
+export async function createGuestReservation(input: {
+  guest_name: string;
+  guest_email: string;
+  guest_phone?: string | undefined;
+  checkin_date: string;
+  checkout_date: string;
+  adults: number;
+  children: number;
+  units: {
+    unit_id: string;
     checkin_date: string;
     checkout_date: string;
     adults: number;
     children: number;
-    units: { unit_id: string; checkin_date: string; checkout_date: string; adults: number; children: number }[];
-    total_cents: number;
-    policy_version?: string | undefined;
-    idempotency_key: string;
-  },
-): Promise<{ reservation_id: string; booking_reference: string; access_token: string }> {
+  }[];
+  total_cents: number;
+  policy_version?: string | undefined;
+  idempotency_key: string;
+}): Promise<{ reservation_id: string; booking_reference: string; access_token: string }> {
   const bookingReference = generateBookingReference();
   const holdExpiresAt = new Date(Date.now() + 30 * 60_000).toISOString();
 
@@ -141,7 +149,11 @@ export async function guestCancelReservation(
   if (error) throw new Error(error.message);
   await supabaseAdmin
     .from("reservations")
-    .update({ status: "cancelled", cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .update({
+      status: "cancelled",
+      cancelled_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", reservationId);
   await queueOutboxJob(reservationId, "cancellation", `cancel:${reservationId}`);
 }

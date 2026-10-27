@@ -14,14 +14,13 @@
 export type StripeConfig = {
   secretKey: string;
   webhookSecret: string;
-  publishableKey?: string;
+  publishableKey?: string | undefined;
   environment: "test" | "live";
-  accountId?: string;
+  accountId?: string | undefined;
 };
 
 export type StripeConfigStatus =
-  | { configured: true; config: StripeConfig }
-  | { configured: false; reason: string };
+  { configured: true; config: StripeConfig } | { configured: false; reason: string };
 
 /** Read Stripe config from server env. Returns a not-configured status honestly. */
 export function getStripeConfig(): StripeConfigStatus {
@@ -98,7 +97,10 @@ export async function createCheckoutSession(params: {
   body.set("payment_method_types[0]", "card");
   body.set("line_items[0][quantity]", "1");
   body.set("line_items[0][price_data][currency]", params.currency.toLowerCase());
-  body.set("line_items[0][price_data][product_data][name]", `The Bridges — ${params.bookingReference}`);
+  body.set(
+    "line_items[0][price_data][product_data][name]",
+    `The Bridges — ${params.bookingReference}`,
+  );
   body.set("line_items[0][price_data][unit_amount_decimal]", String(params.amount_cents));
   body.set("success_url", params.successUrl);
   body.set("cancel_url", params.cancelUrl);
@@ -133,7 +135,8 @@ export async function retrieveCheckoutSession(sessionId: string): Promise<Checko
     headers: { Authorization: `Bearer ${status.config.secretKey}` },
   });
   const json = (await res.json()) as Record<string, unknown> & { error?: { message: string } };
-  if (!res.ok) throw new Error(`Stripe retrieve session failed: ${json.error?.message ?? res.statusText}`);
+  if (!res.ok)
+    throw new Error(`Stripe retrieve session failed: ${json.error?.message ?? res.statusText}`);
   return json as unknown as CheckoutSession;
 }
 
@@ -145,7 +148,8 @@ export async function retrievePaymentIntent(intentId: string): Promise<StripePay
     headers: { Authorization: `Bearer ${status.config.secretKey}` },
   });
   const json = (await res.json()) as Record<string, unknown> & { error?: { message: string } };
-  if (!res.ok) throw new Error(`Stripe retrieve PI failed: ${json.error?.message ?? res.statusText}`);
+  if (!res.ok)
+    throw new Error(`Stripe retrieve PI failed: ${json.error?.message ?? res.statusText}`);
   return json as unknown as StripePaymentIntent;
 }
 
@@ -180,8 +184,7 @@ export async function createRefund(params: {
 }
 
 export type WebhookVerifyResult =
-  | { valid: true; event: StripeWebhookEvent }
-  | { valid: false; reason: string };
+  { valid: true; event: StripeWebhookEvent } | { valid: false; reason: string };
 
 export type StripeWebhookEvent = {
   id: string;

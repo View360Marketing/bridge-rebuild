@@ -4,8 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { searchAvailabilityFn, computeQuoteFn } from "@/lib/booking/payments.functions";
-import { listUnitsFn } from "@/lib/booking/rooms.functions";
+import { searchAvailabilityFn, computeQuoteFn } from "@/lib/booking/reservations.functions";
+import { listPublishedUnitsFn } from "@/lib/booking/rooms.functions";
+import type { UnitRow } from "@/lib/booking/rooms.server";
 import { todayPropertyLocal, addDays, nightCount } from "@/lib/booking/dates";
 import { ArrowRight, BedDouble, Users, CheckCircle2, ArrowLeft, Bath } from "lucide-react";
 
@@ -13,7 +14,10 @@ export const Route = createFileRoute("/stay/$unitId")({
   head: ({ params }) => ({
     meta: [
       { title: `Stay at The Bridges | Room ${params.unitId}` },
-      { name: "description", content: "View room details and availability at The Bridges, Waynesboro, TN." },
+      {
+        name: "description",
+        content: "View room details and availability at The Bridges, Waynesboro, TN.",
+      },
     ],
   }),
   component: UnitDetailPage,
@@ -21,8 +25,13 @@ export const Route = createFileRoute("/stay/$unitId")({
 
 function UnitDetailPage() {
   const { unitId } = Route.useParams();
-  const search = Route.useSearch() as { checkin?: string; checkout?: string; adults?: number; children?: number };
-  const listUnits = useServerFn(listUnitsFn);
+  const search = Route.useSearch() as {
+    checkin?: string;
+    checkout?: string;
+    adults?: number;
+    children?: number;
+  };
+  const listPublishedUnits = useServerFn(listPublishedUnitsFn);
   const searchAvail = useServerFn(searchAvailabilityFn);
   const computeQuote = useServerFn(computeQuoteFn);
 
@@ -34,9 +43,9 @@ function UnitDetailPage() {
 
   const { data: allUnits } = useQuery({
     queryKey: ["stay-units"],
-    queryFn: listUnits,
+    queryFn: listPublishedUnits,
   });
-  const unit = (allUnits ?? []).find((u) => u.id === unitId);
+  const unit = (allUnits ?? []).find((u) => u.id === unitId) as UnitRow | undefined;
 
   const { data: avail } = useQuery({
     queryKey: ["unit-avail", unitId, checkin, checkout, adults, children],
@@ -94,7 +103,10 @@ function UnitDetailPage() {
 
       <section className="py-10 bg-[#faf8f5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to="/stay" className="inline-flex items-center gap-1.5 text-sm text-stone-600 hover:text-[#2a382c] mb-4">
+          <Link
+            to="/stay"
+            className="inline-flex items-center gap-1.5 text-sm text-stone-600 hover:text-[#2a382c] mb-4"
+          >
             <ArrowLeft className="w-4 h-4" /> Back to all stays
           </Link>
 
@@ -115,12 +127,19 @@ function UnitDetailPage() {
                   <p className="text-stone-600 text-sm leading-relaxed mt-4">{unit.description}</p>
                 )}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-                  <Feature icon={<Users className="w-4 h-4" />} label={`${unit.max_guests} guests`} />
+                  <Feature
+                    icon={<Users className="w-4 h-4" />}
+                    label={`${unit.max_guests} guests`}
+                  />
                   <Feature icon={<BedDouble className="w-4 h-4" />} label={`${unit.beds} beds`} />
                   <Feature icon={<Bath className="w-4 h-4" />} label={`${unit.bathrooms} baths`} />
                   <Feature
                     icon={<CheckCircle2 className="w-4 h-4" />}
-                    label={unit.pet_policy === "allowed" ? "Pet-friendly" : "No pets"}
+                    label={
+                      unit.pet_policy === "pets_allowed" || unit.pet_policy === "pets_negotiable"
+                        ? "Pet-friendly"
+                        : "No pets"
+                    }
                   />
                 </div>
               </div>
@@ -128,10 +147,14 @@ function UnitDetailPage() {
 
             <div className="lg:col-span-5">
               <div className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 sticky top-28">
-                <h2 className="font-serif text-xl font-bold text-stone-900 mb-4">Check availability</h2>
+                <h2 className="font-serif text-xl font-bold text-stone-900 mb-4">
+                  Check availability
+                </h2>
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Check-in</label>
+                    <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                      Check-in
+                    </label>
                     <input
                       type="date"
                       min={today}
@@ -141,7 +164,9 @@ function UnitDetailPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Check-out</label>
+                    <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                      Check-out
+                    </label>
                     <input
                       type="date"
                       min={addDays(checkin, 1)}
@@ -152,7 +177,9 @@ function UnitDetailPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Adults</label>
+                      <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                        Adults
+                      </label>
                       <input
                         type="number"
                         min={1}
@@ -162,7 +189,9 @@ function UnitDetailPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">Children</label>
+                      <label className="text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                        Children
+                      </label>
                       <input
                         type="number"
                         min={0}

@@ -1,7 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { createCheckout, getReservationStatus, type CheckoutResult, type ReservationStatusView } from "./payments.server";
+import {
+  createCheckout,
+  getReservationStatus,
+  type CheckoutResult,
+  type ReservationStatusView,
+} from "./payments.server";
 import { staffRefund } from "./payments-confirm.server";
 import {
   createGuestReservation,
@@ -105,9 +110,7 @@ const refundSchema = z.object({
 export const staffRefundFn = createServerFn({ method: "POST" })
   .validator((d) => refundSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    staffRefund(context.supabase, context.userId, data),
-  );
+  .handler(async ({ context, data }) => staffRefund(context.supabase, context.userId, data));
 
 /** Public: Stripe configuration status (for the booking UI to show honest states). */
 export const getStripeConfigStatusFn = createServerFn({ method: "GET" }).handler(async () => {

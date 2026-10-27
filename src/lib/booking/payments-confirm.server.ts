@@ -43,11 +43,17 @@ export async function confirmReservationPayment(
     .select("id, status, total_cents, paid_cents")
     .eq("id", reservationId)
     .single();
-  const r = reservation as { id: string; status: string; total_cents: number; paid_cents: number } | null;
+  const r = reservation as {
+    id: string;
+    status: string;
+    total_cents: number;
+    paid_cents: number;
+  } | null;
   if (!r) return;
 
   const newPaid = r.paid_cents + amountCents;
-  const newStatus = newPaid >= r.total_cents ? "confirmed" : r.status === "cancelled" ? r.status : "confirmed";
+  const newStatus =
+    newPaid >= r.total_cents ? "confirmed" : r.status === "cancelled" ? r.status : "confirmed";
 
   await supabaseAdmin
     .from("reservations")
@@ -87,7 +93,7 @@ export async function processWebhookEvent(event: StripeWebhookEvent): Promise<vo
     provider: "stripe",
     provider_event_id: event.id,
     event_type: event.type,
-    payload: JSON.parse(JSON.stringify(event)) as Json,
+    payload: JSON.parse(JSON.stringify(event)) as unknown as Json,
     status: "processing",
   });
   if (inboxErr) return; // unique violation → already received
@@ -95,14 +101,24 @@ export async function processWebhookEvent(event: StripeWebhookEvent): Promise<vo
   try {
     const obj = event.data.object;
     const metadata = (obj["metadata"] ?? {}) as Record<string, string>;
-    const reservationId = metadata["reservation_id"] ?? (obj["client_reference_id"] as string | undefined);
+    const reservationId =
+      metadata["reservation_id"] ?? (obj["client_reference_id"] as string | undefined);
 
-    if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "checkout.session.async_payment_succeeded"
+    ) {
       const paymentIntent = (obj["payment_intent"] as string) ?? null;
       const amountTotal = (obj["amount_total"] as number) ?? 0;
       const currency = (obj["currency"] as string) ?? "usd";
       if (reservationId && paymentIntent) {
-        await confirmReservationPayment(reservationId, paymentIntent, amountTotal, currency, "test");
+        await confirmReservationPayment(
+          reservationId,
+          paymentIntent,
+          amountTotal,
+          currency,
+          "test",
+        );
       }
     } else if (event.type === "checkout.session.expired") {
       const sessionId = obj["id"] as string;
@@ -122,7 +138,13 @@ export async function processWebhookEvent(event: StripeWebhookEvent): Promise<vo
       const paymentIntentId = (obj["payment_intent"] as string) ?? null;
       const amountRefunded = (obj["amount_refunded"] as number) ?? 0;
       if (paymentIntentId && reservationId) {
-        await recordRefund(reservationId, paymentIntentId, refundId, amountRefunded, (obj["currency"] as string) ?? "usd");
+        await recordRefund(
+          reservationId,
+          paymentIntentId,
+          refundId,
+          amountRefunded,
+          (obj["currency"] as string) ?? "usd",
+        );
       }
     }
 
@@ -177,7 +199,10 @@ export async function recordRefund(
   if (reservation) {
     await supabaseAdmin
       .from("reservations")
-      .update({ paid_cents: Math.max(0, reservation.paid_cents - amountCents), updated_at: new Date().toISOString() })
+      .update({
+        paid_cents: Math.max(0, reservation.paid_cents - amountCents),
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", reservationId);
   }
 }
@@ -196,7 +221,12 @@ export async function staffRefund(
     .select("id, booking_reference, paid_cents, currency")
     .eq("id", input.reservation_id)
     .single();
-  const reservation = r as { id: string; booking_reference: string; paid_cents: number; currency: string } | null;
+  const reservation = r as {
+    id: string;
+    booking_reference: string;
+    paid_cents: number;
+    currency: string;
+  } | null;
   if (!reservation) throw new Error("Reservation not found.");
 
   const { data: tx } = await supabase
@@ -221,11 +251,17 @@ export async function staffRefund(
     amountCents: refundAmount,
     idempotencyKey,
     metadata: { reservation_id: reservation.id, booking_reference: reservation.booking_reference },
+    ...(input.reason ? { reason: input.reason } : {}),
   };
-  if (input.reason) refundParams.reason = input.reason;
   const stripeRefund = await createRefund(refundParams);
 
-  await recordRefund(reservation.id, txRow.provider_transaction_id, stripeRefund.id, stripeRefund.amount, stripeRefund.currency);
+  await recordRefund(
+    reservation.id,
+    txRow.provider_transaction_id,
+    stripeRefund.id,
+    stripeRefund.amount,
+    stripeRefund.currency,
+  );
   await queueOutboxJob(reservation.id, "refund_result", `refund:${stripeRefund.id}`);
 
   return { refund_id: stripeRefund.id, status: stripeRefund.status };

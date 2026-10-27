@@ -1,7 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { runIdempotent } from "./idempotency";
-import { createCheckoutSession, retrieveCheckoutSession, retrievePaymentIntent, getStripeConfig } from "./stripe.server";
+import {
+  createCheckoutSession,
+  retrieveCheckoutSession,
+  retrievePaymentIntent,
+  getStripeConfig,
+} from "./stripe.server";
 import { confirmReservationPayment } from "./payments-confirm.server";
 
 /**
@@ -57,7 +62,10 @@ export async function createCheckout(
   if (error || !reservation) throw new Error("Reservation not found.");
 
   const bookingReference = reservation.booking_reference as string;
-  const amountDue = Math.max(0, (reservation.total_cents as number) - (reservation.paid_cents as number));
+  const amountDue = Math.max(
+    0,
+    (reservation.total_cents as number) - (reservation.paid_cents as number),
+  );
   if (amountDue <= 0) {
     return {
       reservation_id: reservation.id,
@@ -107,8 +115,8 @@ export async function createCheckout(
         cancelUrl,
         idempotencyKey,
         metadata: { reservation_id: reservation.id, booking_reference: bookingReference },
+        ...(input.guest_email ? { customerEmail: input.guest_email } : {}),
       };
-      if (input.guest_email) sessionParams.customerEmail = input.guest_email;
       const session = await createCheckoutSession(sessionParams);
 
       const { data: attemptRow } = await supabaseAdmin
@@ -196,7 +204,7 @@ export async function getReservationStatus(
     checkout_date: string;
     adults: number;
     children: number;
-    reservation_units: { units: { unit_code: string; public_name: string | null } | null }[];
+    reservation_units: { units: { unit_code: string; public_name: string | null }[] }[];
   };
 
   const { data: attempts } = await supabaseAdmin
@@ -221,7 +229,11 @@ export async function getReservationStatus(
     if (stripeStatus.configured) {
       paymentProcessing = true;
       try {
-        await reconcileAttempt(attempt.id, attempt.provider_session_id, attempt.provider_payment_intent_id);
+        await reconcileAttempt(
+          attempt.id,
+          attempt.provider_session_id,
+          attempt.provider_payment_intent_id,
+        );
       } catch {
         // Reconciliation failure leaves the attempt pending — webhook will finalize.
       }
@@ -229,8 +241,8 @@ export async function getReservationStatus(
   }
 
   const units = reservation.reservation_units
-    .map((ru) => ru.units)
-    .filter((u): u is { unit_code: string; public_name: string | null } => u != null);
+    .flatMap((ru) => ru.units)
+    .map((u) => ({ unit_code: u.unit_code, public_name: u.public_name }));
 
   return {
     reservation_id: reservation.id,
@@ -284,15 +296,13 @@ export async function reconcileAttempt(
     .select("id, reservation_id, expected_amount_cents, currency, environment")
     .eq("id", attemptId)
     .single();
-  const a = attempt as
-    | {
-        id: string;
-        reservation_id: string;
-        expected_amount_cents: number;
-        currency: string;
-        environment: string;
-      }
-    | null;
+  const a = attempt as {
+    id: string;
+    reservation_id: string;
+    expected_amount_cents: number;
+    currency: string;
+    environment: string;
+  } | null;
   if (!a) return { confirmed: false };
 
   if (
@@ -300,7 +310,14 @@ export async function reconcileAttempt(
     amount === a.expected_amount_cents &&
     currency.toLowerCase() === a.currency.toLowerCase()
   ) {
-    await confirmReservationPayment(a.reservation_id, intentId, amount, currency, a.environment, attemptId);
+    await confirmReservationPayment(
+      a.reservation_id,
+      intentId,
+      amount,
+      currency,
+      a.environment,
+      attemptId,
+    );
     return { confirmed: true };
   }
 
@@ -310,7 +327,10 @@ export async function reconcileAttempt(
 
   await supabaseAdmin
     .from("payment_attempts")
-    .update({ status: paymentStatus === "paid" ? "succeeded" : "failed", updated_at: new Date().toISOString() })
+    .update({
+      status: paymentStatus === "paid" ? "succeeded" : "failed",
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", attemptId);
 
   return { confirmed: false };

@@ -30,6 +30,19 @@ export const listUnitsFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => listUnits(context.supabase));
 
+/** Public: list published, non-archived units for the /stay page. No auth. */
+export const listPublishedUnitsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("units")
+    .select("*")
+    .eq("is_published", true)
+    .eq("is_archived", false)
+    .order("sort_order, unit_code");
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as import("./rooms.server").UnitRow[];
+});
+
 export const listUnitMediaFn = createServerFn({ method: "GET" })
   .validator((d) => z.object({ unitId: z.string() }).parse(d))
   .middleware([requireSupabaseAuth])

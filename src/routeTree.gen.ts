@@ -22,6 +22,10 @@ import { Route as TheAlpineRouteImport } from './routes/the-alpine'
 import { Route as WeddingsEventsRouteImport } from './routes/weddings-events'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as BookingReviewRouteImport } from './routes/booking.review'
+import { Route as BookingStatusRouteImport } from './routes/booking.status'
+import { Route as ReservationIdRouteImport } from './routes/reservation.$id'
+import { Route as StayUnitIdRouteImport } from './routes/stay.$unitId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin/calendar'
 import { Route as AuthenticatedAdminReservationsRouteImport } from './routes/_authenticated/admin/reservations'
@@ -92,6 +96,26 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingReviewRoute = BookingReviewRouteImport.update({
+  id: '/booking/review',
+  path: '/booking/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookingStatusRoute = BookingStatusRouteImport.update({
+  id: '/booking/status',
+  path: '/booking/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReservationIdRoute = ReservationIdRouteImport.update({
+  id: '/reservation/$id',
+  path: '/reservation/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StayUnitIdRoute = StayUnitIdRouteImport.update({
+  id: '/$unitId',
+  path: '/$unitId',
+  getParentRoute: () => StayRoute,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -128,11 +152,15 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
-  '/stay': typeof StayRoute
+  '/stay': typeof StayRouteWithChildren
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/booking/review': typeof BookingReviewRoute
+  '/booking/status': typeof BookingStatusRoute
+  '/reservation/$id': typeof ReservationIdRoute
+  '/stay/$unitId': typeof StayUnitIdRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
@@ -147,10 +175,14 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
-  '/stay': typeof StayRoute
+  '/stay': typeof StayRouteWithChildren
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin/login': typeof AdminLoginRoute
+  '/booking/review': typeof BookingReviewRoute
+  '/booking/status': typeof BookingStatusRoute
+  '/reservation/$id': typeof ReservationIdRoute
+  '/stay/$unitId': typeof StayUnitIdRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
@@ -167,11 +199,15 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
-  '/stay': typeof StayRoute
+  '/stay': typeof StayRouteWithChildren
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/booking/review': typeof BookingReviewRoute
+  '/booking/status': typeof BookingStatusRoute
+  '/reservation/$id': typeof ReservationIdRoute
+  '/stay/$unitId': typeof StayUnitIdRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
@@ -193,6 +229,10 @@ export interface FileRouteTypes {
     | '/weddings-events'
     | '/admin'
     | '/admin/login'
+    | '/booking/review'
+    | '/booking/status'
+    | '/reservation/$id'
+    | '/stay/$unitId'
     | '/admin/calendar'
     | '/admin/reservations'
     | '/admin/rooms'
@@ -211,6 +251,10 @@ export interface FileRouteTypes {
     | '/the-alpine'
     | '/weddings-events'
     | '/admin/login'
+    | '/booking/review'
+    | '/booking/status'
+    | '/reservation/$id'
+    | '/stay/$unitId'
     | '/admin/calendar'
     | '/admin/reservations'
     | '/admin/rooms'
@@ -231,6 +275,10 @@ export interface FileRouteTypes {
     | '/weddings-events'
     | '/_authenticated/admin'
     | '/admin/login'
+    | '/booking/review'
+    | '/booking/status'
+    | '/reservation/$id'
+    | '/stay/$unitId'
     | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/reservations'
     | '/_authenticated/admin/rooms'
@@ -247,10 +295,13 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   GalleryRoute: typeof GalleryRoute
   MassageWellnessRoute: typeof MassageWellnessRoute
-  StayRoute: typeof StayRoute
+  StayRoute: typeof StayRouteWithChildren
   TheAlpineRoute: typeof TheAlpineRoute
   WeddingsEventsRoute: typeof WeddingsEventsRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  BookingReviewRoute: typeof BookingReviewRoute
+  BookingStatusRoute: typeof BookingStatusRoute
+  ReservationIdRoute: typeof ReservationIdRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
 
@@ -347,6 +398,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/booking/review': {
+      id: '/booking/review'
+      path: '/booking/review'
+      fullPath: '/booking/review'
+      preLoaderRoute: typeof BookingReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/booking/status': {
+      id: '/booking/status'
+      path: '/booking/status'
+      fullPath: '/booking/status'
+      preLoaderRoute: typeof BookingStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reservation/$id': {
+      id: '/reservation/$id'
+      path: '/reservation/$id'
+      fullPath: '/reservation/$id'
+      preLoaderRoute: typeof ReservationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stay/$unitId': {
+      id: '/stay/$unitId'
+      path: '/$unitId'
+      fullPath: '/stay/$unitId'
+      preLoaderRoute: typeof StayUnitIdRouteImport
+      parentRoute: typeof StayRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -413,6 +492,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface StayRouteChildren {
+  StayUnitIdRoute: typeof StayUnitIdRoute
+}
+
+const StayRouteChildren: StayRouteChildren = {
+  StayUnitIdRoute: StayUnitIdRoute,
+}
+
+const StayRouteWithChildren = StayRoute._addFileChildren(StayRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -422,10 +511,13 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   GalleryRoute: GalleryRoute,
   MassageWellnessRoute: MassageWellnessRoute,
-  StayRoute: StayRoute,
+  StayRoute: StayRouteWithChildren,
   TheAlpineRoute: TheAlpineRoute,
   WeddingsEventsRoute: WeddingsEventsRoute,
   AdminLoginRoute: AdminLoginRoute,
+  BookingReviewRoute: BookingReviewRoute,
+  BookingStatusRoute: BookingStatusRoute,
+  ReservationIdRoute: ReservationIdRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport
