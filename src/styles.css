@@ -162,3 +162,19 @@
     color: var(--color-foreground);
   }
 }
+
+@layer components {
+  .stay-input {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid oklch(0.92 0.004 286.32);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: oklch(0.26 0.02 286.32);
+    background-color: white;
+  }
+  .stay-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px oklch(0.33 0.03 152);
+  }
+}

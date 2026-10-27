@@ -161,7 +161,77 @@ all `--background/--foreground/--primary/--radius` tokens. `src/styles.css` reta
   files were edited for this repair (the source was already correct); the dev-server restart was
   sufficient. All Stage 1/2 database, auth, RLS, inventory RPCs, and booking engine are preserved.
 
-## Stage 3 — pending
+## Stage 3 — Guest booking, Stripe test-mode payments, secure access (implemented; not launch-ready)
+
+### Implemented
+- **Migration** `20261027191635_stage_3_adds_payment_attempts.sql` — `payment_attempts`,
+  `payment_transactions`, `refunds`, `reservation_access_capabilities`, `outbox_jobs`,
+  `inbound_events`; unique constraints on `(provider, provider_transaction_id)`,
+  `(provider, provider_event_id)`, `(provider, provider_refund_id)`; RLS + GRANTs.
+  `20261027191646_revoke_default_public_execute_on.sql` — tightened RPC execute grants.
+- **Idempotency** (`idempotency.ts`) — persisted `runIdempotent` keyed by `(key, scope)` with
+  request-hash equality check (rejects reuse-with-different-inputs; replays stored result).
+  Wraps guest reservation creation and checkout-session creation. `randomToken`/`sha256` for
+  access capabilities.
+- **Stripe adapter** (`stripe.server.ts`) — direct REST (no SDK dependency), server-only env
+  reads inside each call; `createCheckoutSession`, `retrieveCheckoutSession`,
+  `retrievePaymentIntent`, `createRefund`; `verifyWebhookSignature` (HMAC-SHA256, timing-safe,
+  5-min replay window). Test/live inferred from key prefix.
+- **Payments** (`payments.server.ts`) — `createCheckout` (idempotent, trusted-origin return URLs,
+  durable payment_attempt record, provider session/intent IDs + expiry), `getReservationStatus`
+  (authoritative; reconciles pending attempt against Stripe before returning),
+  `reconcileAttempt` (confirms only on paid + amount/currency match).
+- **Payment confirmation** (`payments-confirm.server.ts`) — `confirmReservationPayment`
+  (idempotent by provider_transaction_id; queues deduped outbox jobs), `processWebhookEvent`
+  (durable inbound_events inbox; handles completed/async_succeeded/expired/payment_failed/refunded),
+  `recordRefund` (idempotent by provider_refund_id; prevents over-refund), `staffRefund`
+  (manager-gated; idempotent provider refund; blocks refund > collected).
+- **Secure guest access** (`payments-access.server.ts`) — `createAccessCapability` (random 32-byte
+  token, sha256 hash stored, 90-day expiry), `resolveAccessCapability` (verifies hash/expiry/revocation),
+  `createGuestReservation` (atomic inventory hold via `acquire_inventory` RPC + capability issued;
+  idempotent), `guestCancelReservation` (releases inventory via `release_reservation` RPC).
+- **Server functions** (`payments.functions.ts`) — `createGuestReservationFn` (public),
+  `createCheckoutFn` (public), `getReservationStatusFn` (public, token-gated),
+  `resolveAccessFn` (public), `guestCancelReservationFn` (public, token-gated),
+  `staffRefundFn` (manager), `getStripeConfigStatusFn` (public).
+- **Webhook route** (`/api/webhooks/stripe`) — raw HTTP, signature-verified, durable inbox,
+  non-2xx on processing failure so Stripe retries.
+- **Public booking routes**:
+  - `/stay` — search hero (dates/guests/rooms) + availability search + accommodation grid
+    (`stay.index.tsx`); honest "instant booking not enabled" state when authority unresolved.
+  - `/stay/$unitId` — unit detail, live availability + authoritative quote, reserve CTA.
+  - `/booking/review` — guest details form, itemized quote, policy + separate marketing consent,
+    atomic hold creation, Stripe Checkout redirect (or request-to-book fallback).
+  - `/booking/status` — authoritative status with polling while payment processing; "payment
+    processing" until server confirms; never trusts a success URL.
+  - `/reservation/$id` — token-gated secure access; booking details, itemized charges, balance,
+    cancellation request; never exposes staff notes or other guests.
+- **Live booking kept OFF**: `inventory_authority=UNRESOLVED`, `instant_booking_enabled=false`.
+  Stripe in test mode only (key prefix `sk_test_`).
+
+### Tests executed
+- Production `bun run build` — passes cleanly; `stay.index`, `booking.review`, `booking.status`,
+  `reservation._id`, `stay.$unitId`, `payments.functions`, `payments-confirm.server` chunks all
+  generated. ✅
+- `/stay` route returns HTTP 200; route tree regenerated with `stay.index`. ✅
+- Stage 2 atomic-inventory invariant (one winner on conflicting unit/night) remains in force via
+  the same `acquire_inventory` RPC now used by the guest flow. ✅
+
+### Not yet / blocked
+- **Stripe secrets not yet set**: `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` are not in the
+  server secret store. `getStripeConfig()` returns `configured: false` and the booking UI shows
+  the honest "online payment not yet enabled — we'll send a secure payment link" state. No live
+  or test charge has been attempted. **Payment/webhook behavior is NOT verified end-to-end** —
+  it requires the owner to add the Stripe test-mode secrets, then a real test-mode checkout +
+  webhook round-trip must be run before claiming verification.
+- **Idempotency concurrency test against two independent DB connections** for the guest hold
+  path is implemented (same `acquire_inventory` unique-index guarantee from Stage 2) but not
+  re-executed this stage; the Stage 2 SQL test proved one-winner behavior.
+- **No email/SMS delivery** (Stage 5); outbox jobs are queued with `status: queued` and shown as
+  configuration-pending, never claimed as sent.
+- **No deposit/balance schedule** configured (no invented percentages); pay-in-full is the only
+  active flow. Later-balance collection path is scaffolded but unconfigured.
+
 ## Stage 4 — pending
 ## Stage 5 — pending
 ## Stage 6 — pending

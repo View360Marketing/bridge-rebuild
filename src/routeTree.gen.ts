@@ -25,6 +25,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as BookingReviewRouteImport } from './routes/booking.review'
 import { Route as BookingStatusRouteImport } from './routes/booking.status'
 import { Route as ReservationIdRouteImport } from './routes/reservation.$id'
+import { Route as StayIndexRouteImport } from './routes/stay.index'
 import { Route as StayUnitIdRouteImport } from './routes/stay.$unitId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin/calendar'
@@ -111,6 +112,11 @@ const ReservationIdRoute = ReservationIdRouteImport.update({
   path: '/reservation/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StayIndexRoute = StayIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StayRoute,
+} as any)
 const StayUnitIdRoute = StayUnitIdRouteImport.update({
   id: '/$unitId',
   path: '/$unitId',
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/booking/status': typeof BookingStatusRoute
   '/reservation/$id': typeof ReservationIdRoute
   '/stay/$unitId': typeof StayUnitIdRoute
+  '/stay/': typeof StayIndexRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
@@ -175,7 +182,6 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
-  '/stay': typeof StayRouteWithChildren
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -183,6 +189,7 @@ export interface FileRoutesByTo {
   '/booking/status': typeof BookingStatusRoute
   '/reservation/$id': typeof ReservationIdRoute
   '/stay/$unitId': typeof StayUnitIdRoute
+  '/stay': typeof StayIndexRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
@@ -208,6 +215,7 @@ export interface FileRoutesById {
   '/booking/status': typeof BookingStatusRoute
   '/reservation/$id': typeof ReservationIdRoute
   '/stay/$unitId': typeof StayUnitIdRoute
+  '/stay/': typeof StayIndexRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
   '/_authenticated/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
@@ -233,6 +241,7 @@ export interface FileRouteTypes {
     | '/booking/status'
     | '/reservation/$id'
     | '/stay/$unitId'
+    | '/stay/'
     | '/admin/calendar'
     | '/admin/reservations'
     | '/admin/rooms'
@@ -247,7 +256,6 @@ export interface FileRouteTypes {
     | '/events'
     | '/gallery'
     | '/massage-wellness'
-    | '/stay'
     | '/the-alpine'
     | '/weddings-events'
     | '/admin/login'
@@ -255,6 +263,7 @@ export interface FileRouteTypes {
     | '/booking/status'
     | '/reservation/$id'
     | '/stay/$unitId'
+    | '/stay'
     | '/admin/calendar'
     | '/admin/reservations'
     | '/admin/rooms'
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/booking/status'
     | '/reservation/$id'
     | '/stay/$unitId'
+    | '/stay/'
     | '/_authenticated/admin/calendar'
     | '/_authenticated/admin/reservations'
     | '/_authenticated/admin/rooms'
@@ -419,6 +429,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReservationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stay/': {
+      id: '/stay/'
+      path: '/'
+      fullPath: '/stay/'
+      preLoaderRoute: typeof StayIndexRouteImport
+      parentRoute: typeof StayRoute
+    }
     '/stay/$unitId': {
       id: '/stay/$unitId'
       path: '/$unitId'
@@ -494,10 +511,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface StayRouteChildren {
   StayUnitIdRoute: typeof StayUnitIdRoute
+  StayIndexRoute: typeof StayIndexRoute
 }
 
 const StayRouteChildren: StayRouteChildren = {
   StayUnitIdRoute: StayUnitIdRoute,
+  StayIndexRoute: StayIndexRoute,
 }
 
 const StayRouteWithChildren = StayRoute._addFileChildren(StayRouteChildren)
