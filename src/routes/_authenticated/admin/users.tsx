@@ -77,14 +77,17 @@ function UsersPage() {
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {(u.roles ?? []).map((r) => (
-                        <span key={r} className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-[#2a382c]/10 text-[#2a382c] capitalize">
+                        <span
+                          key={r}
+                          className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-[#2a382c]/10 text-[#2a382c] capitalize"
+                        >
                           {r.replace(/_/g, " ")}
                         </span>
                       ))}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    {u.is_disabled ? (
+                    {!u.is_active ? (
                       <span className="text-xs text-rose-600">Disabled</span>
                     ) : (
                       <span className="text-xs text-emerald-600">Active</span>
@@ -98,7 +101,9 @@ function UsersPage() {
                           onChange={async (e) => {
                             if (!e.target.value) return;
                             try {
-                              await assign({ data: { target_user_id: u.id, role: e.target.value as never } });
+                              await assign({
+                                data: { target_user_id: u.id, role: e.target.value as never },
+                              });
                               toast.success("Role assigned");
                               await refresh();
                             } catch (err) {
@@ -130,7 +135,7 @@ function UsersPage() {
                       >
                         <KeyRound className="w-4 h-4" />
                       </button>
-                      {u.is_disabled ? (
+                      {!u.is_active ? (
                         <button
                           onClick={async () => {
                             try {
@@ -149,7 +154,8 @@ function UsersPage() {
                       ) : (
                         <button
                           onClick={async () => {
-                            if (!confirm("Disable this user? They will lose access immediately.")) return;
+                            if (!confirm("Disable this user? They will lose access immediately."))
+                              return;
                             try {
                               await disable({ data: { target_user_id: u.id } });
                               toast.success("User disabled");
@@ -199,10 +205,18 @@ function UsersPage() {
   );
 }
 
-function UserForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: (input: Record<string, unknown>) => void }) {
+function UserForm({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: (input: Record<string, unknown>) => void;
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"manager" | "front_desk" | "housekeeping" | "read_only">("manager");
+  const [role, setRole] = useState<"manager" | "front_desk" | "housekeeping" | "read_only">(
+    "manager",
+  );
   const [sendInvite, setSendInvite] = useState(false);
   return (
     <Modal title="Add Staff Account" onClose={onClose}>
@@ -214,13 +228,30 @@ function UserForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: (input
         className="space-y-3"
       >
         <Field label="Email *">
-          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
+          <input
+            required
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={inputCls}
+          />
         </Field>
         <Field label="Password *">
-          <input required type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
+          <input
+            required
+            type="password"
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={inputCls}
+          />
         </Field>
         <Field label="Role">
-          <select value={role} onChange={(e) => setRole(e.target.value as never)} className={inputCls}>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as never)}
+            className={inputCls}
+          >
             <option value="manager">Manager</option>
             <option value="front_desk">Front desk</option>
             <option value="housekeeping">Housekeeping</option>
@@ -228,7 +259,11 @@ function UserForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: (input
           </select>
         </Field>
         <label className="flex items-center gap-2 text-sm text-stone-700">
-          <input type="checkbox" checked={sendInvite} onChange={(e) => setSendInvite(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={sendInvite}
+            onChange={(e) => setSendInvite(e.target.checked)}
+          />
           Send invite email (requires configured email)
         </label>
         <FormActions onClose={onClose} label="Create Account" />
@@ -237,13 +272,26 @@ function UserForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: (input
   );
 }
 
-function EmptyState({ title, body, actionLabel, onAction }: { title: string; body: string; actionLabel?: string; onAction?: () => void }) {
+function EmptyState({
+  title,
+  body,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  body: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
       <p className="font-medium text-stone-800">{title}</p>
       <p className="text-sm text-stone-500 mt-1 max-w-md mx-auto">{body}</p>
       {actionLabel && onAction && (
-        <button onClick={onAction} className="inline-flex items-center gap-2 mt-4 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-sm">
+        <button
+          onClick={onAction}
+          className="inline-flex items-center gap-2 mt-4 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-sm"
+        >
           <Plus className="w-4 h-4" /> {actionLabel}
         </button>
       )}
@@ -260,13 +308,29 @@ function ErrorBox({ message }: { message: string }) {
   );
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-serif text-xl font-bold text-stone-900">{title}</h2>
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-700"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-700">
+            <X className="w-5 h-5" />
+          </button>
         </div>
         {children}
       </div>
@@ -286,10 +350,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function FormActions({ onClose, label }: { onClose: () => void; label: string }) {
   return (
     <div className="flex justify-end gap-2 pt-2">
-      <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm">Cancel</button>
-      <button type="submit" className="px-4 py-2.5 rounded-xl bg-[#2a382c] text-white text-sm">{label}</button>
+      <button
+        type="button"
+        onClick={onClose}
+        className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm"
+      >
+        Cancel
+      </button>
+      <button type="submit" className="px-4 py-2.5 rounded-xl bg-[#2a382c] text-white text-sm">
+        {label}
+      </button>
     </div>
   );
 }
 
-const inputCls = "w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#2a382c]";
+const inputCls =
+  "w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#2a382c]";

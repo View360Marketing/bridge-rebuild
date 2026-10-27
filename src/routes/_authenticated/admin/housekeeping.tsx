@@ -39,9 +39,24 @@ function HousekeepingPage() {
         </p>
       </div>
       <div className="flex flex-wrap gap-1 mb-6 border-b border-stone-200">
-        <TabBtn active={tab === "tasks"} label="Turnover Tasks" icon={<Clock className="w-4 h-4" />} onSelect={() => setTab("tasks")} />
-        <TabBtn active={tab === "readiness"} label="Room Readiness" icon={<Sparkles className="w-4 h-4" />} onSelect={() => setTab("readiness")} />
-        <TabBtn active={tab === "maintenance"} label="Maintenance Blocks" icon={<Wrench className="w-4 h-4" />} onSelect={() => setTab("maintenance")} />
+        <TabBtn
+          active={tab === "tasks"}
+          label="Turnover Tasks"
+          icon={<Clock className="w-4 h-4" />}
+          onSelect={() => setTab("tasks")}
+        />
+        <TabBtn
+          active={tab === "readiness"}
+          label="Room Readiness"
+          icon={<Sparkles className="w-4 h-4" />}
+          onSelect={() => setTab("readiness")}
+        />
+        <TabBtn
+          active={tab === "maintenance"}
+          label="Maintenance Blocks"
+          icon={<Wrench className="w-4 h-4" />}
+          onSelect={() => setTab("maintenance")}
+        />
       </div>
       {tab === "tasks" && <TasksTab />}
       {tab === "readiness" && <ReadinessTab />}
@@ -186,8 +201,8 @@ function ReadinessTab() {
             </thead>
             <tbody className="divide-y divide-stone-100">
               {rows.map((u) => {
-                const c = (data ?? []).find((x) => x.unit_id === u.id);
-                const state = c?.state ?? "clean";
+                const c = (data ?? []).find((x) => x.id === u.id);
+                const state = c?.cleanliness_state ?? "clean";
                 return (
                   <tr key={u.id} className="hover:bg-stone-50">
                     <td className="px-4 py-3 font-mono text-xs">{u.unit_code}</td>
@@ -203,7 +218,9 @@ function ReadinessTab() {
                         value={state}
                         onChange={async (e) => {
                           try {
-                            await setClean({ data: { unit_id: u.id, state: e.target.value as never } });
+                            await setClean({
+                              data: { unit_id: u.id, state: e.target.value as never },
+                            });
                             toast.success("Readiness updated");
                             await refresh();
                           } catch (err) {
@@ -236,7 +253,10 @@ function MaintenanceTab() {
   const create = useServerFn(createMaintenanceBlockFn);
   const release = useServerFn(releaseMaintenanceBlockFn);
   const listUnits = useServerFn(listUnitsFn);
-  const { data, isLoading, error } = useQuery({ queryKey: ["admin-maintenance-blocks"], queryFn: list });
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin-maintenance-blocks"],
+    queryFn: list,
+  });
   const { data: units } = useQuery({ queryKey: ["admin-units"], queryFn: listUnits });
   const [showForm, setShowForm] = useState(false);
 
@@ -275,12 +295,15 @@ function MaintenanceTab() {
               {data.map((b) => (
                 <tr key={b.id} className="hover:bg-stone-50">
                   <td className="px-4 py-3 font-mono text-xs">{b.unit_code ?? b.unit_id}</td>
-                  <td className="px-4 py-3 text-xs">{b.checkin_date} → {b.checkout_date}</td>
+                  <td className="px-4 py-3 text-xs">
+                    {b.checkin_date} → {b.checkout_date}
+                  </td>
                   <td className="px-4 py-3 text-stone-600">{b.reason ?? "—"}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={async () => {
-                        if (!confirm("Release this maintenance block and free its inventory?")) return;
+                        if (!confirm("Release this maintenance block and free its inventory?"))
+                          return;
                         try {
                           await release({ data: { block_id: b.id } });
                           toast.success("Block released");
@@ -299,12 +322,17 @@ function MaintenanceTab() {
             </tbody>
           </table>
         </div>
+      ) : (units ?? []).length > 0 ? (
+        <EmptyState
+          title="No maintenance blocks"
+          body="Block rooms for repairs or maintenance. The inventory engine prevents new bookings during the block."
+          actionLabel="Add Maintenance Block"
+          onAction={() => setShowForm(true)}
+        />
       ) : (
         <EmptyState
           title="No maintenance blocks"
           body="Block rooms for repairs or maintenance. The inventory engine prevents new bookings during the block."
-          actionLabel={(units ?? []).length > 0 ? "Add Maintenance Block" : undefined}
-          onAction={(units ?? []).length > 0 ? () => setShowForm(true) : undefined}
         />
       )}
       {showForm && (
@@ -334,7 +362,12 @@ function MaintenanceForm({
 }: {
   units: { id: string; label: string }[];
   onClose: () => void;
-  onSubmit: (input: { unit_id: string; checkin_date: string; checkout_date: string; reason: string }) => void;
+  onSubmit: (input: {
+    unit_id: string;
+    checkin_date: string;
+    checkout_date: string;
+    reason: string;
+  }) => void;
 }) {
   const [unitId, setUnitId] = useState(units[0]?.id ?? "");
   const [checkin, setCheckin] = useState(todayPropertyLocal());
@@ -352,20 +385,38 @@ function MaintenanceForm({
         <Field label="Unit">
           <select value={unitId} onChange={(e) => setUnitId(e.target.value)} className={inputCls}>
             {units.map((u) => (
-              <option key={u.id} value={u.id}>{u.label}</option>
+              <option key={u.id} value={u.id}>
+                {u.label}
+              </option>
             ))}
           </select>
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="From">
-            <input type="date" value={checkin} onChange={(e) => setCheckin(e.target.value)} className={inputCls} />
+            <input
+              type="date"
+              value={checkin}
+              onChange={(e) => setCheckin(e.target.value)}
+              className={inputCls}
+            />
           </Field>
           <Field label="To">
-            <input type="date" value={checkout} onChange={(e) => setCheckout(e.target.value)} className={inputCls} />
+            <input
+              type="date"
+              value={checkout}
+              onChange={(e) => setCheckout(e.target.value)}
+              className={inputCls}
+            />
           </Field>
         </div>
         <Field label="Reason *">
-          <input required value={reason} onChange={(e) => setReason(e.target.value)} className={inputCls} placeholder="Plumbing repair" />
+          <input
+            required
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className={inputCls}
+            placeholder="Plumbing repair"
+          />
         </Field>
         <FormActions onClose={onClose} label="Create Block" />
       </form>
@@ -381,12 +432,24 @@ const STATE_BADGE: Record<string, string> = {
   out_of_service: "bg-rose-100 text-rose-700",
 };
 
-function TabBtn({ active, label, icon, onSelect }: { active: boolean; label: string; icon: React.ReactNode; onSelect: () => void }) {
+function TabBtn({
+  active,
+  label,
+  icon,
+  onSelect,
+}: {
+  active: boolean;
+  label: string;
+  icon: React.ReactNode;
+  onSelect: () => void;
+}) {
   return (
     <button
       onClick={onSelect}
       className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-        active ? "border-[#2a382c] text-[#2a382c]" : "border-transparent text-stone-500 hover:text-stone-800"
+        active
+          ? "border-[#2a382c] text-[#2a382c]"
+          : "border-transparent text-stone-500 hover:text-stone-800"
       }`}
     >
       {icon} {label}
@@ -394,7 +457,17 @@ function TabBtn({ active, label, icon, onSelect }: { active: boolean; label: str
   );
 }
 
-function EmptyState({ title, body, actionLabel, onAction }: { title: string; body: string; actionLabel?: string; onAction?: () => void }) {
+function EmptyState({
+  title,
+  body,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  body: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
       <p className="font-medium text-stone-800">{title}</p>
@@ -420,10 +493,24 @@ function ErrorBox({ message }: { message: string }) {
   );
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-serif text-xl font-bold text-stone-900">{title}</h2>
           <button onClick={onClose} className="text-stone-400 hover:text-stone-700">
@@ -448,10 +535,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function FormActions({ onClose, label }: { onClose: () => void; label: string }) {
   return (
     <div className="flex justify-end gap-2 pt-2">
-      <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm">Cancel</button>
-      <button type="submit" className="px-4 py-2.5 rounded-xl bg-[#2a382c] text-white text-sm">{label}</button>
+      <button
+        type="button"
+        onClick={onClose}
+        className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm"
+      >
+        Cancel
+      </button>
+      <button type="submit" className="px-4 py-2.5 rounded-xl bg-[#2a382c] text-white text-sm">
+        {label}
+      </button>
     </div>
   );
 }
 
-const inputCls = "w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#2a382c]";
+const inputCls =
+  "w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#2a382c]";

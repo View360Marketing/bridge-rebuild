@@ -3,7 +3,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { listGuestsFn, getGuestFn, findDuplicateGuestsFn, mergeGuestsFn, exportGuestsCsvFn } from "@/lib/booking/operations.functions";
+import {
+  listGuestsFn,
+  getGuestFn,
+  findDuplicateGuestsFn,
+  mergeGuestsFn,
+  exportGuestsCsvFn,
+} from "@/lib/booking/operations.functions";
 import { Search, Users, Download, GitMerge, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/guests")({
@@ -51,7 +57,11 @@ function GuestsPage() {
       {data && data.length === 0 && !isLoading && (
         <EmptyState
           title={search ? "No matching guests" : "No guests yet"}
-          body={search ? "Try a different search term." : "Guest profiles are created automatically when reservations are made."}
+          body={
+            search
+              ? "Try a different search term."
+              : "Guest profiles are created automatically when reservations are made."
+          }
         />
       )}
 
@@ -73,7 +83,9 @@ function GuestsPage() {
                   <td className="px-4 py-3 font-medium text-stone-800">{g.name}</td>
                   <td className="px-4 py-3 text-stone-600">{g.email ?? "—"}</td>
                   <td className="px-4 py-3 text-stone-600">{g.phone ?? "—"}</td>
-                  <td className="px-4 py-3 text-xs text-stone-500">{(g.created_at ?? "").slice(0, 10)}</td>
+                  <td className="px-4 py-3 text-xs text-stone-500">
+                    {(g.created_at ?? "").slice(0, 10)}
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => openGuestDetail(g.id)}
@@ -164,7 +176,10 @@ function GuestDetail({ guestId, onClose }: { guestId: string; onClose: () => voi
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
         onClick={(e) => e.stopPropagation()}
@@ -184,13 +199,18 @@ function GuestDetail({ guestId, onClose }: { guestId: string; onClose: () => voi
               <p className="text-sm text-stone-600">{guest.phone ?? "No phone"}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-2">Stay History</p>
+              <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-2">
+                Stay History
+              </p>
               {guest.reservations.length === 0 ? (
                 <p className="text-sm text-stone-500">No reservations.</p>
               ) : (
                 <div className="space-y-1">
                   {guest.reservations.map((r) => (
-                    <div key={r.id} className="text-sm flex justify-between border-b border-stone-100 pb-1">
+                    <div
+                      key={r.id}
+                      className="text-sm flex justify-between border-b border-stone-100 pb-1"
+                    >
                       <span className="font-mono text-xs">{r.booking_reference}</span>
                       <span className="text-stone-500">
                         {r.checkin_date ?? "—"} · {r.status}
@@ -202,12 +222,17 @@ function GuestDetail({ guestId, onClose }: { guestId: string; onClose: () => voi
             </div>
             {dupes && dupes.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-2">Possible Duplicates</p>
+                <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-2">
+                  Possible Duplicates
+                </p>
                 <p className="text-xs text-stone-500 mb-2">
                   Reviewed matches by email/phone. Merge only if these are the same person.
                 </p>
                 {dupes.map((d) => (
-                  <div key={d.id} className="flex items-center justify-between border border-stone-200 rounded-lg px-3 py-2 mb-1">
+                  <div
+                    key={d.id}
+                    className="flex items-center justify-between border border-stone-200 rounded-lg px-3 py-2 mb-1"
+                  >
                     <div className="text-sm">
                       <span className="font-medium">{d.name}</span>
                       <span className="text-stone-500"> · {d.email ?? "no email"}</span>

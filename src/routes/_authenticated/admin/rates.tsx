@@ -23,16 +23,19 @@ export const Route = createFileRoute("/_authenticated/admin/rates")({
   head: () => ({
     meta: [
       { title: "Rates & Rules | The Bridges Admin" },
-      { name: "description", content: "Manage nightly rates, date overrides, restrictions, fees, taxes, and policies." },
+      {
+        name: "description",
+        content: "Manage nightly rates, date overrides, restrictions, fees, taxes, and policies.",
+      },
     ],
   }),
   component: RatesPage,
 });
 
 function RatesPage() {
-  const [tab, setTab] = useState<"plans" | "overrides" | "restrictions" | "fees" | "taxes" | "promos" | "policies">(
-    "plans",
-  );
+  const [tab, setTab] = useState<
+    "plans" | "overrides" | "restrictions" | "fees" | "taxes" | "promos" | "policies"
+  >("plans");
 
   return (
     <>
@@ -44,22 +47,74 @@ function RatesPage() {
       </div>
 
       <div className="flex flex-wrap gap-1 mb-6 border-b border-stone-200">
-        <TabButton active={tab === "plans"} value="plans" label="Rate Plans" icon={<DollarSign className="w-4 h-4" />} onSelect={setTab} />
-        <TabButton active={tab === "overrides"} value="overrides" label="Date Overrides" icon={<CalendarDays className="w-4 h-4" />} onSelect={setTab} />
-        <TabButton active={tab === "restrictions"} value="restrictions" label="Restrictions" icon={<Ban className="w-4 h-4" />} onSelect={setTab} />
-        <TabButton active={tab === "fees"} value="fees" label="Fees" icon={<DollarSign className="w-4 h-4" />} onSelect={setTab} />
-        <TabButton active={tab === "taxes"} value="taxes" label="Taxes" icon={<Percent className="w-4 h-4" />} onSelect={setTab} />
-        <TabButton active={tab === "promos"} value="promos" label="Promotions" icon={<Percent className="w-4 h-4" />} onSelect={setTab} />
-        <TabButton active={tab === "policies"} value="policies" label="Policies" icon={<FileText className="w-4 h-4" />} onSelect={setTab} />
+        <TabButton
+          active={tab === "plans"}
+          value="plans"
+          label="Rate Plans"
+          icon={<DollarSign className="w-4 h-4" />}
+          onSelect={setTab}
+        />
+        <TabButton
+          active={tab === "overrides"}
+          value="overrides"
+          label="Date Overrides"
+          icon={<CalendarDays className="w-4 h-4" />}
+          onSelect={setTab}
+        />
+        <TabButton
+          active={tab === "restrictions"}
+          value="restrictions"
+          label="Restrictions"
+          icon={<Ban className="w-4 h-4" />}
+          onSelect={setTab}
+        />
+        <TabButton
+          active={tab === "fees"}
+          value="fees"
+          label="Fees"
+          icon={<DollarSign className="w-4 h-4" />}
+          onSelect={setTab}
+        />
+        <TabButton
+          active={tab === "taxes"}
+          value="taxes"
+          label="Taxes"
+          icon={<Percent className="w-4 h-4" />}
+          onSelect={setTab}
+        />
+        <TabButton
+          active={tab === "promos"}
+          value="promos"
+          label="Promotions"
+          icon={<Percent className="w-4 h-4" />}
+          onSelect={setTab}
+        />
+        <TabButton
+          active={tab === "policies"}
+          value="policies"
+          label="Policies"
+          icon={<FileText className="w-4 h-4" />}
+          onSelect={setTab}
+        />
       </div>
 
       {tab === "plans" && <RatePlansTab />}
       {tab === "overrides" && <DateOverridesTab />}
       {tab === "restrictions" && <RestrictionsTab />}
       {tab === "fees" && <SimpleListTab queryFn={listFeesFn} queryKey="admin-fees" title="Fees" />}
-      {tab === "taxes" && <SimpleListTab queryFn={listTaxesFn} queryKey="admin-taxes" title="Taxes" />}
-      {tab === "promos" && <SimpleListTab queryFn={listPromotionsFn} queryKey="admin-promos" title="Promotions" />}
-      {tab === "policies" && <SimpleListTab queryFn={listPoliciesFn} queryKey="admin-policies" title="Cancellation Policies" />}
+      {tab === "taxes" && (
+        <SimpleListTab queryFn={listTaxesFn} queryKey="admin-taxes" title="Taxes" />
+      )}
+      {tab === "promos" && (
+        <SimpleListTab queryFn={listPromotionsFn} queryKey="admin-promos" title="Promotions" />
+      )}
+      {tab === "policies" && (
+        <SimpleListTab
+          queryFn={listPoliciesFn}
+          queryKey="admin-policies"
+          title="Cancellation Policies"
+        />
+      )}
     </>
   );
 }
@@ -83,7 +138,9 @@ function TabButton({
     <button
       onClick={() => onSelect(value)}
       className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-        active ? "border-[#2a382c] text-[#2a382c]" : "border-transparent text-stone-500 hover:text-stone-800"
+        active
+          ? "border-[#2a382c] text-[#2a382c]"
+          : "border-transparent text-stone-500 hover:text-stone-800"
       }`}
     >
       {icon} {label}
@@ -140,7 +197,9 @@ function RatePlansTab() {
                   <td className="px-4 py-3">{r.name}</td>
                   <td className="px-4 py-3">${((r.base_nightly_cents ?? 0) / 100).toFixed(2)}</td>
                   <td className="px-4 py-3">
-                    {r.weekend_nightly_cents ? `$${(r.weekend_nightly_cents / 100).toFixed(2)}` : "—"}
+                    {r.weekend_nightly_cents
+                      ? `$${(r.weekend_nightly_cents / 100).toFixed(2)}`
+                      : "—"}
                   </td>
                   <td className="px-4 py-3">
                     {r.is_active ? (
@@ -182,7 +241,13 @@ function RatePlansTab() {
   );
 }
 
-function RatePlanForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: (input: Record<string, unknown>) => void }) {
+function RatePlanForm({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: (input: Record<string, unknown>) => void;
+}) {
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [base, setBase] = useState("15000");
@@ -203,17 +268,37 @@ function RatePlanForm({ onClose, onSubmit }: { onClose: () => void; onSubmit: (i
         className="space-y-3"
       >
         <Field label="Code *">
-          <input required value={code} onChange={(e) => setCode(e.target.value)} className={inputCls} />
+          <input
+            required
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            className={inputCls}
+          />
         </Field>
         <Field label="Name *">
-          <input required value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+          <input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className={inputCls}
+          />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Base nightly (cents)">
-            <input type="number" value={base} onChange={(e) => setBase(e.target.value)} className={inputCls} />
+            <input
+              type="number"
+              value={base}
+              onChange={(e) => setBase(e.target.value)}
+              className={inputCls}
+            />
           </Field>
           <Field label="Weekend nightly (cents)">
-            <input type="number" value={weekend} onChange={(e) => setWeekend(e.target.value)} className={inputCls} />
+            <input
+              type="number"
+              value={weekend}
+              onChange={(e) => setWeekend(e.target.value)}
+              className={inputCls}
+            />
           </Field>
         </div>
         <FormActions onClose={onClose} label="Create Rate Plan" />
@@ -227,7 +312,10 @@ function DateOverridesTab() {
   const list = useServerFn(listDateOverridesFn);
   const add = useServerFn(addDateOverrideFn);
   const listUnits = useServerFn(listUnitsFn);
-  const { data, isLoading, error } = useQuery({ queryKey: ["admin-date-overrides"], queryFn: list });
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin-date-overrides"],
+    queryFn: list,
+  });
   const { data: units } = useQuery({ queryKey: ["admin-units"], queryFn: listUnits });
   const [showForm, setShowForm] = useState(false);
 
@@ -329,10 +417,20 @@ function DateOverrideForm({
           </select>
         </Field>
         <Field label="Date">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={inputCls}
+          />
         </Field>
         <Field label="Nightly (cents)">
-          <input type="number" value={cents} onChange={(e) => setCents(e.target.value)} className={inputCls} />
+          <input
+            type="number"
+            value={cents}
+            onChange={(e) => setCents(e.target.value)}
+            className={inputCls}
+          />
         </Field>
         <FormActions onClose={onClose} label="Add Override" />
       </form>
@@ -463,14 +561,28 @@ function RestrictionForm({
           </select>
         </Field>
         <Field label="Date">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className={inputCls}
+          />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Min stay (nights)">
-            <input type="number" value={minStay} onChange={(e) => setMinStay(e.target.value)} className={inputCls} />
+            <input
+              type="number"
+              value={minStay}
+              onChange={(e) => setMinStay(e.target.value)}
+              className={inputCls}
+            />
           </Field>
           <Field label="Closed?">
-            <select value={String(isClosed)} onChange={(e) => setIsClosed(e.target.value === "true")} className={inputCls}>
+            <select
+              value={String(isClosed)}
+              onChange={(e) => setIsClosed(e.target.value === "true")}
+              className={inputCls}
+            >
               <option value="false">No</option>
               <option value="true">Yes — close unit</option>
             </select>
@@ -565,9 +677,20 @@ function ErrorBox({ message }: { message: string }) {
   );
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6"
         onClick={(e) => e.stopPropagation()}
@@ -596,7 +719,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function FormActions({ onClose, label }: { onClose: () => void; label: string }) {
   return (
     <div className="flex justify-end gap-2 pt-2">
-      <button type="button" onClick={onClose} className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm">
+      <button
+        type="button"
+        onClick={onClose}
+        className="px-4 py-2.5 rounded-xl border border-stone-300 text-sm"
+      >
         Cancel
       </button>
       <button type="submit" className="px-4 py-2.5 rounded-xl bg-[#2a382c] text-white text-sm">
