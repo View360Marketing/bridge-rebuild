@@ -105,6 +105,47 @@ Track exact implemented routes/tables, executed tests, and outstanding configura
   invalidation only); Stage 4 adds visible freshness state.
 - **No public /stay booking UI** yet (Stage 3).
 
+## Regression & repair — public-site styling after Stage 2
+
+### Identified cause
+After the Stage 2 file additions (admin calendar/reservations routes + booking server modules), the
+**dev server's Tailwind v4 content scanner fell out of sync**: the dev-served `/src/styles.css`
+HMR module was emitting an **incomplete** CSS scan — utilities the public components depend on
+(`h-16`, `min-h-[85vh]`, and the arbitrary-hex backgrounds `bg-[#1b251e]`, `bg-[#2a382c]`,
+`bg-[#faf8f5]`, etc.) were absent from the dev CSS while present in the production build. With those
+utilities missing, the preview rendered the logo at natural size, default browser fonts, a blue
+underlined phone link, and horizontal overflow — i.e. the reported regression.
+
+**The source was not broken.** The production build CSS (`dist/client/assets/styles-*.css`, ~99 KB)
+was confirmed to contain every arbitrary-hex utility used by `Header.tsx` / `Hero.tsx` /
+`index.tsx` (`1b251e`, `faf8f5`, `2a382c`, `2f4032`, `243327`, `f4eee6`, `fbf9f6`, `f3eee8`,
+`3e5340`, `1a231c`, `cadbbf`, `bfd8b8`, `ece7df`, `18221b`) plus `h-14`, `max-w-7xl`,
+`backdrop-blur-md`, `font-serif`, `rounded-full`, `object-contain`, the full `stone` palette, and
+all `--background/--foreground/--primary/--radius` tokens. `src/styles.css` retains the correct
+`@import "tailwindcss" source(none)` + `@source "../src"` config.
+
+### Repair performed
+- Restarted the dev server (`kill` + wait-for-port) to force a fresh, complete Tailwind v4 content
+  scan of `../src`. Dev server returned HTTP 200 on `/` after restart.
+- No source files were edited for this repair — the components, styles, and `@source` config were
+  already correct (proven by the complete production build). Editing correct source would have
+  risked a real regression.
+- Stage 1/2 migrations, auth, roles/RLS, inventory RPCs, availability/pricing/reservation engine,
+  admin calendar/reservations, and the single-row announcement ticker are all preserved.
+
+### Verification performed
+- Confirmed served homepage HTML contains Header + Hero + AnnouncementBar markup and the
+  `<link rel="stylesheet" href="/src/styles.css">` tag returning HTTP 200.
+- Confirmed the production build CSS contains all arbitrary-hex utilities + key utility classes +
+  theme tokens used by the public components.
+- Confirmed `src/styles.css` `@source "../src"` config and that public component files exist under
+  `src/components/` and `src/routes/`.
+- Restarted dev server; `/` returned HTTP 200 after restart.
+- **Not re-verified** (runtime-diagnostic budget exhausted before the post-restart dev CSS could be
+  re-fetched and substring-checked): the freshly-served dev CSS after restart. The complete
+  production build + successful dev-server restart are strong evidence the preview is restored;
+  automatic build/runtime validation will confirm.
+
 ## Stage 3 — pending
 ## Stage 4 — pending
 ## Stage 5 — pending
