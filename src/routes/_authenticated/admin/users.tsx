@@ -11,9 +11,20 @@ import {
   disableUserFn,
   enableUserFn,
   resetPasswordFn,
+  setUserPasswordFn,
   type StaffUser,
 } from "@/lib/booking/operations.functions";
-import { Plus, X, UserCog, Shield, ShieldOff, KeyRound, UserX, UserCheck } from "lucide-react";
+import {
+  Plus,
+  X,
+  UserCog,
+  Shield,
+  ShieldOff,
+  KeyRound,
+  UserX,
+  UserCheck,
+  Lock,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   head: () => ({
@@ -34,6 +45,8 @@ function UsersPage() {
   const disable = useServerFn(disableUserFn);
   const enable = useServerFn(enableUserFn);
   const reset = useServerFn(resetPasswordFn);
+  const setPassword = useServerFn(setUserPasswordFn);
+  const [pwTarget, setPwTarget] = useState<StaffUser | null>(null);
   const { data, isLoading, error } = useQuery({ queryKey: ["admin-users"], queryFn: list });
   const [showForm, setShowForm] = useState(false);
 
@@ -131,9 +144,16 @@ function UsersPage() {
                           }
                         }}
                         className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600"
-                        title="Reset password"
+                        title="Reset password (email)"
                       >
                         <KeyRound className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setPwTarget(u)}
+                        className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600"
+                        title="Set password manually"
+                      >
+                        <Lock className="w-4 h-4" />
                       </button>
                       {!u.is_active ? (
                         <button
@@ -201,7 +221,82 @@ function UsersPage() {
           }}
         />
       )}
+
+      {pwTarget && (
+        <SetPasswordForm
+          user={pwTarget}
+          onClose={() => setPwTarget(null)}
+          onSubmit={async (newPassword) => {
+            try {
+              await setPassword({
+                data: { target_user_id: pwTarget.id, new_password: newPassword },
+              });
+              toast.success("Password updated");
+              setPwTarget(null);
+            } catch (e) {
+              toast.error((e as Error).message);
+            }
+          }}
+        />
+      )}
     </>
+  );
+}
+
+function SetPasswordForm({
+  user,
+  onClose,
+  onSubmit,
+}: {
+  user: StaffUser;
+  onClose: () => void;
+  onSubmit: (newPassword: string) => void;
+}) {
+  const [pw, setPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  const mismatch = confirmPw.length > 0 && pw !== confirmPw;
+  const tooShort = pw.length > 0 && pw.length < 8;
+  const valid = pw.length >= 8 && pw === confirmPw && !busy;
+  return (
+    <Modal title="Set Password" onClose={onClose}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!valid) return;
+          setBusy(true);
+          onSubmit(pw);
+        }}
+        className="space-y-3"
+      >
+        <Field label="Account">
+          <div className="text-sm text-stone-700 font-medium">{user.email}</div>
+        </Field>
+        <Field label="New Password *">
+          <input
+            type="password"
+            required
+            minLength={8}
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+            className={inputCls}
+          />
+          {tooShort && <p className="text-xs text-rose-600">At least 8 characters required.</p>}
+        </Field>
+        <Field label="Confirm Password *">
+          <input
+            type="password"
+            required
+            minLength={8}
+            value={confirmPw}
+            onChange={(e) => setConfirmPw(e.target.value)}
+            className={inputCls}
+          />
+          {mismatch && <p className="text-xs text-rose-600">Passwords do not match.</p>}
+        </Field>
+        <FormActions onClose={onClose} label={busy ? "Saving…" : "Save Password"} />
+      </form>
+    </Modal>
   );
 }
 

@@ -614,6 +614,86 @@ export type Database = {
           },
         ]
       }
+      outgoing_webhook_deliveries: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          delivered_at: string | null
+          endpoint_id: string | null
+          error_message: string | null
+          event_name: string
+          id: string
+          payload: Json
+          status: string
+          status_code: number | null
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id?: string | null
+          error_message?: string | null
+          event_name: string
+          id?: string
+          payload: Json
+          status?: string
+          status_code?: number | null
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          delivered_at?: string | null
+          endpoint_id?: string | null
+          error_message?: string | null
+          event_name?: string
+          id?: string
+          payload?: Json
+          status?: string
+          status_code?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outgoing_webhook_deliveries_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "outgoing_webhook_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      outgoing_webhook_endpoints: {
+        Row: {
+          created_at: string
+          events: string[]
+          id: string
+          is_enabled: boolean
+          name: string
+          secret: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_enabled?: boolean
+          name: string
+          secret?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_enabled?: boolean
+          name?: string
+          secret?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       payment_attempts: {
         Row: {
           created_at: string
@@ -1538,6 +1618,8 @@ export type Database = {
       units: {
         Row: {
           accessibility_notes: string | null
+          airbnb_listing_id: string | null
+          airbnb_url: string | null
           base_rate_cents: number
           bathrooms: number
           bedrooms: number
@@ -1547,6 +1629,10 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          ical_export_token: string | null
+          ical_import_url: string | null
+          ical_last_synced_at: string | null
+          ical_sync_status: string | null
           id: string
           is_archived: boolean
           is_closed: boolean
@@ -1555,6 +1641,7 @@ export type Database = {
           max_children: number
           max_guests: number
           pet_policy: string
+          primary_image_url: string | null
           property_id: string | null
           public_name: string | null
           room_type_id: string | null
@@ -1565,6 +1652,8 @@ export type Database = {
         }
         Insert: {
           accessibility_notes?: string | null
+          airbnb_listing_id?: string | null
+          airbnb_url?: string | null
           base_rate_cents?: number
           bathrooms?: number
           bedrooms?: number
@@ -1574,6 +1663,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          ical_export_token?: string | null
+          ical_import_url?: string | null
+          ical_last_synced_at?: string | null
+          ical_sync_status?: string | null
           id?: string
           is_archived?: boolean
           is_closed?: boolean
@@ -1582,6 +1675,7 @@ export type Database = {
           max_children?: number
           max_guests?: number
           pet_policy?: string
+          primary_image_url?: string | null
           property_id?: string | null
           public_name?: string | null
           room_type_id?: string | null
@@ -1592,6 +1686,8 @@ export type Database = {
         }
         Update: {
           accessibility_notes?: string | null
+          airbnb_listing_id?: string | null
+          airbnb_url?: string | null
           base_rate_cents?: number
           bathrooms?: number
           bedrooms?: number
@@ -1601,6 +1697,10 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          ical_export_token?: string | null
+          ical_import_url?: string | null
+          ical_last_synced_at?: string | null
+          ical_sync_status?: string | null
           id?: string
           is_archived?: boolean
           is_closed?: boolean
@@ -1609,6 +1709,7 @@ export type Database = {
           max_children?: number
           max_guests?: number
           pet_policy?: string
+          primary_image_url?: string | null
           property_id?: string | null
           public_name?: string | null
           room_type_id?: string | null

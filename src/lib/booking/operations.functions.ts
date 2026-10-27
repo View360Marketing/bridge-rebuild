@@ -45,6 +45,7 @@ import {
   disableUser,
   enableUser,
   resetPassword,
+  setUserPassword,
   type StaffUser,
 } from "./users.server";
 import {
@@ -300,6 +301,20 @@ export const resetPasswordFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) =>
     resetPassword(context.supabase, context.userId, data.target_user_id),
+  );
+
+export const setUserPasswordFn = createServerFn({ method: "POST" })
+  .validator((d) =>
+    z
+      .object({
+        target_user_id: z.string(),
+        new_password: z.string().min(8, "Password must be at least 8 characters"),
+      })
+      .parse(d),
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) =>
+    setUserPassword(context.supabase, context.userId, data.target_user_id, data.new_password),
   );
 
 // ── Housekeeping & maintenance ─────────────────────────────────────────────

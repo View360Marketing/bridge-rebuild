@@ -36,7 +36,6 @@ const NAV = [
     icon: Sparkles,
     ready: true,
   },
-  { key: "groups", label: "Groups", to: "/admin/groups", icon: Users, ready: true },
   { key: "reports", label: "Reports", to: "/admin/reports", icon: BarChart3, ready: true },
   { key: "users", label: "Users", to: "/admin/users", icon: UserCog, ready: true },
   { key: "settings", label: "Settings", to: "/admin/settings", icon: Settings, ready: true },
