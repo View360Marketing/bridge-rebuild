@@ -250,8 +250,18 @@ function WillowsPage() {
                 </div>
               </div>
               <div className="lg:col-span-5">
-                <div className="rounded-3xl overflow-hidden border border-stone-200 h-64 bg-[#2a382c] flex items-center justify-center">
-                  <Building className="w-16 h-16 text-white/25" />
+                <div className="rounded-3xl overflow-hidden border border-stone-200 h-64 sm:h-72 relative group">
+                  <img
+                    src="https://thebridgestn.com/wp-content/uploads/2026/05/facilities27-min.jpg"
+                    alt="Restaurant space available for private rental at The Bridges"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end p-5">
+                    <div className="bg-white/95 backdrop-blur-md px-4 py-2 rounded-full text-xs font-semibold text-stone-900 tracking-wide shadow-md">
+                      Up to 75 people
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

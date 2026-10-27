@@ -71,32 +71,92 @@ function EventsPage() {
       {/* Hero Header */}
       <section className="py-20 lg:py-28 bg-[#faf8f5] border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl space-y-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#2f4032] block">
-              HAPPENING AT THE BRIDGES
-            </span>
-            <h1 className="font-serif text-4xl sm:text-6xl font-bold text-[#1a231c] tracking-tight leading-[1.1]">
-              Events &amp; Gatherings
-            </h1>
-            <p className="text-stone-600 text-base sm:text-lg leading-relaxed font-light">
-              From unforgettable weddings and private celebrations at The Willows to company
-              retreats, family getaways, and seasonal events, The Bridges is an inspiring setting
-              beside Tennessee&apos;s rare natural bridge.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#2f4032] block">
+                HAPPENING AT THE BRIDGES
+              </span>
+              <h1 className="font-serif text-4xl sm:text-6xl font-bold text-[#1a231c] tracking-tight leading-[1.1]">
+                Events &amp; Gatherings
+              </h1>
+              <p className="text-stone-600 text-base sm:text-lg leading-relaxed font-light max-w-xl">
+                From unforgettable weddings and private celebrations at The Willows to company
+                retreats, family getaways, and seasonal events, The Bridges is an inspiring setting
+                beside Tennessee&apos;s rare natural bridge.
+              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <a
+                  href="#december-events"
+                  className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  <span>View December Schedule</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+                <a
+                  href="tel:+19317225589"
+                  className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors flex items-center gap-2"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Call 931-722-5589</span>
+                </a>
+              </div>
+            </div>
+            <div className="lg:col-span-5">
+              <div className="rounded-3xl overflow-hidden shadow-xl border border-stone-200 h-80 sm:h-96 relative group">
+                <img
+                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg"
+                  alt="The Willows Event Space at The Bridges"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent flex items-end p-6">
+                  <div className="bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-full text-xs font-semibold text-stone-900 tracking-wide shadow-md">
+                    The Willows · Event Center
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* December Events Section */}
-      <section className="py-16 bg-white border-b border-stone-200">
+      <section id="december-events" className="py-16 bg-white border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#3e5340] block mb-2">
-              DECEMBER 2026 SCHEDULE
-            </span>
-            <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900">
-              December Events
-            </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 items-center">
+            <div className="lg:col-span-7 space-y-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#3e5340] block mb-2">
+                DECEMBER 2026 SCHEDULE
+              </span>
+              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900">
+                December Events
+              </h2>
+            </div>
+            <div className="lg:col-span-5 grid grid-cols-3 gap-2.5">
+              <div className="rounded-xl overflow-hidden h-24 sm:h-28 border border-stone-200">
+                <img
+                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Natural-Bridge_Wayne-County-66-1024x683.jpg"
+                  alt="The Natural Bridge"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="rounded-xl overflow-hidden h-24 sm:h-28 border border-stone-200">
+                <img
+                  src="https://thebridgestn.com/wp-content/uploads/2026/05/facilities27-min.jpg"
+                  alt="Resort cabins at The Bridges"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="rounded-xl overflow-hidden h-24 sm:h-28 border border-stone-200">
+                <img
+                  src="https://thebridgestn.com/wp-content/uploads/2026/05/DSC2575-2-scaled.jpg"
+                  alt="The Bridges property"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </div>
           </div>
 
           {confirmedEvents.length > 0 && (
@@ -287,8 +347,20 @@ function EventsPage() {
               </div>
             </div>
             <div className="lg:col-span-5">
-              <div className="rounded-3xl overflow-hidden border border-white/15 h-72 bg-[#2a382c] flex items-center justify-center">
-                <Sparkles className="w-16 h-16 text-white/25" />
+              <div className="rounded-3xl overflow-hidden border border-white/15 h-72 sm:h-80 relative group">
+                <img
+                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg"
+                  alt="Private gathering space at The Willows"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#243327]/80 via-[#243327]/20 to-transparent" />
+                <div className="absolute bottom-5 left-5 right-5 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#bfd8b8] shrink-0" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/90">
+                    Private group experiences
+                  </span>
+                </div>
               </div>
             </div>
           </div>
