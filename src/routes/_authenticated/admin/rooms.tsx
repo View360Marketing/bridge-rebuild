@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AdminShell } from "@/components/admin/AdminShell";
 import {
   listPropertiesFn,
   listRoomTypesFn,
@@ -74,7 +73,7 @@ function RoomsPage() {
   }
 
   return (
-    <AdminShell active="rooms">
+    <>
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-serif text-3xl font-bold text-stone-900">Rooms & Properties</h1>
@@ -183,7 +182,7 @@ function RoomsPage() {
           }}
         />
       )}
-    </AdminShell>
+    </>
   );
 }
 

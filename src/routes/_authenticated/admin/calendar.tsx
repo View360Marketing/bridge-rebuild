@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AdminShell } from "@/components/admin/AdminShell";
 import {
   buildCalendarFn,
   createBlockFn,
@@ -80,7 +79,7 @@ function CalendarPage() {
   }
 
   return (
-    <AdminShell active="calendar">
+    <>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h1 className="font-serif text-3xl font-bold text-stone-900">Calendar</h1>
@@ -214,7 +213,7 @@ function CalendarPage() {
           }}
         />
       )}
-    </AdminShell>
+    </>
   );
 }
 

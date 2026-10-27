@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AdminShell } from "@/components/admin/AdminShell";
 import {
   listReservationsFn,
   cancelReservationFn,
@@ -91,7 +90,7 @@ function ReservationsPage() {
   }
 
   return (
-    <AdminShell active="reservations">
+    <>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h1 className="font-serif text-3xl font-bold text-stone-900">Reservations</h1>
@@ -222,6 +221,6 @@ function ReservationsPage() {
           </table>
         </div>
       )}
-    </AdminShell>
+    </>
   );
 }
