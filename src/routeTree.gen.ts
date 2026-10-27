@@ -29,8 +29,16 @@ import { Route as StayIndexRouteImport } from './routes/stay.index'
 import { Route as StayUnitIdRouteImport } from './routes/stay.$unitId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin/calendar'
+import { Route as AuthenticatedAdminGroupsRouteImport } from './routes/_authenticated/admin/groups'
+import { Route as AuthenticatedAdminGuestsRouteImport } from './routes/_authenticated/admin/guests'
+import { Route as AuthenticatedAdminHousekeepingRouteImport } from './routes/_authenticated/admin/housekeeping'
+import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
+import { Route as AuthenticatedAdminRatesRouteImport } from './routes/_authenticated/admin/rates'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
 import { Route as AuthenticatedAdminReservationsRouteImport } from './routes/_authenticated/admin/reservations'
 import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin/rooms'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 
 const IndexRoute = IndexRouteImport.update({
@@ -133,6 +141,41 @@ const AuthenticatedAdminCalendarRoute =
     path: '/calendar',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminGroupsRoute =
+  AuthenticatedAdminGroupsRouteImport.update({
+    id: '/groups',
+    path: '/groups',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminGuestsRoute =
+  AuthenticatedAdminGuestsRouteImport.update({
+    id: '/guests',
+    path: '/guests',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminHousekeepingRoute =
+  AuthenticatedAdminHousekeepingRouteImport.update({
+    id: '/housekeeping',
+    path: '/housekeeping',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPaymentsRoute =
+  AuthenticatedAdminPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminRatesRoute = AuthenticatedAdminRatesRouteImport.update({
+  id: '/rates',
+  path: '/rates',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminReservationsRoute =
   AuthenticatedAdminReservationsRouteImport.update({
     id: '/reservations',
@@ -142,6 +185,17 @@ const AuthenticatedAdminReservationsRoute =
 const AuthenticatedAdminRoomsRoute = AuthenticatedAdminRoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
@@ -169,8 +223,16 @@ export interface FileRoutesByFullPath {
   '/stay/$unitId': typeof StayUnitIdRoute
   '/stay/': typeof StayIndexRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/groups': typeof AuthenticatedAdminGroupsRoute
+  '/admin/guests': typeof AuthenticatedAdminGuestsRoute
+  '/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/rates': typeof AuthenticatedAdminRatesRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -191,8 +253,16 @@ export interface FileRoutesByTo {
   '/stay/$unitId': typeof StayUnitIdRoute
   '/stay': typeof StayIndexRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/groups': typeof AuthenticatedAdminGroupsRoute
+  '/admin/guests': typeof AuthenticatedAdminGuestsRoute
+  '/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
+  '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/admin/rates': typeof AuthenticatedAdminRatesRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -217,8 +287,16 @@ export interface FileRoutesById {
   '/stay/$unitId': typeof StayUnitIdRoute
   '/stay/': typeof StayIndexRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/_authenticated/admin/groups': typeof AuthenticatedAdminGroupsRoute
+  '/_authenticated/admin/guests': typeof AuthenticatedAdminGuestsRoute
+  '/_authenticated/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
+  '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
+  '/_authenticated/admin/rates': typeof AuthenticatedAdminRatesRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -243,8 +321,16 @@ export interface FileRouteTypes {
     | '/stay/$unitId'
     | '/stay/'
     | '/admin/calendar'
+    | '/admin/groups'
+    | '/admin/guests'
+    | '/admin/housekeeping'
+    | '/admin/payments'
+    | '/admin/rates'
+    | '/admin/reports'
     | '/admin/reservations'
     | '/admin/rooms'
+    | '/admin/settings'
+    | '/admin/users'
     | '/api/webhooks/stripe'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -265,8 +351,16 @@ export interface FileRouteTypes {
     | '/stay/$unitId'
     | '/stay'
     | '/admin/calendar'
+    | '/admin/groups'
+    | '/admin/guests'
+    | '/admin/housekeeping'
+    | '/admin/payments'
+    | '/admin/rates'
+    | '/admin/reports'
     | '/admin/reservations'
     | '/admin/rooms'
+    | '/admin/settings'
+    | '/admin/users'
     | '/api/webhooks/stripe'
     | '/admin'
   id:
@@ -290,8 +384,16 @@ export interface FileRouteTypes {
     | '/stay/$unitId'
     | '/stay/'
     | '/_authenticated/admin/calendar'
+    | '/_authenticated/admin/groups'
+    | '/_authenticated/admin/guests'
+    | '/_authenticated/admin/housekeeping'
+    | '/_authenticated/admin/payments'
+    | '/_authenticated/admin/rates'
+    | '/_authenticated/admin/reports'
     | '/_authenticated/admin/reservations'
     | '/_authenticated/admin/rooms'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/users'
     | '/api/webhooks/stripe'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -457,6 +559,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCalendarRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/groups': {
+      id: '/_authenticated/admin/groups'
+      path: '/groups'
+      fullPath: '/admin/groups'
+      preLoaderRoute: typeof AuthenticatedAdminGroupsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/guests': {
+      id: '/_authenticated/admin/guests'
+      path: '/guests'
+      fullPath: '/admin/guests'
+      preLoaderRoute: typeof AuthenticatedAdminGuestsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/housekeeping': {
+      id: '/_authenticated/admin/housekeeping'
+      path: '/housekeeping'
+      fullPath: '/admin/housekeeping'
+      preLoaderRoute: typeof AuthenticatedAdminHousekeepingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/payments': {
+      id: '/_authenticated/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AuthenticatedAdminPaymentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/rates': {
+      id: '/_authenticated/admin/rates'
+      path: '/rates'
+      fullPath: '/admin/rates'
+      preLoaderRoute: typeof AuthenticatedAdminRatesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/reservations': {
       id: '/_authenticated/admin/reservations'
       path: '/reservations'
@@ -471,6 +615,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRoomsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/webhooks/stripe': {
       id: '/api/webhooks/stripe'
       path: '/api/webhooks/stripe'
@@ -483,15 +641,31 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
+  AuthenticatedAdminGroupsRoute: typeof AuthenticatedAdminGroupsRoute
+  AuthenticatedAdminGuestsRoute: typeof AuthenticatedAdminGuestsRoute
+  AuthenticatedAdminHousekeepingRoute: typeof AuthenticatedAdminHousekeepingRoute
+  AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
+  AuthenticatedAdminRatesRoute: typeof AuthenticatedAdminRatesRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminReservationsRoute: typeof AuthenticatedAdminReservationsRoute
   AuthenticatedAdminRoomsRoute: typeof AuthenticatedAdminRoomsRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
+  AuthenticatedAdminGroupsRoute: AuthenticatedAdminGroupsRoute,
+  AuthenticatedAdminGuestsRoute: AuthenticatedAdminGuestsRoute,
+  AuthenticatedAdminHousekeepingRoute: AuthenticatedAdminHousekeepingRoute,
+  AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
+  AuthenticatedAdminRatesRoute: AuthenticatedAdminRatesRoute,
+  AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminReservationsRoute: AuthenticatedAdminReservationsRoute,
   AuthenticatedAdminRoomsRoute: AuthenticatedAdminRoomsRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 

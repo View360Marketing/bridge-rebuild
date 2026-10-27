@@ -28,6 +28,7 @@ const NAV = [
   { key: "rooms", label: "Rooms & Properties", to: "/admin/rooms", icon: Building2, ready: true },
   { key: "rates", label: "Rates & Rules", to: "/admin/rates", icon: DollarSign, ready: true },
   { key: "guests", label: "Guests", to: "/admin/guests", icon: Users, ready: true },
+  { key: "payments", label: "Payments", to: "/admin/payments", icon: DollarSign, ready: true },
   {
     key: "housekeeping",
     label: "Housekeeping",
@@ -38,8 +39,8 @@ const NAV = [
   { key: "groups", label: "Groups", to: "/admin/groups", icon: Users, ready: true },
   { key: "reports", label: "Reports", to: "/admin/reports", icon: BarChart3, ready: true },
   { key: "users", label: "Users", to: "/admin/users", icon: UserCog, ready: true },
-  { key: "integrations", label: "Integrations", to: "/admin", icon: Bell, ready: false },
-  { key: "settings", label: "Settings", to: "/admin", icon: Settings, ready: false },
+  { key: "settings", label: "Settings", to: "/admin/settings", icon: Settings, ready: true },
+  { key: "integrations", label: "Integrations", to: "/admin/settings", icon: Bell, ready: true },
 ];
 
 export function AdminShell({ active, children }: { active: string; children: React.ReactNode }) {
