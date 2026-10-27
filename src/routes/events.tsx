@@ -157,14 +157,14 @@ function EventsPage() {
               {tentativeEvents.map((e) => (
                 <div
                   key={e.id}
-                  className="bg-amber-50 border-2 border-dashed border-amber-300 rounded-3xl p-6 flex items-start gap-4"
+                  className="bg-[#faf8f5] border border-stone-300 rounded-3xl p-6 flex items-start gap-4"
                 >
-                  <div className="w-10 h-10 rounded-full bg-amber-200/60 text-amber-800 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-[#2a382c]/10 text-[#2a382c] flex items-center justify-center shrink-0">
                     <AlertCircle className="w-5 h-5" />
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-200/60 px-2 py-0.5 rounded-full">
+                      <span className="text-xs font-bold uppercase tracking-wider text-[#2a382c] bg-[#2a382c]/10 px-2.5 py-0.5 rounded-full">
                         Possible Character Night — Tentative
                       </span>
                       <span className="text-xs text-stone-500">{fmtDate(e.event_date)}</span>
@@ -173,7 +173,7 @@ function EventsPage() {
                     <p className="text-sm text-stone-600">
                       {e.description ?? "Details and confirmation to be announced."}
                     </p>
-                    <p className="text-xs text-amber-700 font-medium">
+                    <p className="text-xs text-stone-500 font-medium">
                       This date is tentative and not yet confirmed. Tickets are not available for
                       this event.
                     </p>
@@ -236,7 +236,9 @@ function EventsPage() {
                   <div className="text-xs uppercase tracking-wider text-white/70 mt-1">
                     {winterOffer.weekday_label}
                   </div>
-                  <div className="text-[10px] text-white/50 mt-1">per night, plus taxes &amp; fees</div>
+                  <div className="text-[10px] text-white/50 mt-1">
+                    per night, plus taxes &amp; fees
+                  </div>
                 </div>
                 <div className="bg-[#3e5340] text-white rounded-2xl p-6 text-center">
                   <div className="text-3xl font-serif font-bold">
@@ -245,7 +247,9 @@ function EventsPage() {
                   <div className="text-xs uppercase tracking-wider text-white/70 mt-1">
                     {winterOffer.weekend_label}
                   </div>
-                  <div className="text-[10px] text-white/50 mt-1">per night, plus taxes &amp; fees</div>
+                  <div className="text-[10px] text-white/50 mt-1">
+                    per night, plus taxes &amp; fees
+                  </div>
                 </div>
               </div>
             </div>

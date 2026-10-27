@@ -132,9 +132,7 @@ function WillowsPage() {
                 <div className="font-serif text-4xl font-bold text-white">
                   {fmtMoney(willows.weekend_rate_cents)}
                 </div>
-                <div className="text-sm text-white/60 mt-1">
-                  for {willows.duration_hours} hours
-                </div>
+                <div className="text-sm text-white/60 mt-1">for {willows.duration_hours} hours</div>
               </div>
             </div>
 
@@ -180,12 +178,12 @@ function WillowsPage() {
 
             {/* Wedding exclusion */}
             {willows.excludes_weddings && (
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
-                <Compass className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-                <p className="text-xs text-amber-800">
-                  <span className="font-semibold">Wedding exclusion:</span> These published venue
-                  rental rates do not apply to weddings.{" "}
-                  <Link to="/contact-us" className="font-semibold underline">
+              <div className="bg-[#faf8f5] border border-stone-300 rounded-2xl p-4 mb-6 flex items-start gap-3">
+                <Compass className="w-5 h-5 text-[#2a382c] shrink-0 mt-0.5" />
+                <p className="text-xs text-stone-700">
+                  <span className="font-semibold text-stone-900">Wedding exclusion:</span> These
+                  published venue rental rates do not apply to weddings.{" "}
+                  <Link to="/contact-us" className="font-semibold text-[#2a382c] underline">
                     Contact us for wedding pricing
                   </Link>
                   .
