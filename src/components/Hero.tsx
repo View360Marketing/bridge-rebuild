@@ -53,12 +53,11 @@ export function Hero() {
                 <span>Call Now</span>
               </a>
               <a
-                href="http://connoisseurtherapeuticbodywork.clinicsense.com/book/"
-                target="_blank"
-                rel="noreferrer"
-                className="bg-white/15 hover:bg-white/25 border border-white/25 backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-full transition-all"
+                href="tel:+19319811281"
+                className="bg-white/15 hover:bg-white/25 border border-white/25 backdrop-blur-md text-white text-xs font-semibold px-4 py-2.5 rounded-full transition-all flex items-center gap-1.5"
               >
-                Book Spa
+                <Phone className="w-3.5 h-3.5" />
+                <span>Book Massage · 931-981-1281</span>
               </a>
               <Link
                 to="/contact-us"

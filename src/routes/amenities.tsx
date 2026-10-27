@@ -63,12 +63,11 @@ function AmenitiesPage() {
                   View Amenities
                 </a>
                 <a
-                  href="http://connoisseurtherapeuticbodywork.clinicsense.com/book/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 font-medium px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-xs"
+                  href="tel:+19319811281"
+                  className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 font-medium px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-xs"
                 >
-                  Book Massage
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Call/Text Jessica · 931-981-1281</span>
                 </a>
                 <Link
                   to="/contact-us"
