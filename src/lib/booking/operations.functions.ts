@@ -73,9 +73,7 @@ import {
 export const getOperationsStatsFn = createServerFn({ method: "GET" })
   .validator((d) => z.object({ date: z.string().optional() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    getOperationsStats(context.supabase, data.date),
-  );
+  .handler(async ({ context, data }) => getOperationsStats(context.supabase, data.date));
 
 export const getArrivalsFn = createServerFn({ method: "GET" })
   .validator((d) => z.object({ date: z.string().optional() }).parse(d))
@@ -115,9 +113,7 @@ export const reverseManualPaymentFn = createServerFn({ method: "POST" })
 export const listManualPaymentsFn = createServerFn({ method: "GET" })
   .validator((d) => z.object({ reservation_id: z.string() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    listManualPayments(context.supabase, data.reservation_id),
-  );
+  .handler(async ({ context, data }) => listManualPayments(context.supabase, data.reservation_id));
 
 // ── Rates & rules ─────────────────────────────────────────────────────────
 
@@ -253,7 +249,7 @@ export const createStaffUserFn = createServerFn({ method: "POST" })
       email: data.email,
       password: data.password,
       role: data.role,
-      sendInvite: data.send_invite,
+      sendInvite: data.send_invite ?? false,
     }),
   );
 
@@ -311,9 +307,7 @@ export const resetPasswordFn = createServerFn({ method: "POST" })
 export const listHousekeepingTasksFn = createServerFn({ method: "GET" })
   .validator((d) => z.object({ date: z.string().optional() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    listHousekeepingTasks(context.supabase, data.date),
-  );
+  .handler(async ({ context, data }) => listHousekeepingTasks(context.supabase, data.date));
 
 export const listUnitCleanlinessFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -329,9 +323,7 @@ const turnoverSchema = z.object({
 export const createTurnoverTaskFn = createServerFn({ method: "POST" })
   .validator((d) => turnoverSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    createTurnoverTask(context.supabase, context.userId, data),
-  );
+  .handler(async ({ context, data }) => createTurnoverTask(context.supabase, context.userId, data));
 
 const taskStatusSchema = z.object({
   task_id: z.string(),
@@ -399,23 +391,17 @@ const reportRangeSchema = z.object({
 export const getOccupancyReportFn = createServerFn({ method: "GET" })
   .validator((d) => reportRangeSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    getOccupancyReport(context.supabase, data as ReportRange),
-  );
+  .handler(async ({ context, data }) => getOccupancyReport(context.supabase, data as ReportRange));
 
 export const getFinancialReportFn = createServerFn({ method: "GET" })
   .validator((d) => reportRangeSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    getFinancialReport(context.supabase, data as ReportRange),
-  );
+  .handler(async ({ context, data }) => getFinancialReport(context.supabase, data as ReportRange));
 
 export const getSourceReportFn = createServerFn({ method: "GET" })
   .validator((d) => reportRangeSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) =>
-    getSourceReport(context.supabase, data as ReportRange),
-  );
+  .handler(async ({ context, data }) => getSourceReport(context.supabase, data as ReportRange));
 
 export const getArrivalsDeparturesReportFn = createServerFn({ method: "GET" })
   .validator((d) => reportRangeSchema.parse(d))

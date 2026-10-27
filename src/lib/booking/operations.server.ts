@@ -78,10 +78,7 @@ export async function getOperationsStats(
       .select("id", { count: "exact", head: true })
       .eq("status", "checked_in"),
     supabase.from("units").select("id, is_published, is_archived, is_closed, cleanliness_state"),
-    supabase
-      .from("reservations")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "held"),
+    supabase.from("reservations").select("id", { count: "exact", head: true }).eq("status", "held"),
     supabase
       .from("reservations")
       .select("total_cents, paid_cents")
@@ -132,9 +129,11 @@ export async function getOperationsStats(
     0,
   );
 
-  const settings = settingsRes.data as
-    | { expected_room_count: number; inventory_authority: string; instant_booking_enabled: boolean }
-    | null;
+  const settings = settingsRes.data as {
+    expected_room_count: number;
+    inventory_authority: string;
+    instant_booking_enabled: boolean;
+  } | null;
 
   return {
     date: opDate,
@@ -162,10 +161,7 @@ export async function getOperationsStats(
   };
 }
 
-export async function getArrivals(
-  supabase: SupabaseClient,
-  date?: string,
-): Promise<ArrivalRow[]> {
+export async function getArrivals(supabase: SupabaseClient, date?: string): Promise<ArrivalRow[]> {
   const opDate = date ?? todayPropertyLocal();
   const { data, error } = await supabase
     .from("reservations")
@@ -176,17 +172,19 @@ export async function getArrivals(
     .in("status", ["confirmed", "checked_in"])
     .order("booking_reference");
   if (error) throw new Error(error.message);
-  return ((data ?? []) as unknown as Array<{
-    id: string;
-    booking_reference: string;
-    checkin_date: string;
-    checkout_date: string;
-    status: string;
-    total_cents: number;
-    paid_cents: number;
-    guests: { name: string | null } | null;
-    reservation_units: { units: { unit_code: string } | null }[];
-  }>).map((r) => ({
+  return (
+    (data ?? []) as unknown as Array<{
+      id: string;
+      booking_reference: string;
+      checkin_date: string;
+      checkout_date: string;
+      status: string;
+      total_cents: number;
+      paid_cents: number;
+      guests: { name: string | null } | null;
+      reservation_units: { units: { unit_code: string } | null }[];
+    }>
+  ).map((r) => ({
     reservation_id: r.id,
     booking_reference: r.booking_reference,
     guest_name: r.guests?.name ?? null,
@@ -212,17 +210,19 @@ export async function getDepartures(
     .in("status", ["checked_in", "checked_out"])
     .order("booking_reference");
   if (error) throw new Error(error.message);
-  return ((data ?? []) as unknown as Array<{
-    id: string;
-    booking_reference: string;
-    checkin_date: string;
-    checkout_date: string;
-    status: string;
-    total_cents: number;
-    paid_cents: number;
-    guests: { name: string | null } | null;
-    reservation_units: { units: { unit_code: string } | null }[];
-  }>).map((r) => ({
+  return (
+    (data ?? []) as unknown as Array<{
+      id: string;
+      booking_reference: string;
+      checkin_date: string;
+      checkout_date: string;
+      status: string;
+      total_cents: number;
+      paid_cents: number;
+      guests: { name: string | null } | null;
+      reservation_units: { units: { unit_code: string } | null }[];
+    }>
+  ).map((r) => ({
     reservation_id: r.id,
     booking_reference: r.booking_reference,
     guest_name: r.guests?.name ?? null,

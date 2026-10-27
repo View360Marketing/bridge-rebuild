@@ -56,21 +56,23 @@ export async function listHousekeepingTasks(
     .eq("task_date", taskDate)
     .order("priority", { ascending: false });
   if (error) throw new Error(error.message);
-  return ((data ?? []) as unknown as Array<{
-    id: string;
-    unit_id: string;
-    task_date: string;
-    status: string;
-    priority: string;
-    is_turnover: boolean;
-    assigned_to: string | null;
-    completed_at: string | null;
-    inspected_by: string | null;
-    inspected_at: string | null;
-    notes: string | null;
-    reservation_id: string | null;
-    units: { unit_code: string; public_name: string | null } | null;
-  }>).map((t) => ({
+  return (
+    (data ?? []) as unknown as Array<{
+      id: string;
+      unit_id: string;
+      task_date: string;
+      status: string;
+      priority: string;
+      is_turnover: boolean;
+      assigned_to: string | null;
+      completed_at: string | null;
+      inspected_by: string | null;
+      inspected_at: string | null;
+      notes: string | null;
+      reservation_id: string | null;
+      units: { unit_code: string; public_name: string | null } | null;
+    }>
+  ).map((t) => ({
     id: t.id,
     unit_id: t.unit_id,
     unit_code: t.units?.unit_code ?? "",
@@ -158,13 +160,13 @@ export async function updateTaskStatus(
 ): Promise<void> {
   await requireStaff(supabase, userId);
   const now = new Date().toISOString();
+  // housekeeping_tasks has no updated_at column; completed_at/inspected_at capture timing.
   const patch: {
     status: string;
-    updated_at: string;
-    completed_at?: string;
-    inspected_by?: string;
-    inspected_at?: string;
-  } = { status, updated_at: now };
+    completed_at?: string | null;
+    inspected_by?: string | null;
+    inspected_at?: string | null;
+  } = { status };
   if (status === "complete") {
     patch.completed_at = now;
   }
@@ -234,9 +236,9 @@ export async function createMaintenanceBlock(
     p_checkout_date: input.checkout_date,
     p_owner_type: "maintenance",
     p_reason: input.reason,
-    p_group_id: null,
+    p_group_id: null as unknown as string,
     p_created_by: userId,
-  } as unknown as Parameters<typeof supabaseAdmin.rpc>[1]);
+  });
   if (error) throw new Error(error.message);
   return data as { block_id: string };
 }

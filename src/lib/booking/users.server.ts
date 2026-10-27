@@ -26,9 +26,7 @@ export async function listStaffUsers(supabase: SupabaseClient): Promise<StaffUse
   const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (error) throw new Error(error.message);
 
-  const { data: roleRows } = await supabaseAdmin
-    .from("user_roles")
-    .select("user_id, role");
+  const { data: roleRows } = await supabaseAdmin.from("user_roles").select("user_id, role");
 
   const rolesByUser = new Map<string, string[]>();
   for (const r of (roleRows ?? []) as { user_id: string; role: string }[]) {
@@ -38,7 +36,13 @@ export async function listStaffUsers(supabase: SupabaseClient): Promise<StaffUse
   }
 
   return (data.users ?? []).map((u) => {
-    const raw = u as unknown as { id: string; email?: string; created_at?: string; last_sign_in_at?: string | null; banned?: boolean };
+    const raw = u as unknown as {
+      id: string;
+      email?: string;
+      created_at?: string;
+      last_sign_in_at?: string | null;
+      banned?: boolean;
+    };
     return {
       id: raw.id,
       email: raw.email ?? "",
@@ -62,10 +66,10 @@ export async function countActiveSuperAdmins(): Promise<number> {
     page: 1,
     perPage: 1000,
   });
-  return (users?.users ?? []).filter((u => {
+  return (users?.users ?? []).filter((u) => {
     const raw = u as unknown as { id: string; banned?: boolean };
     return !raw.banned && superAdminIds.has(raw.id);
-  })).length;
+  }).length;
 }
 
 /** Invite/create a staff user via the Auth Admin API. Assigns a role. */

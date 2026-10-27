@@ -80,10 +80,7 @@ export async function upsertRatePlan(
 }
 
 export async function listDateOverrides(supabase: SupabaseClient) {
-  const { data, error } = await supabase
-    .from("date_rate_overrides")
-    .select("*")
-    .order("stay_date");
+  const { data, error } = await supabase.from("date_rate_overrides").select("*").order("stay_date");
   if (error) throw new Error(error.message);
   return data ?? [];
 }

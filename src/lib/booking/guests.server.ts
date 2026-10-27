@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { Json } from "@/integrations/supabase/types";
 
 /**
  * Guest profiles — separate from staff auth accounts.
@@ -11,7 +12,7 @@ export type GuestRow = {
   name: string;
   email: string | null;
   phone: string | null;
-  notes: unknown;
+  notes: Json | null;
   created_at: string;
   updated_at: string;
 };

@@ -190,10 +190,7 @@ export async function getFinancialReport(
     .gte("checkin_date", range.from)
     .lte("checkin_date", range.to);
 
-  const outstanding = resRows.reduce(
-    (s, r) => s + Math.max(0, r.total_cents - r.paid_cents),
-    0,
-  );
+  const outstanding = resRows.reduce((s, r) => s + Math.max(0, r.total_cents - r.paid_cents), 0);
 
   return {
     roomRevenueCents: roomRevenue,
@@ -260,14 +257,19 @@ function nightsBetween(checkin: string, checkout: string): number {
   return Math.round((o - c) / 86_400_000);
 }
 
-function countNightsInRange(
-  checkin: string,
-  checkout: string,
-  from: string,
-  to: string,
-): number {
-  const start = parseDate(Math.max(parseDate(checkin).getTime(), parseDate(from).getTime()) === parseDate(checkin).getTime() ? checkin : from);
-  const end = parseDate(Math.min(parseDate(checkout).getTime(), parseDate(addDays(to, 1)).getTime()) === parseDate(checkout).getTime() ? checkout : addDays(to, 1));
+function countNightsInRange(checkin: string, checkout: string, from: string, to: string): number {
+  const start = parseDate(
+    Math.max(parseDate(checkin).getTime(), parseDate(from).getTime()) ===
+      parseDate(checkin).getTime()
+      ? checkin
+      : from,
+  );
+  const end = parseDate(
+    Math.min(parseDate(checkout).getTime(), parseDate(addDays(to, 1)).getTime()) ===
+      parseDate(checkout).getTime()
+      ? checkout
+      : addDays(to, 1),
+  );
   const n = Math.round((end.getTime() - start.getTime()) / 86_400_000);
   return Math.max(0, n);
 }
