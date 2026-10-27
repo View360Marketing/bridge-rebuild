@@ -399,6 +399,8 @@ export type Database = {
           instant_booking_enabled: boolean
           inventory_authority: string
           same_day_turnover_enabled: boolean
+          season_end_date: string | null
+          season_start_date: string | null
           stripe_configured: boolean
           stripe_environment: string
           timezone: string
@@ -420,6 +422,8 @@ export type Database = {
           instant_booking_enabled?: boolean
           inventory_authority?: string
           same_day_turnover_enabled?: boolean
+          season_end_date?: string | null
+          season_start_date?: string | null
           stripe_configured?: boolean
           stripe_environment?: string
           timezone?: string
@@ -441,6 +445,8 @@ export type Database = {
           instant_booking_enabled?: boolean
           inventory_authority?: string
           same_day_turnover_enabled?: boolean
+          season_end_date?: string | null
+          season_start_date?: string | null
           stripe_configured?: boolean
           stripe_environment?: string
           timezone?: string
@@ -777,6 +783,7 @@ export type Database = {
           id: string
           is_active: boolean
           max_redemptions: number | null
+          mechanic: string
           name: string
           redemptions_count: number
         }
@@ -790,6 +797,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_redemptions?: number | null
+          mechanic?: string
           name: string
           redemptions_count?: number
         }
@@ -803,6 +811,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_redemptions?: number | null
+          mechanic?: string
           name?: string
           redemptions_count?: number
         }
@@ -846,6 +855,63 @@ export type Database = {
           is_archived?: boolean
           name?: string
           timezone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      property_events: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          end_time: string | null
+          event_date: string
+          id: string
+          includes_overnight_access: boolean
+          is_active: boolean
+          is_confirmed: boolean
+          is_tentative: boolean
+          location: string | null
+          sort_order: number
+          start_time: string | null
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          event_date: string
+          id?: string
+          includes_overnight_access?: boolean
+          is_active?: boolean
+          is_confirmed?: boolean
+          is_tentative?: boolean
+          location?: string | null
+          sort_order?: number
+          start_time?: string | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          event_date?: string
+          id?: string
+          includes_overnight_access?: boolean
+          is_active?: boolean
+          is_confirmed?: boolean
+          is_tentative?: boolean
+          location?: string | null
+          sort_order?: number
+          start_time?: string | null
+          subtitle?: string | null
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -1344,6 +1410,60 @@ export type Database = {
         }
         Relationships: []
       }
+      seasonal_offers: {
+        Row: {
+          code: string
+          created_at: string
+          description: string
+          effective_from: string
+          effective_to: string
+          id: string
+          is_active: boolean
+          promotion_code: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+          weekday_label: string
+          weekday_rate_cents: number
+          weekend_label: string
+          weekend_rate_cents: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description: string
+          effective_from: string
+          effective_to: string
+          id?: string
+          is_active?: boolean
+          promotion_code?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+          weekday_label?: string
+          weekday_rate_cents: number
+          weekend_label?: string
+          weekend_rate_cents: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string
+          effective_from?: string
+          effective_to?: string
+          id?: string
+          is_active?: boolean
+          promotion_code?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          weekday_label?: string
+          weekday_rate_cents?: number
+          weekend_label?: string
+          weekend_rate_cents?: number
+        }
+        Relationships: []
+      }
       taxes: {
         Row: {
           code: string
@@ -1532,6 +1652,72 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      venue_rate_cards: {
+        Row: {
+          catering_offer_note: string | null
+          catering_weekday_rate_cents: number | null
+          code: string
+          created_at: string
+          description: string | null
+          duration_hours: number
+          excludes_weddings: boolean
+          id: string
+          includes: string[]
+          inquiry_category: string
+          is_active: boolean
+          label: string
+          max_guests: number | null
+          sort_order: number
+          updated_at: string
+          weekday_label: string
+          weekday_rate_cents: number
+          weekend_label: string
+          weekend_rate_cents: number
+        }
+        Insert: {
+          catering_offer_note?: string | null
+          catering_weekday_rate_cents?: number | null
+          code: string
+          created_at?: string
+          description?: string | null
+          duration_hours?: number
+          excludes_weddings?: boolean
+          id?: string
+          includes?: string[]
+          inquiry_category?: string
+          is_active?: boolean
+          label: string
+          max_guests?: number | null
+          sort_order?: number
+          updated_at?: string
+          weekday_label?: string
+          weekday_rate_cents: number
+          weekend_label?: string
+          weekend_rate_cents: number
+        }
+        Update: {
+          catering_offer_note?: string | null
+          catering_weekday_rate_cents?: number | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          duration_hours?: number
+          excludes_weddings?: boolean
+          id?: string
+          includes?: string[]
+          inquiry_category?: string
+          is_active?: boolean
+          label?: string
+          max_guests?: number | null
+          sort_order?: number
+          updated_at?: string
+          weekday_label?: string
+          weekday_rate_cents?: number
+          weekend_label?: string
+          weekend_rate_cents?: number
         }
         Relationships: []
       }

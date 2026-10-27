@@ -64,6 +64,7 @@ export type PromotionRow = {
   effective_from: string | null;
   effective_to: string | null;
   is_active: boolean;
+  mechanic: string | null;
 };
 
 export type UnitPricingInput = {
@@ -261,14 +262,27 @@ export async function computeQuote(
   // discount
   let discount = 0;
   if (promotion) {
-    if (promotion.discount_percent != null) {
+    if (promotion.mechanic === "third_night_free") {
+      // "Third night free" = the third eligible night's room charge is discounted.
+      // NOT a cheapest-night substitution: the actual 3rd night's room charge.
+      // Only applies when the stay has at least 3 nights. Longer-stay repeat/
+      // stacking/season-boundary rules are unresolved and left for admin review
+      // before enabling automatic promotional checkout (promotion.is_active).
+      if (nights.length >= 3) {
+        const thirdNight = nights[2]!;
+        const thirdNightRoom = nightly_breakdown
+          .filter((b) => b.date === thirdNight)
+          .reduce((sum, b) => sum + b.amount_cents, 0);
+        discount = thirdNightRoom;
+      }
+    } else if (promotion.discount_percent != null) {
       discount = Math.round(((subtotal + feesTotal) * promotion.discount_percent) / 100);
     } else if (promotion.discount_cents != null) {
       discount = promotion.discount_cents;
     }
     if (discount > 0)
       lines.push({
-        label: `Promotion ${promotion.code}`,
+        label: `Promotion ${promotion.code} — third night free`,
         amount_cents: -discount,
         kind: "discount",
         sort_order: sort++,
