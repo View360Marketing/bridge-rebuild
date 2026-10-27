@@ -109,53 +109,56 @@ function RoomsPage() {
       )}
 
       {units.data && units.data.length > 0 && (
-        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-stone-50 text-stone-600 text-xs uppercase tracking-wider">
-              <tr>
-                <th className="text-left px-4 py-3">Code</th>
-                <th className="text-left px-4 py-3">Name</th>
-                <th className="text-left px-4 py-3">Kind</th>
-                <th className="text-left px-4 py-3">Guests</th>
-                <th className="text-left px-4 py-3">Rate</th>
-                <th className="text-left px-4 py-3">Status</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {units.data.map((u) => (
-                <tr key={u.id} className="hover:bg-stone-50">
-                  <td className="px-4 py-3 font-mono text-xs">{u.unit_code}</td>
-                  <td className="px-4 py-3">{u.public_name || "—"}</td>
-                  <td className="px-4 py-3 capitalize">{u.unit_kind}</td>
-                  <td className="px-4 py-3">{u.max_guests}</td>
-                  <td className="px-4 py-3">${(u.base_rate_cents / 100).toFixed(0)}</td>
-                  <td className="px-4 py-3">
-                    {u.is_archived ? (
-                      <span className="text-xs text-stone-400">Archived</span>
-                    ) : u.is_closed ? (
-                      <span className="text-xs text-amber-600">Closed</span>
-                    ) : u.is_published ? (
-                      <span className="text-xs text-emerald-600">Published</span>
-                    ) : (
-                      <span className="text-xs text-stone-500">Draft</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {!u.is_archived && (
-                      <button
-                        onClick={() => handleArchive(u.id)}
-                        className="text-stone-400 hover:text-red-600"
-                        aria-label="Archive unit"
-                      >
-                        <Archive className="w-4 h-4" />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {units.data.map((u) => (
+            <div
+              key={u.id}
+              className="bg-white rounded-2xl border border-stone-200 p-4 flex flex-col gap-2 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-mono text-xs text-stone-400">{u.unit_code}</p>
+                  <p className="font-serif text-lg font-bold text-stone-900 truncate">
+                    {u.public_name || "—"}
+                  </p>
+                </div>
+                {!u.is_archived && (
+                  <button
+                    onClick={() => handleArchive(u.id)}
+                    className="shrink-0 text-stone-300 hover:text-red-600 transition-colors"
+                    aria-label={`Archive ${u.public_name || u.unit_code}`}
+                  >
+                    <Archive className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <span className="text-xs text-stone-500 capitalize">{u.unit_kind}</span>
+              <div className="flex items-center gap-3 text-xs text-stone-600">
+                <span>{u.max_guests} guests</span>
+                <span className="text-stone-300">·</span>
+                <span>${(u.base_rate_cents / 100).toFixed(0)}/night</span>
+              </div>
+              <div className="pt-1">
+                {u.is_archived ? (
+                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-400">
+                    Archived
+                  </span>
+                ) : u.is_closed ? (
+                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-700">
+                    Closed
+                  </span>
+                ) : u.is_published ? (
+                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                    Published
+                  </span>
+                ) : (
+                  <span className="inline-block text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-500">
+                    Draft
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
