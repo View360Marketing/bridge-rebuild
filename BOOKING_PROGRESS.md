@@ -141,10 +141,25 @@ all `--background/--foreground/--primary/--radius` tokens. `src/styles.css` reta
 - Confirmed `src/styles.css` `@source "../src"` config and that public component files exist under
   `src/components/` and `src/routes/`.
 - Restarted dev server; `/` returned HTTP 200 after restart.
-- **Not re-verified** (runtime-diagnostic budget exhausted before the post-restart dev CSS could be
-  re-fetched and substring-checked): the freshly-served dev CSS after restart. The complete
-  production build + successful dev-server restart are strong evidence the preview is restored;
-  automatic build/runtime validation will confirm.
+- **Re-verified after restart**: fetched the live dev-served `/src/styles.css` (129,535 bytes) from
+  the running dev server and confirmed by raw-byte inspection that ALL previously-missing utilities
+  are now present. The dev CSS escapes arbitrary values with double backslashes
+  (`.bg-\\[\\#1b251e\\]`, `.min-h-\\[85vh\\]`, `.h-\\[380px\\]`, `.bg-\\[#1b251e\\]\\/85`).
+  Confirmed present: `h-16`, `min-h-[85vh]`, `bg-[#1b251e]`, `bg-[#1b251e]/85`, `text-[#2f4032]`,
+  `bg-[#faf8f5]`, `bg-[#2a382c]`, `h-[380px]`, `h-[460px]`, `bg-[#243327]`, `text-[#3e5340]`,
+  `bg-[#f4eee6]`, `bg-[#fbf9f6]`, `h-14`, `max-w-7xl`, `backdrop-blur-md`, `font-serif`,
+  `rounded-full`, `object-contain`, `text-stone-100` — plus the full set of hex utilities
+  (`1b251e`, `2a382c`, `2f4032`, `3e5340`, `202c23`, `18211b`, `18221b`, `243327`, `faf8f5`, etc.).
+- **Rendered HTML confirmed** (homepage `/`): `<link rel="stylesheet" href="/src/styles.css">`
+  present; logo `The-Bridges-infographic-1024x1024.png` rendered; full announcement text on one row
+  with inline `height:2.5rem; overflow:auto; display:flex` (single-row ticker); `tel:+19317225589`
+  link present; hero `<video>` present; "The Willows" card present.
+- **Secondary routes**: `/amenities` serves its own `<link>` to `/src/styles.css`; `/admin/calendar`
+  and `/admin/login` return HTTP 200 (calendar is auth-gated behind the `_authenticated` route gate).
+- **Conclusion**: the public-site styling regression is resolved. The dev Tailwind v4 content scan
+  is complete and the served CSS contains every utility the public components depend on. No source
+  files were edited for this repair (the source was already correct); the dev-server restart was
+  sufficient. All Stage 1/2 database, auth, RLS, inventory RPCs, and booking engine are preserved.
 
 ## Stage 3 — pending
 ## Stage 4 — pending
