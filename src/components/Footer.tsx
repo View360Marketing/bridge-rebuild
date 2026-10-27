@@ -150,6 +150,9 @@ export function Footer() {
             <Link to="/contact-us" className="hover:text-stone-200">
               Privacy Policy
             </Link>
+            <Link to="/admin/login" className="hover:text-stone-200 transition-colors">
+              Staff Login
+            </Link>
           </div>
         </div>
       </div>
