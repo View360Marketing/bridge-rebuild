@@ -87,7 +87,7 @@ function WillowsPage() {
             <div className="lg:col-span-5">
               <div className="rounded-3xl overflow-hidden shadow-xl border border-stone-200 h-80 sm:h-96">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/a826cf17-b6ac-415c-8c3b-6f1f59123962.jpg"
                   alt="The Willows Event Space"
                   className="w-full h-full object-cover"
                 />
@@ -252,7 +252,7 @@ function WillowsPage() {
               <div className="lg:col-span-5">
                 <div className="rounded-3xl overflow-hidden border border-stone-200 h-64 sm:h-72 relative group">
                   <img
-                    src="https://thebridgestn.com/wp-content/uploads/2026/05/facilities27-min.jpg"
+                    src="https://vibe.filesafe.space/1790196628861484830/assets/b8fc567d-a74f-475f-a864-1e55446e5777.jpg"
                     alt="Restaurant space available for private rental at The Bridges"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"

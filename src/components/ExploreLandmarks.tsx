@@ -73,21 +73,21 @@ export function ExploreLandmarks() {
           <div className="lg:col-span-7 h-[420px] sm:h-[480px] rounded-3xl overflow-hidden relative shadow-lg border border-stone-200">
             {activeExploreTab === "ice-cave" && (
               <img
-                src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Ice-Cave_Wayne-County-56-scaled.jpg"
+                src="https://vibe.filesafe.space/1790196628861484830/assets/5d66d3b1-c34d-4f33-b0fa-032e1acf1ec5.jpg"
                 alt="Ice Cave"
                 className="w-full h-full object-cover animate-in fade-in duration-300"
               />
             )}
             {activeExploreTab === "bridges" && (
               <img
-                src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Natural-Bridge_Wayne-County-66-1024x683.jpg"
+                src="https://vibe.filesafe.space/1790196628861484830/assets/fab01de6-ea36-4c90-936b-29f93a1c006b.jpg"
                 alt="The Natural Bridges"
                 className="w-full h-full object-cover animate-in fade-in duration-300"
               />
             )}
             {activeExploreTab === "water-wheel" && (
               <img
-                src="https://thebridgestn.com/wp-content/uploads/2026/05/DSC2575-2-scaled.jpg"
+                src="https://vibe.filesafe.space/1790196628861484830/assets/cab64087-066e-4e81-bd41-ad9bd9aba5f4.jpg"
                 alt="Water Wheel"
                 className="w-full h-full object-cover animate-in fade-in duration-300"
               />

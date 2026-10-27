@@ -19,7 +19,7 @@ export function Header() {
             {/* Logo */}
             <Link to="/" className="flex items-center shrink-0 group py-1">
               <img
-                src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges-infographic-1024x1024.png"
+                src="https://vibe.filesafe.space/1790196628861484830/assets/1d550afa-3cde-43cf-b5e7-67b08b8974ed.png"
                 alt="The Bridges Tennessee"
                 className="h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105"
               />

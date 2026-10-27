@@ -25,7 +25,7 @@ export function ContactSection() {
       {/* Background image of Natural Bridge / Ice cave with gentle bright misty wash */}
       <div className="absolute inset-0">
         <img
-          src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Natural-Bridge_Wayne-County-66-scaled.jpg"
+          src="https://vibe.filesafe.space/1790196628861484830/assets/30945ebf-a148-4ad5-a769-9044e5e3bc37.jpg"
           alt="The Bridges Natural Landmark"
           className="w-full h-full object-cover filter brightness-95"
         />

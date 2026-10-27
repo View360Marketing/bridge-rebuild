@@ -87,7 +87,7 @@ export function Hero() {
             <div className="bg-white/15 backdrop-blur-xl border border-white/25 rounded-3xl p-4 sm:p-5 shadow-2xl text-white space-y-4 hover:bg-white/20 transition-all group">
               <div className="relative h-56 sm:h-64 rounded-2xl overflow-hidden shadow-inner">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/a826cf17-b6ac-415c-8c3b-6f1f59123962.jpg"
                   alt="The Willows Event Space"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />

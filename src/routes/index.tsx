@@ -107,14 +107,14 @@ function Index() {
             <div className="lg:col-span-5 grid grid-cols-2 gap-3 z-10">
               <div className="rounded-2xl overflow-hidden h-36 sm:h-44 shadow-xs border border-stone-300/60">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Room-41_Wayne-County-69-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/dc17e0c3-4e99-4b89-a69a-d623b2504ca8.jpg"
                   alt="Guest Room 41"
                   className="w-full h-full object-cover hover:scale-105 transition-transform"
                 />
               </div>
               <div className="rounded-2xl overflow-hidden h-36 sm:h-44 shadow-xs border border-stone-300/60">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/05/facilities27-min.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/b8fc567d-a74f-475f-a864-1e55446e5777.jpg"
                   alt="Resort Cabins"
                   className="w-full h-full object-cover hover:scale-105 transition-transform"
                 />
@@ -177,7 +177,7 @@ function Index() {
             <div className="lg:col-span-6 relative">
               <div className="relative h-[380px] sm:h-[460px] rounded-3xl overflow-hidden shadow-md border border-stone-200">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Natural-Bridge_Wayne-County-66-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/fab01de6-ea36-4c90-936b-29f93a1c006b.jpg"
                   alt="Natural Bridge Rock Formation"
                   className="w-full h-full object-cover"
                 />

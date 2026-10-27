@@ -51,7 +51,7 @@ export function AdminShell({ active, children }: { active: string; children: Rea
         <div className="px-5 py-5 border-b border-white/10">
           <Link to="/" className="flex items-center gap-2">
             <img
-              src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges-infographic-1024x1024.png"
+              src="https://vibe.filesafe.space/1790196628861484830/assets/1d550afa-3cde-43cf-b5e7-67b08b8974ed.png"
               alt="The Bridges"
               className="h-9 w-auto"
             />

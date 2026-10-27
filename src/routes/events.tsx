@@ -104,7 +104,7 @@ function EventsPage() {
             <div className="lg:col-span-5">
               <div className="rounded-3xl overflow-hidden shadow-xl border border-stone-200 h-80 sm:h-96 relative group">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/a826cf17-b6ac-415c-8c3b-6f1f59123962.jpg"
                   alt="The Willows Event Space at The Bridges"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -134,7 +134,7 @@ function EventsPage() {
             <div className="lg:col-span-5 grid grid-cols-3 gap-2.5">
               <div className="rounded-xl overflow-hidden h-24 sm:h-28 border border-stone-200">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Natural-Bridge_Wayne-County-66-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/fab01de6-ea36-4c90-936b-29f93a1c006b.jpg"
                   alt="The Natural Bridge"
                   className="w-full h-full object-cover"
                   loading="lazy"
@@ -142,7 +142,7 @@ function EventsPage() {
               </div>
               <div className="rounded-xl overflow-hidden h-24 sm:h-28 border border-stone-200">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/05/facilities27-min.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/b8fc567d-a74f-475f-a864-1e55446e5777.jpg"
                   alt="Resort cabins at The Bridges"
                   className="w-full h-full object-cover"
                   loading="lazy"
@@ -150,7 +150,7 @@ function EventsPage() {
               </div>
               <div className="rounded-xl overflow-hidden h-24 sm:h-28 border border-stone-200">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/05/DSC2575-2-scaled.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/cab64087-066e-4e81-bd41-ad9bd9aba5f4.jpg"
                   alt="The Bridges property"
                   className="w-full h-full object-cover"
                   loading="lazy"
@@ -349,7 +349,7 @@ function EventsPage() {
             <div className="lg:col-span-5">
               <div className="rounded-3xl overflow-hidden border border-white/15 h-72 sm:h-80 relative group">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/a826cf17-b6ac-415c-8c3b-6f1f59123962.jpg"
                   alt="Private gathering space at The Willows"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
@@ -468,7 +468,7 @@ function EventsPage() {
             <div className="lg:col-span-6">
               <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/15 h-96">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/a826cf17-b6ac-415c-8c3b-6f1f59123962.jpg"
                   alt="The Willows Event Space"
                   className="w-full h-full object-cover"
                 />

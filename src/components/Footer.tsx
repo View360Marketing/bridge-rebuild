@@ -11,7 +11,7 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
               <img
-                src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges-infographic-1024x1024.png"
+                src="https://vibe.filesafe.space/1790196628861484830/assets/1d550afa-3cde-43cf-b5e7-67b08b8974ed.png"
                 alt="The Bridges"
                 className="w-14 h-14 object-contain"
               />

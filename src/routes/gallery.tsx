@@ -25,42 +25,42 @@ export const Route = createFileRoute("/gallery")({
 
 const PHOTOS = [
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Natural-Bridge_Wayne-County-66-scaled.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/30945ebf-a148-4ad5-a769-9044e5e3bc37.jpg",
     alt: "Tennessee's Natural Bridge formation",
     title: "The Natural Bridge",
   },
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Ice-Cave_Wayne-County-56-scaled.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/5d66d3b1-c34d-4f33-b0fa-032e1acf1ec5.jpg",
     alt: "The Ice Cave at The Bridges",
     title: "Ice Cave",
   },
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/05/DSC2575-2-scaled.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/cab64087-066e-4e81-bd41-ad9bd9aba5f4.jpg",
     alt: "Historic Water Wheel",
     title: "Water Wheel",
   },
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/a826cf17-b6ac-415c-8c3b-6f1f59123962.jpg",
     alt: "The Willows Event Center",
     title: "The Willows",
   },
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Room-41_Wayne-County-69-1024x683.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/dc17e0c3-4e99-4b89-a69a-d623b2504ca8.jpg",
     alt: "Guest Room 41 Lodging",
     title: "Guest Lodging",
   },
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/05/facilities27-min.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/b8fc567d-a74f-475f-a864-1e55446e5777.jpg",
     alt: "Cabins and Grounds",
     title: "Cabins & Grounds",
   },
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/08/IMG_7798-768x1024.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/0d9abec6-3cfb-413a-b63e-f2110da45dd9.jpg",
     alt: "RV Sites",
     title: "RV Park Sites",
   },
   {
-    url: "https://thebridgestn.com/wp-content/uploads/2026/08/IMG_9626-1-768x1024.jpg",
+    url: "https://vibe.filesafe.space/1790196628861484830/assets/6eb4c2ea-6cc9-4cd6-8967-f444d1821ae6.jpg",
     alt: "Evening Fire Pit by RV",
     title: "Evening Campfires",
   },

@@ -81,7 +81,7 @@ function AmenitiesPage() {
             <div className="lg:col-span-5 relative">
               <div className="rounded-3xl overflow-hidden shadow-xl border border-stone-200 relative group h-[420px]">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/05/DSC2575-2-scaled.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/cab64087-066e-4e81-bd41-ad9bd9aba5f4.jpg"
                   alt="Property highlights at The Bridges"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -103,14 +103,14 @@ function AmenitiesPage() {
             <div className="lg:col-span-5 grid grid-cols-2 gap-4">
               <div className="rounded-2xl overflow-hidden h-72 shadow-md border border-stone-200">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/08/IMG_7798-768x1024.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/0d9abec6-3cfb-413a-b63e-f2110da45dd9.jpg"
                   alt="RV Park at The Bridges"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="rounded-2xl overflow-hidden h-72 shadow-md border border-stone-200">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges_Room-41_Wayne-County-69-1024x683.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/dc17e0c3-4e99-4b89-a69a-d623b2504ca8.jpg"
                   alt="Guest Room 41"
                   className="w-full h-full object-cover"
                 />
@@ -348,7 +348,7 @@ function AmenitiesPage() {
             <div className="lg:col-span-5">
               <div className="rounded-3xl overflow-hidden shadow-2xl border border-white/15 h-96">
                 <img
-                  src="https://thebridgestn.com/wp-content/uploads/2026/08/IMG_9626-1-768x1024.jpg"
+                  src="https://vibe.filesafe.space/1790196628861484830/assets/6eb4c2ea-6cc9-4cd6-8967-f444d1821ae6.jpg"
                   alt="Evening campfire by RV at The Bridges"
                   className="w-full h-full object-cover"
                 />

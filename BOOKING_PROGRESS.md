@@ -235,3 +235,64 @@ all `--background/--foreground/--primary/--radius` tokens. `src/styles.css` reta
 ## Stage 4 — pending
 ## Stage 5 — pending
 ## Stage 6 — pending
+---
+
+## Media Migration — WordPress Host Retirement (2026-10-27)
+
+### Summary
+All 9 unique WordPress-hosted images (used across 33 references in 13 source
+files) were downloaded from thebridgestn.com and re-hosted on durable,
+app-owned storage (vibe.filesafe.space), independent of the retiring
+WordPress server. The homepage hero video was already hosted on an
+independent CDN (assets.cdn.filesafe.space) and was unchanged.
+
+### Backup ZIP / media-manifest.json
+The supplied backup ZIP and media-manifest.json were not present in this
+environment. Assets were downloaded directly from the live WordPress host
+while still accessible. Originals are preserved in durable storage.
+
+### Asset registry
+Created src/lib/assets.ts — central registry mapping old WordPress URL ->
+new durable URL, content type, slug, alt text, and usage locations. Exports
+ASSET_REGISTRY, ASSET_URL_MAP, and resolveAssetUrl().
+
+### Files copied (old URL -> new durable URL)
+1. .../The-Bridges_Natural-Bridge_Wayne-County-66-scaled.jpg -> assets/30945ebf-...jpg
+2. .../The-Bridges_Ice-Cave_Wayne-County-56-scaled.jpg -> assets/5d66d3b1-...jpg
+3. .../The-Bridges_Natural-Bridge_Wayne-County-66-1024x683.jpg -> assets/fab01de6-...jpg
+4. .../DSC2575-2-scaled.jpg -> assets/cab64087-...jpg
+5. .../The-Bridges-infographic-1024x1024.png -> assets/1d550afa-...png
+6. .../The-Bridges_The-Willows-Event-Space_Wayne-County-39-1024x683.jpg -> assets/a826cf17-...jpg
+7. .../The-Bridges_Room-41_Wayne-County-69-1024x683.jpg -> assets/dc17e0c3-...jpg
+8. .../facilities27-min.jpg -> assets/b8fc567d-...jpg
+9. .../IMG_7798-768x1024.jpg -> assets/0d9abec6-...jpg
+10. .../IMG_9626-1-768x1024.jpg -> assets/6eb4c2ea-...jpg
+
+### References replaced
+Source files updated (all img src, gallery url, logo src):
+ContactSection, ExploreLandmarks, Footer, Header, Hero, AdminShell,
+about-us, amenities, events, gallery, index, massage-wellness,
+weddings-events. Verified: NO thebridgestn.com/wp-content/uploads image
+URLs remain as live src references in any component/route. The only
+remaining wp-content strings are the oldUrl provenance fields in
+src/lib/assets.ts (intentional, for record-keeping).
+
+### Database
+unit_media table queried — currently empty (no stored media URLs in DB).
+No DB media fields required updating.
+
+### Preserved (not WordPress)
+- Hero video: assets.cdn.filesafe.space (already independent) — unchanged.
+- Airbnb booking links, contact form, form-tracking integration — unchanged.
+- Seasonal offers, December events, massage call/text, single-row
+  announcement — all preserved.
+
+### Remaining external dependencies
+None for media. The site still uses thebridgestn.com for normal
+navigation/email (mailto:info@thebridgestn.com) — those are not retiring-host
+media dependencies and were intentionally preserved per instructions.
+
+### Shutdown readiness
+All retiring-host media dependencies have been replaced with durable
+app-owned URLs. The old WordPress host can be retired without breaking any
+image, video, logo, or gallery on the new site.
