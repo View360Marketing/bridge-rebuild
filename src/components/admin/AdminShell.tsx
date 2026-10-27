@@ -10,6 +10,9 @@ import {
   Bell,
   Settings,
   LayoutGrid,
+  Wrench,
+  BarChart3,
+  UserCog,
 } from "lucide-react";
 
 const NAV = [
@@ -23,13 +26,12 @@ const NAV = [
     ready: true,
   },
   { key: "rooms", label: "Rooms & Properties", to: "/admin/rooms", icon: Building2, ready: true },
-  { key: "rates", label: "Rates & Rules", to: "/admin", icon: DollarSign, ready: false },
-  { key: "guests", label: "Guests", to: "/admin", icon: Users, ready: false },
-  { key: "payments", label: "Payments", to: "/admin", icon: DollarSign, ready: false },
-  { key: "housekeeping", label: "Housekeeping", to: "/admin", icon: Sparkles, ready: false },
-  { key: "groups", label: "Groups", to: "/admin", icon: Users, ready: false },
-  { key: "reports", label: "Reports", to: "/admin", icon: ClipboardList, ready: false },
-  { key: "users", label: "Users", to: "/admin", icon: Users, ready: false },
+  { key: "rates", label: "Rates & Rules", to: "/admin/rates", icon: DollarSign, ready: true },
+  { key: "guests", label: "Guests", to: "/admin/guests", icon: Users, ready: true },
+  { key: "housekeeping", label: "Housekeeping", to: "/admin/housekeeping", icon: Sparkles, ready: true },
+  { key: "groups", label: "Groups", to: "/admin/groups", icon: Users, ready: true },
+  { key: "reports", label: "Reports", to: "/admin/reports", icon: BarChart3, ready: true },
+  { key: "users", label: "Users", to: "/admin/users", icon: UserCog, ready: true },
   { key: "integrations", label: "Integrations", to: "/admin", icon: Bell, ready: false },
   { key: "settings", label: "Settings", to: "/admin", icon: Settings, ready: false },
 ];

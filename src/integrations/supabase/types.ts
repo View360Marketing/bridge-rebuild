@@ -259,7 +259,12 @@ export type Database = {
           completed_at: string | null
           created_at: string
           id: string
+          inspected_at: string | null
+          inspected_by: string | null
+          is_turnover: boolean
           notes: string | null
+          priority: string
+          reservation_id: string | null
           status: string
           task_date: string
           unit_id: string
@@ -269,7 +274,12 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          inspected_at?: string | null
+          inspected_by?: string | null
+          is_turnover?: boolean
           notes?: string | null
+          priority?: string
+          reservation_id?: string | null
           status?: string
           task_date: string
           unit_id: string
@@ -279,12 +289,24 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          inspected_at?: string | null
+          inspected_by?: string | null
+          is_turnover?: boolean
           notes?: string | null
+          priority?: string
+          reservation_id?: string | null
           status?: string
           task_date?: string
           unit_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "housekeeping_tasks_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "housekeeping_tasks_unit_id_fkey"
             columns: ["unit_id"]
@@ -369,12 +391,14 @@ export type Database = {
           currency: string
           default_checkin_time: string
           default_checkout_time: string
+          default_cleanliness_on_checkout: string
           default_hold_minutes: number
           deposit_percent: number | null
           expected_room_count: number
           id: number
           instant_booking_enabled: boolean
           inventory_authority: string
+          same_day_turnover_enabled: boolean
           stripe_configured: boolean
           stripe_environment: string
           timezone: string
@@ -388,12 +412,14 @@ export type Database = {
           currency?: string
           default_checkin_time?: string
           default_checkout_time?: string
+          default_cleanliness_on_checkout?: string
           default_hold_minutes?: number
           deposit_percent?: number | null
           expected_room_count?: number
           id?: number
           instant_booking_enabled?: boolean
           inventory_authority?: string
+          same_day_turnover_enabled?: boolean
           stripe_configured?: boolean
           stripe_environment?: string
           timezone?: string
@@ -407,12 +433,14 @@ export type Database = {
           currency?: string
           default_checkin_time?: string
           default_checkout_time?: string
+          default_cleanliness_on_checkout?: string
           default_hold_minutes?: number
           deposit_percent?: number | null
           expected_room_count?: number
           id?: number
           instant_booking_enabled?: boolean
           inventory_authority?: string
+          same_day_turnover_enabled?: boolean
           stripe_configured?: boolean
           stripe_environment?: string
           timezone?: string
@@ -466,6 +494,63 @@ export type Database = {
             columns: ["unit_id"]
             isOneToOne: false
             referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manual_payments: {
+        Row: {
+          amount_cents: number
+          collected_at: string
+          collected_by: string
+          created_at: string
+          currency: string
+          id: string
+          method: string
+          notes: string | null
+          reference: string | null
+          reservation_id: string
+          reverses_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          collected_at?: string
+          collected_by: string
+          created_at?: string
+          currency?: string
+          id?: string
+          method: string
+          notes?: string | null
+          reference?: string | null
+          reservation_id: string
+          reverses_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          collected_at?: string
+          collected_by?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          method?: string
+          notes?: string | null
+          reference?: string | null
+          reservation_id?: string
+          reverses_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manual_payments_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_payments_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: false
+            referencedRelation: "manual_payments"
             referencedColumns: ["id"]
           },
         ]
@@ -1097,11 +1182,13 @@ export type Database = {
           currency: string
           group_id: string | null
           guest_id: string | null
+          guest_requests: string | null
           hold_expires_at: string | null
           id: string
           paid_cents: number
           policy_version: string | null
           source: string
+          staff_notes: string | null
           status: string
           total_cents: number
           updated_at: string
@@ -1120,11 +1207,13 @@ export type Database = {
           currency?: string
           group_id?: string | null
           guest_id?: string | null
+          guest_requests?: string | null
           hold_expires_at?: string | null
           id?: string
           paid_cents?: number
           policy_version?: string | null
           source?: string
+          staff_notes?: string | null
           status?: string
           total_cents?: number
           updated_at?: string
@@ -1143,11 +1232,13 @@ export type Database = {
           currency?: string
           group_id?: string | null
           guest_id?: string | null
+          guest_requests?: string | null
           hold_expires_at?: string | null
           id?: string
           paid_cents?: number
           policy_version?: string | null
           source?: string
+          staff_notes?: string | null
           status?: string
           total_cents?: number
           updated_at?: string
@@ -1332,6 +1423,7 @@ export type Database = {
           bedrooms: number
           beds: number
           cleaning_fee_cents: number
+          cleanliness_state: string
           created_at: string
           created_by: string | null
           description: string | null
@@ -1358,6 +1450,7 @@ export type Database = {
           bedrooms?: number
           beds?: number
           cleaning_fee_cents?: number
+          cleanliness_state?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1384,6 +1477,7 @@ export type Database = {
           bedrooms?: number
           beds?: number
           cleaning_fee_cents?: number
+          cleanliness_state?: string
           created_at?: string
           created_by?: string | null
           description?: string | null
