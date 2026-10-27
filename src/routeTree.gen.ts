@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as AmenitiesRouteImport } from './routes/amenities'
 import { Route as ContactUsRouteImport } from './routes/contact-us'
@@ -18,10 +19,18 @@ import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as MassageWellnessRouteImport } from './routes/massage-wellness'
 import { Route as TheAlpineRouteImport } from './routes/the-alpine'
 import { Route as WeddingsEventsRouteImport } from './routes/weddings-events'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin/rooms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutUsRoute = AboutUsRouteImport.update({
@@ -64,6 +73,26 @@ const WeddingsEventsRoute = WeddingsEventsRouteImport.update({
   path: '/weddings-events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminRoomsRoute = AuthenticatedAdminRoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +104,10 @@ export interface FileRoutesByFullPath {
   '/massage-wellness': typeof MassageWellnessRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,10 +119,14 @@ export interface FileRoutesByTo {
   '/massage-wellness': typeof MassageWellnessRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about-us': typeof AboutUsRoute
   '/amenities': typeof AmenitiesRoute
   '/contact-us': typeof ContactUsRoute
@@ -98,6 +135,10 @@ export interface FileRoutesById {
   '/massage-wellness': typeof MassageWellnessRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +152,10 @@ export interface FileRouteTypes {
     | '/massage-wellness'
     | '/the-alpine'
     | '/weddings-events'
+    | '/admin'
+    | '/admin/login'
+    | '/admin/rooms'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,9 +167,13 @@ export interface FileRouteTypes {
     | '/massage-wellness'
     | '/the-alpine'
     | '/weddings-events'
+    | '/admin/login'
+    | '/admin/rooms'
+    | '/admin'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/about-us'
     | '/amenities'
     | '/contact-us'
@@ -133,10 +182,15 @@ export interface FileRouteTypes {
     | '/massage-wellness'
     | '/the-alpine'
     | '/weddings-events'
+    | '/_authenticated/admin'
+    | '/admin/login'
+    | '/_authenticated/admin/rooms'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutUsRoute: typeof AboutUsRoute
   AmenitiesRoute: typeof AmenitiesRoute
   ContactUsRoute: typeof ContactUsRoute
@@ -145,6 +199,7 @@ export interface RootRouteChildren {
   MassageWellnessRoute: typeof MassageWellnessRoute
   TheAlpineRoute: typeof TheAlpineRoute
   WeddingsEventsRoute: typeof WeddingsEventsRoute
+  AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -154,6 +209,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about-us': {
@@ -212,11 +274,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WeddingsEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/rooms': {
+      id: '/_authenticated/admin/rooms'
+      path: '/rooms'
+      fullPath: '/admin/rooms'
+      preLoaderRoute: typeof AuthenticatedAdminRoomsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminRoomsRoute: typeof AuthenticatedAdminRoomsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminRoomsRoute: AuthenticatedAdminRoomsRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutUsRoute: AboutUsRoute,
   AmenitiesRoute: AmenitiesRoute,
   ContactUsRoute: ContactUsRoute,
@@ -225,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   MassageWellnessRoute: MassageWellnessRoute,
   TheAlpineRoute: TheAlpineRoute,
   WeddingsEventsRoute: WeddingsEventsRoute,
+  AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

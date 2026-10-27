@@ -1,0 +1,75 @@
+import React from "react";
+import { Link } from "@tanstack/react-router";
+import {
+  Building2,
+  CalendarDays,
+  Users,
+  DollarSign,
+  Sparkles,
+  ClipboardList,
+  Bell,
+  Settings,
+  LayoutGrid,
+} from "lucide-react";
+
+const NAV = [
+  { key: "overview", label: "Overview", to: "/admin", icon: LayoutGrid, ready: true },
+  { key: "calendar", label: "Calendar", to: "/admin", icon: CalendarDays, ready: false },
+  { key: "reservations", label: "Reservations", to: "/admin", icon: ClipboardList, ready: false },
+  { key: "rooms", label: "Rooms & Properties", to: "/admin/rooms", icon: Building2, ready: true },
+  { key: "rates", label: "Rates & Rules", to: "/admin", icon: DollarSign, ready: false },
+  { key: "guests", label: "Guests", to: "/admin", icon: Users, ready: false },
+  { key: "payments", label: "Payments", to: "/admin", icon: DollarSign, ready: false },
+  { key: "housekeeping", label: "Housekeeping", to: "/admin", icon: Sparkles, ready: false },
+  { key: "groups", label: "Groups", to: "/admin", icon: Users, ready: false },
+  { key: "reports", label: "Reports", to: "/admin", icon: ClipboardList, ready: false },
+  { key: "users", label: "Users", to: "/admin", icon: Users, ready: false },
+  { key: "integrations", label: "Integrations", to: "/admin", icon: Bell, ready: false },
+  { key: "settings", label: "Settings", to: "/admin", icon: Settings, ready: false },
+];
+
+export function AdminShell({ active, children }: { active: string; children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-[#f4f1ec] text-stone-800 flex">
+      {/* Sidebar */}
+      <aside className="w-60 shrink-0 bg-[#1b251e] text-stone-200 hidden md:flex flex-col">
+        <div className="px-5 py-5 border-b border-white/10">
+          <Link to="/" className="flex items-center gap-2">
+            <img
+              src="https://thebridgestn.com/wp-content/uploads/2026/04/The-Bridges-infographic-1024x1024.png"
+              alt="The Bridges"
+              className="h-9 w-auto"
+            />
+            <span className="text-xs text-stone-400 uppercase tracking-wider">Admin</span>
+          </Link>
+        </div>
+        <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+          {NAV.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.key === active;
+            return (
+              <Link
+                key={item.key}
+                to={item.to}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                  isActive
+                    ? "bg-white/15 text-white"
+                    : "text-stone-300 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="flex-1">{item.label}</span>
+                {!item.ready && <span className="text-[10px] text-stone-500">soon</span>}
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+
+      {/* Main */}
+      <main className="flex-1 min-w-0">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8">{children}</div>
+      </main>
+    </div>
+  );
+}
