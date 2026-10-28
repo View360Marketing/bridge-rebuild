@@ -31,14 +31,9 @@ export const Route = createFileRoute("/api/ical/sync")({
           return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        const { runScheduledSync, checkIcalFreshness } = await import(
-          "@/lib/booking/ical.server"
-        );
+        const { runScheduledSync, checkIcalFreshness } = await import("@/lib/booking/ical.server");
         try {
-          const [results, fresh] = await Promise.all([
-            runScheduledSync(),
-            checkIcalFreshness(),
-          ]);
+          const [results, fresh] = await Promise.all([runScheduledSync(), checkIcalFreshness()]);
           return Response.json({
             ok: true,
             synced: results.length,
@@ -46,10 +41,7 @@ export const Route = createFileRoute("/api/ical/sync")({
             results,
           });
         } catch (e) {
-          return Response.json(
-            { ok: false, error: (e as Error).message },
-            { status: 500 },
-          );
+          return Response.json({ ok: false, error: (e as Error).message }, { status: 500 });
         }
       },
     },

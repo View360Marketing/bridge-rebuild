@@ -112,7 +112,10 @@ export async function createGuestReservation(input: {
         .select("instant_booking_enabled, inventory_authority")
         .eq("id", 1)
         .single();
-      const s = settings as { instant_booking_enabled: boolean; inventory_authority: string } | null;
+      const s = settings as {
+        instant_booking_enabled: boolean;
+        inventory_authority: string;
+      } | null;
       if (s && !s.instant_booking_enabled) {
         throw new Error("Instant booking is disabled. Use the request-to-book flow.");
       }
@@ -136,11 +139,35 @@ export async function createGuestReservation(input: {
 
       // 3. Recompute the authoritative total from trusted DB data. The
       //    client-supplied total is never trusted.
+      // Fetch real unit data (unit_code, base_rate_cents, max capacity) so the
+      // quote is computed from trusted DB values, not client-supplied totals.
+      const unitIds = input.units.map((u) => u.unit_id);
+      const { data: unitRows } = await supabaseAdmin
+        .from("units")
+        .select("id, unit_code, base_rate_cents, max_adults, max_children")
+        .in("id", unitIds);
+      const unitMap = new Map(
+        (unitRows ?? []).map((r) => [
+          (r as { id: string }).id,
+          r as {
+            unit_code: string;
+            base_rate_cents: number;
+            max_adults: number;
+            max_children: number;
+          },
+        ]),
+      );
       const quoteInput: QuoteInput = {
-        units: input.units.map((u) => ({
-          unit_id: u.unit_id,
-          max_adults: u.adults,
-        })),
+        units: input.units.map((u) => {
+          const urow = unitMap.get(u.unit_id);
+          return {
+            unit_id: u.unit_id,
+            unit_code: urow?.unit_code ?? "",
+            base_rate_cents: urow?.base_rate_cents ?? 0,
+            max_adults: urow?.max_adults ?? u.adults,
+            max_children: urow?.max_children ?? 0,
+          };
+        }),
         checkin_date: input.checkin_date,
         checkout_date: input.checkout_date,
         adults: input.adults,
@@ -168,9 +195,7 @@ export async function createGuestReservation(input: {
         )
         .or(`ical_last_synced_at.is.null,ical_last_synced_at.lt.${staleCutoff}`);
       if (staleUnits && staleUnits.length > 0) {
-        const names = (staleUnits as { unit_code: string }[])
-          .map((u) => u.unit_code)
-          .join(", ");
+        const names = (staleUnits as { unit_code: string }[]).map((u) => u.unit_code).join(", ");
         throw new Error(
           `Airbnb calendar for ${names} is stale (last sync older than ${staleHours?.data?.ical_stale_after_hours ?? 24}h). Refresh the iCal feed in Integrations before booking.`,
         );

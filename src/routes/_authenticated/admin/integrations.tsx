@@ -117,11 +117,7 @@ function SyncSettings({
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={enabled}
-            onChange={(e) => setEnabled(e.target.checked)}
-          />
+          <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
           Enable scheduled import
         </label>
         <label className="text-sm">
@@ -348,7 +344,9 @@ function UnitRow({ unit, baseUrl }: { unit: IcalUnit; baseUrl: string | null }) 
 
       {history && history.length > 0 && (
         <details className="mt-2">
-          <summary className="text-xs text-stone-500 cursor-pointer">Sync history ({history.length})</summary>
+          <summary className="text-xs text-stone-500 cursor-pointer">
+            Sync history ({history.length})
+          </summary>
           <ul className="mt-1 space-y-1 text-xs text-stone-600 max-h-32 overflow-y-auto">
             {history.slice(0, 8).map((h) => (
               <li key={h.id} className="flex justify-between">
@@ -413,7 +411,9 @@ function MigrationChecklist() {
   ];
   return (
     <section className="bg-white rounded-2xl border border-stone-200 p-6">
-      <h2 className="font-serif text-xl font-bold text-stone-900 mb-1">Hostaway Migration Checklist</h2>
+      <h2 className="font-serif text-xl font-bold text-stone-900 mb-1">
+        Hostaway Migration Checklist
+      </h2>
       <p className="text-sm text-stone-600 mb-4">
         The business has stopped using Hostaway. Confirm each item before enabling paid instant
         booking. Airbnb may not contain every reservation formerly stored in Hostaway.
