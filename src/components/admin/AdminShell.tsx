@@ -10,41 +10,83 @@ import {
   Plug,
   Settings,
   LayoutGrid,
-  Wrench,
   BarChart3,
   UserCog,
 } from "lucide-react";
 
-const NAV = [
-  { key: "overview", label: "Overview", to: "/admin", icon: LayoutGrid, ready: true },
-  { key: "calendar", label: "Calendar", to: "/admin/calendar", icon: CalendarDays, ready: true },
+type NavItem = {
+  key: string;
+  label: string;
+  to: string;
+  icon: React.ComponentType<{ className?: string }>;
+  ready: boolean;
+};
+
+const NAV_SECTIONS: { heading: string; items: NavItem[] }[] = [
   {
-    key: "reservations",
-    label: "Reservations",
-    to: "/admin/reservations",
-    icon: ClipboardList,
-    ready: true,
+    heading: "Dashboard",
+    items: [{ key: "overview", label: "Overview", to: "/admin", icon: LayoutGrid, ready: true }],
   },
-  { key: "rooms", label: "Rooms & Properties", to: "/admin/rooms", icon: Building2, ready: true },
-  { key: "rates", label: "Rates & Rules", to: "/admin/rates", icon: DollarSign, ready: true },
-  { key: "guests", label: "Guests", to: "/admin/guests", icon: Users, ready: true },
-  { key: "payments", label: "Payments", to: "/admin/payments", icon: DollarSign, ready: true },
   {
-    key: "housekeeping",
-    label: "Housekeeping",
-    to: "/admin/housekeeping",
-    icon: Sparkles,
-    ready: true,
+    heading: "Operations",
+    items: [
+      {
+        key: "calendar",
+        label: "Calendar",
+        to: "/admin/calendar",
+        icon: CalendarDays,
+        ready: true,
+      },
+      {
+        key: "reservations",
+        label: "Reservations",
+        to: "/admin/reservations",
+        icon: ClipboardList,
+        ready: true,
+      },
+      { key: "guests", label: "Guests", to: "/admin/guests", icon: Users, ready: true },
+      { key: "payments", label: "Payments", to: "/admin/payments", icon: DollarSign, ready: true },
+      {
+        key: "housekeeping",
+        label: "Housekeeping",
+        to: "/admin/housekeeping",
+        icon: Sparkles,
+        ready: true,
+      },
+    ],
   },
-  { key: "reports", label: "Reports", to: "/admin/reports", icon: BarChart3, ready: true },
-  { key: "users", label: "Users", to: "/admin/users", icon: UserCog, ready: true },
-  { key: "settings", label: "Settings", to: "/admin/settings", icon: Settings, ready: true },
   {
-    key: "integrations",
-    label: "Integrations",
-    to: "/admin/integrations",
-    icon: Plug,
-    ready: true,
+    heading: "Property",
+    items: [
+      {
+        key: "rooms",
+        label: "Rooms & Properties",
+        to: "/admin/rooms",
+        icon: Building2,
+        ready: true,
+      },
+      { key: "rates", label: "Rates & Rules", to: "/admin/rates", icon: DollarSign, ready: true },
+    ],
+  },
+  {
+    heading: "Insights",
+    items: [
+      { key: "reports", label: "Reports", to: "/admin/reports", icon: BarChart3, ready: true },
+    ],
+  },
+  {
+    heading: "Administration",
+    items: [
+      { key: "users", label: "Users", to: "/admin/users", icon: UserCog, ready: true },
+      { key: "settings", label: "Settings", to: "/admin/settings", icon: Settings, ready: true },
+      {
+        key: "integrations",
+        label: "Integrations",
+        to: "/admin/integrations",
+        icon: Plug,
+        ready: true,
+      },
+    ],
   },
 ];
 
@@ -63,26 +105,35 @@ export function AdminShell({ active, children }: { active: string; children: Rea
             <span className="text-xs text-stone-400 uppercase tracking-wider">Admin</span>
           </Link>
         </div>
-        <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-          {NAV.map((item) => {
-            const Icon = item.icon;
-            const isActive = item.key === active;
-            return (
-              <Link
-                key={item.key}
-                to={item.to}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
-                  isActive
-                    ? "bg-white/15 text-white"
-                    : "text-stone-300 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="flex-1">{item.label}</span>
-                {!item.ready && <span className="text-[10px] text-stone-500">soon</span>}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-2 py-3 overflow-y-auto">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.heading} className="mb-4">
+              <p className="px-3 mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                {section.heading}
+              </p>
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = item.key === active;
+                  return (
+                    <Link
+                      key={item.key}
+                      to={item.to}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? "bg-white/15 text-white"
+                          : "text-stone-300 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span className="flex-1">{item.label}</span>
+                      {!item.ready && <span className="text-[10px] text-stone-500">soon</span>}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
       </aside>
 
