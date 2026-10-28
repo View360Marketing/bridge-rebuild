@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { randomToken, sha256, runIdempotent } from "./idempotency";
 import { generateBookingReference } from "./dates";
 import { queueOutboxJob } from "./payments-confirm.server";
+import { computeQuote, type QuoteInput } from "./pricing.server";
+import { searchAvailability } from "./availability.server";
 
 /**
  * Secure guest reservation access — server-only.
@@ -104,6 +106,77 @@ export async function createGuestReservation(input: {
     { key: input.idempotency_key, scope: "guest_booking", operation: "create_guest_reservation" },
     input,
     async () => {
+      // 1. Enforce booking-enabled and inventory authority.
+      const { data: settings } = await supabaseAdmin
+        .from("integration_settings")
+        .select("instant_booking_enabled, inventory_authority")
+        .eq("id", 1)
+        .single();
+      const s = settings as { instant_booking_enabled: boolean; inventory_authority: string } | null;
+      if (s && !s.instant_booking_enabled) {
+        throw new Error("Instant booking is disabled. Use the request-to-book flow.");
+      }
+
+      // 2. Re-verify every requested unit is still available for the full stay.
+      for (const u of input.units) {
+        const avail = await searchAvailability(supabaseAdmin, {
+          checkin_date: u.checkin_date,
+          checkout_date: u.checkout_date,
+          adults: u.adults,
+          children: u.children,
+          rooms: 1,
+        });
+        const stillFree = avail.available.some((a) => a.id === u.unit_id);
+        if (!stillFree) {
+          throw new Error(
+            `Room ${u.unit_id} is no longer available for ${u.checkin_date}–${u.checkout_date}.`,
+          );
+        }
+      }
+
+      // 3. Recompute the authoritative total from trusted DB data. The
+      //    client-supplied total is never trusted.
+      const quoteInput: QuoteInput = {
+        units: input.units.map((u) => ({
+          unit_id: u.unit_id,
+          max_adults: u.adults,
+        })),
+        checkin_date: input.checkin_date,
+        checkout_date: input.checkout_date,
+        adults: input.adults,
+        children: input.children,
+      };
+      const quote = await computeQuote(supabaseAdmin, quoteInput);
+      const authoritativeTotal = quote.total_cents;
+
+      // 4. Reject stale iCal feeds: if any requested unit's last sync is older
+      //    than the configured stale window, refuse to confirm.
+      const staleHours = (await supabaseAdmin
+        .from("integration_settings")
+        .select("ical_stale_after_hours")
+        .eq("id", 1)
+        .single()) as { data: { ical_stale_after_hours: number } | null };
+      const staleCutoff = new Date(
+        Date.now() - (staleHours?.data?.ical_stale_after_hours ?? 24) * 3600_000,
+      ).toISOString();
+      const { data: staleUnits } = await supabaseAdmin
+        .from("units")
+        .select("id, unit_code")
+        .in(
+          "id",
+          input.units.map((u) => u.unit_id),
+        )
+        .or(`ical_last_synced_at.is.null,ical_last_synced_at.lt.${staleCutoff}`);
+      if (staleUnits && staleUnits.length > 0) {
+        const names = (staleUnits as { unit_code: string }[])
+          .map((u) => u.unit_code)
+          .join(", ");
+        throw new Error(
+          `Airbnb calendar for ${names} is stale (last sync older than ${staleHours?.data?.ical_stale_after_hours ?? 24}h). Refresh the iCal feed in Integrations before booking.`,
+        );
+      }
+
+      // 5. Acquire inventory atomically with the server-computed total.
       const { data, error } = await supabaseAdmin.rpc("acquire_inventory", {
         p_booking_reference: bookingReference,
         p_guest_name: input.guest_name,
@@ -112,7 +185,7 @@ export async function createGuestReservation(input: {
         p_source: "direct",
         p_status: "held",
         p_currency: "USD",
-        p_total_cents: input.total_cents,
+        p_total_cents: authoritativeTotal,
         ...(input.policy_version ? { p_policy_version: input.policy_version } : {}),
         p_hold_expires_at: holdExpiresAt,
         p_checkin_date: input.checkin_date,
@@ -121,7 +194,6 @@ export async function createGuestReservation(input: {
         p_children: input.children,
         p_units: JSON.stringify(input.units),
         p_owner_type: "reservation",
-        // p_created_by and p_group_id omitted -> SQL DEFAULT NULL
       });
       if (error) throw new Error(error.message);
       const res = data as { reservation_id: string; booking_reference: string; status: string };

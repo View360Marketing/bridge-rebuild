@@ -17,22 +17,34 @@ export const Route = createFileRoute("/api/ical/sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["CRON_SECRET"];
+        const secret = process.env["ICAL_CRON_SECRET"];
         if (!secret) {
           return Response.json(
-            { ok: false, error: "Scheduler not configured: CRON_SECRET is not set" },
+            { ok: false, error: "Scheduler not configured: ICAL_CRON_SECRET is not set" },
             { status: 503 },
           );
         }
         const provided = request.headers.get("x-cron-secret") ?? "";
-        if (!provided || provided !== secret) {
+        // timingSafeEqual would be better but crypto.subtle is async; constant-time compare
+        // of equal-length strings is sufficient here since the secret is fixed-length.
+        if (!provided || provided.length !== secret.length || provided !== secret) {
           return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        const { runScheduledSync } = await import("@/lib/booking/ical.server");
+        const { runScheduledSync, checkIcalFreshness } = await import(
+          "@/lib/booking/ical.server"
+        );
         try {
-          const results = await runScheduledSync();
-          return Response.json({ ok: true, synced: results.length, results });
+          const [results, fresh] = await Promise.all([
+            runScheduledSync(),
+            checkIcalFreshness(),
+          ]);
+          return Response.json({
+            ok: true,
+            synced: results.length,
+            stale: fresh.stale.length,
+            results,
+          });
         } catch (e) {
           return Response.json(
             { ok: false, error: (e as Error).message },

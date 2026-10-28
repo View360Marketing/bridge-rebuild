@@ -167,7 +167,7 @@ function SyncSettings({
         Scheduled import runs via an external cron calling{" "}
         <code className="text-stone-700">POST /api/ical/sync</code> with a shared secret. Our poll
         interval does not control how often Airbnb reads our export feed (Airbnb imports ~3-hour
-        cycles). Configure CRON_SECRET as a server secret to activate the scheduler.
+        cycles). Configure ICAL_CRON_SECRET as a server secret to activate the scheduler.
       </p>
     </div>
   );
