@@ -12,143 +12,152 @@ export function Header() {
       {/* Top Announcement Bar - 1 single line with smooth marquee ticker when overflow */}
       <AnnouncementBar />
 
-      {/* Main Navbar - transparent liquid glass aesthetic matching the reference website */}
-      <div className="bg-[#1b251e]/85 backdrop-blur-md border-b border-white/10 text-white transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 gap-4">
-            {/* Logo */}
-            <Link to="/" className="flex items-center shrink-0 group py-1">
-              <img
-                src="https://vibe.filesafe.space/1790196628861484830/assets/1d550afa-3cde-43cf-b5e7-67b08b8974ed.png"
-                alt="The Bridges Tennessee"
-                className="h-14 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105"
-              />
+      {/* Main Navbar - rounded bubbly pill style with #657B6A matching original reference */}
+      <div className="w-full pt-3 pb-2 px-3 sm:px-6 pointer-events-none">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 pointer-events-auto">
+          {/* Logo */}
+          <Link to="/" className="flex items-center shrink-0 group py-1">
+            <img
+              src="https://vibe.filesafe.space/1790196628861484830/assets/1d550afa-3cde-43cf-b5e7-67b08b8974ed.png"
+              alt="The Bridges Tennessee"
+              className="h-16 sm:h-20 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-md"
+            />
+          </Link>
+
+          {/* Desktop Navigation Links - rounded bubbly pill pill-bar */}
+          <nav className="hidden xl:flex items-center space-x-1 lg:space-x-1.5 px-4 py-2 rounded-full bg-[#657B6A]/90 hover:bg-[#657B6A] backdrop-blur-md text-white text-sm font-medium shadow-lg border border-white/20 transition-colors">
+            <Link
+              to="/"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+              activeOptions={{ exact: true }}
+            >
+              Home
+            </Link>
+            <Link
+              to="/amenities"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              Amenities
+            </Link>
+            <Link
+              to="/weddings-events"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              The Willows
+            </Link>
+            <Link
+              to="/events"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              Events
+            </Link>
+            <Link
+              to="/massage-wellness"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              Massage &amp; Wellness
+            </Link>
+            <Link
+              to="/stay"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              Book Room
             </Link>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden xl:flex items-center space-x-1 lg:space-x-2 text-sm font-medium text-stone-100">
-              <Link
-                to="/"
-                className="px-3 py-2 rounded-full hover:bg-white/10 transition-colors"
-                activeProps={{ className: "px-3 py-2 rounded-full text-white bg-white/15" }}
-                activeOptions={{ exact: true }}
-              >
-                Home
-              </Link>
-              <Link
-                to="/amenities"
-                className="px-3 py-2 rounded-full hover:bg-white/10 transition-colors"
-                activeProps={{ className: "px-3 py-2 rounded-full text-white bg-white/15" }}
-              >
-                Amenities
-              </Link>
-              <Link
-                to="/weddings-events"
-                className="px-3 py-2 rounded-full hover:bg-white/10 transition-colors"
-                activeProps={{ className: "px-3 py-2 rounded-full text-white bg-white/15" }}
-              >
-                The Willows
-              </Link>
-              <Link
-                to="/events"
-                className="px-3 py-2 rounded-full hover:bg-white/10 transition-colors"
-                activeProps={{ className: "px-3 py-2 rounded-full text-white bg-white/15" }}
-              >
-                Events
-              </Link>
-              <Link
-                to="/massage-wellness"
-                className="px-3 py-2 rounded-full hover:bg-white/10 transition-colors"
-                activeProps={{ className: "px-3 py-2 rounded-full text-white bg-white/15" }}
-              >
-                Massage &amp; Wellness
-              </Link>
-              <a
-                href="https://www.airbnb.com/users/show/244417704"
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-2 rounded-full hover:bg-white/10 transition-colors"
-              >
-                Book Room
-              </a>
-
-              {/* About dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={() => setAboutDropdownOpen(true)}
-                onMouseLeave={() => setAboutDropdownOpen(false)}
-              >
-                <button
-                  type="button"
-                  className="flex items-center px-3 py-2 rounded-full hover:bg-white/10 transition-colors"
-                >
-                  <span>About Us</span>
-                  <ChevronDown className="ml-1 w-3.5 h-3.5" />
-                </button>
-
-                {aboutDropdownOpen && (
-                  <div className="absolute right-0 mt-1 w-44 rounded-xl shadow-xl bg-[#202c23] border border-white/15 py-2 z-50 backdrop-blur-lg">
-                    <Link
-                      to="/gallery"
-                      className="block px-4 py-2 text-xs text-stone-200 hover:bg-white/10 hover:text-white"
-                    >
-                      Gallery
-                    </Link>
-                    <Link
-                      to="/contact-us"
-                      className="block px-4 py-2 text-xs text-stone-200 hover:bg-white/10 hover:text-white"
-                    >
-                      Contact Us
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </nav>
-
-            {/* Header Action Round Glass Buttons (Phone & Directions) */}
-            <div className="hidden sm:flex items-center space-x-2.5 shrink-0">
-              <a
-                href="tel:+19317225589"
-                aria-label="Call The Bridges"
-                className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 flex items-center justify-center text-white transition-all shadow-sm active:scale-95"
-              >
-                <Phone className="w-4 h-4" />
-              </a>
-              <a
-                href="https://maps.app.goo.gl/HiuVGpDerVDiNx4S7"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Directions to The Bridges"
-                className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 flex items-center justify-center text-white transition-all shadow-sm active:scale-95"
-              >
-                <Compass className="w-4 h-4" />
-              </a>
-            </div>
-
-            {/* Mobile hamburger */}
-            <div className="flex xl:hidden items-center space-x-2">
-              <a
-                href="tel:+19317225589"
-                className="p-2 rounded-full bg-white/15 text-white sm:hidden border border-white/20"
-              >
-                <Phone className="w-4 h-4" />
-              </a>
+            {/* About dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setAboutDropdownOpen(true)}
+              onMouseLeave={() => setAboutDropdownOpen(false)}
+            >
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 type="button"
-                className="p-2 rounded-lg text-white hover:bg-white/15 focus:outline-hidden"
-                aria-label="Toggle menu"
+                className="flex items-center px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
               >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                <span>About Us</span>
+                <ChevronDown className="ml-1 w-3.5 h-3.5 opacity-80" />
               </button>
+
+              {aboutDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-44 rounded-2xl shadow-xl bg-[#596d5e] border border-white/20 py-2 z-50 backdrop-blur-lg">
+                  <Link
+                    to="/gallery"
+                    className="block px-4 py-2 text-xs text-white/90 hover:bg-white/15 hover:text-white"
+                  >
+                    Gallery
+                  </Link>
+                  <Link
+                    to="/contact-us"
+                    className="block px-4 py-2 text-xs text-white/90 hover:bg-white/15 hover:text-white"
+                  >
+                    Contact Us
+                  </Link>
+                </div>
+              )}
             </div>
+          </nav>
+
+          {/* Header Action Round Buttons (Phone & Directions) in bubbly style */}
+          <div className="hidden sm:flex items-center space-x-2 shrink-0">
+            <a
+              href="tel:+19317225589"
+              aria-label="Call The Bridges"
+              className="w-11 h-11 rounded-full bg-[#657B6A]/90 hover:bg-[#657B6A] border border-white/25 flex items-center justify-center text-white transition-all shadow-md active:scale-95"
+            >
+              <Phone className="w-4 h-4" />
+            </a>
+            <a
+              href="https://maps.app.goo.gl/HiuVGpDerVDiNx4S7"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Directions to The Bridges"
+              className="w-11 h-11 rounded-full bg-[#657B6A]/90 hover:bg-[#657B6A] border border-white/25 flex items-center justify-center text-white transition-all shadow-md active:scale-95"
+            >
+              <Compass className="w-4 h-4" />
+            </a>
+          </div>
+
+          {/* Mobile hamburger */}
+          <div className="flex xl:hidden items-center space-x-2">
+            <a
+              href="tel:+19317225589"
+              className="p-2.5 rounded-full bg-[#657B6A] text-white sm:hidden border border-white/25 shadow-md"
+            >
+              <Phone className="w-4 h-4" />
+            </a>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              type="button"
+              className="p-2.5 rounded-full bg-[#657B6A] text-white hover:bg-[#596d5e] border border-white/25 shadow-md focus:outline-hidden"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#18221b]/98 border-b border-white/15 px-4 pt-3 pb-6 space-y-2 backdrop-blur-xl">
+        <div className="xl:hidden mx-3 sm:mx-6 rounded-2xl bg-[#657B6A]/98 border border-white/25 px-4 pt-3 pb-6 space-y-2 backdrop-blur-xl shadow-2xl text-white">
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}
