@@ -59,7 +59,16 @@ export async function syncUnitIcal(
       .from("units")
       .update({ ical_sync_status: "error", ical_last_synced_at: new Date().toISOString() })
       .eq("id", unitId);
-    return { unit_id: unitId, unit_code: unitCode, status: "failed", imported: 0, updated: 0, cancelled: 0, raw_events: 0, error: msg };
+    return {
+      unit_id: unitId,
+      unit_code: unitCode,
+      status: "failed",
+      imported: 0,
+      updated: 0,
+      cancelled: 0,
+      raw_events: 0,
+      error: msg,
+    };
   }
 
   const events = parseIcal(text);
@@ -90,14 +99,23 @@ export async function syncUnitIcal(
       const datesChanged = prevStart !== ev.dtstart || prevEnd !== ev.dtend;
       if (status === "cancelled" && prev.status !== "cancelled") {
         await releaseAirbnbNights(unitId, prev.ical_uid as string);
-        await supabaseAdmin.from("ical_imported_events").update({ status: "cancelled", imported_at: new Date().toISOString() }).eq("id", prev.id);
+        await supabaseAdmin
+          .from("ical_imported_events")
+          .update({ status: "cancelled", imported_at: new Date().toISOString() })
+          .eq("id", prev.id);
         cancelled++;
       } else if (datesChanged && status === "confirmed") {
         await releaseAirbnbNights(unitId, prev.ical_uid as string);
         await claimAirbnbNights(unitId, ev.uid, checkin, checkout);
         await supabaseAdmin
           .from("ical_imported_events")
-          .update({ summary: ev.summary, dtstart: ev.dtstart, dtend: ev.dtend, status: "confirmed", imported_at: new Date().toISOString() })
+          .update({
+            summary: ev.summary,
+            dtstart: ev.dtstart,
+            dtend: ev.dtend,
+            status: "confirmed",
+            imported_at: new Date().toISOString(),
+          })
           .eq("id", prev.id);
         updated++;
       }
@@ -127,15 +145,38 @@ export async function syncUnitIcal(
   if (logId) {
     await supabaseAdmin
       .from("ical_sync_log")
-      .update({ status: "success", imported_count: imported, updated_count: updated, cancelled_count: cancelled, raw_event_count: events.length, finished_at: new Date().toISOString() })
+      .update({
+        status: "success",
+        imported_count: imported,
+        updated_count: updated,
+        cancelled_count: cancelled,
+        raw_event_count: events.length,
+        finished_at: new Date().toISOString(),
+      })
       .eq("id", logId);
   }
-  await supabaseAdmin.from("units").update({ ical_sync_status: "synced", ical_last_synced_at: new Date().toISOString() }).eq("id", unitId);
+  await supabaseAdmin
+    .from("units")
+    .update({ ical_sync_status: "synced", ical_last_synced_at: new Date().toISOString() })
+    .eq("id", unitId);
 
-  return { unit_id: unitId, unit_code: unitCode, status: "success", imported, updated, cancelled, raw_events: events.length };
+  return {
+    unit_id: unitId,
+    unit_code: unitCode,
+    status: "success",
+    imported,
+    updated,
+    cancelled,
+    raw_events: events.length,
+  };
 }
 
-async function claimAirbnbNights(unitId: string, icalUid: string, checkin: string, checkout: string): Promise<void> {
+async function claimAirbnbNights(
+  unitId: string,
+  icalUid: string,
+  checkin: string,
+  checkout: string,
+): Promise<void> {
   const { error } = await supabaseAdmin.rpc("claim_block", {
     p_unit_id: unitId,
     p_checkin_date: checkin,
@@ -179,36 +220,50 @@ export async function buildUnitIcsExport(unitId: string, token: string): Promise
   if (error) throw new Error(error.message);
 
   // Group contiguous nights by reservation/block.
-  const byOwner = new Map<string, { dates: string[]; owner_type: string }>();
-  for (const n of (nights ?? []) as unknown as {
+  type NightRow = {
     stay_date: string;
     owner_type: string;
     claim_reason: string | null;
     owner_id: string | null;
-  }) {
+  };
+  const byOwner = new Map<string, { dates: string[]; owner_type: string }>();
+  for (const n of (nights ?? []) as unknown as NightRow[]) {
     if (n.owner_type === "reservation" && n.claim_reason === "held") continue;
     const key = n.owner_id ?? n.claim_reason ?? n.owner_type;
-    const entry = byOwner.get(key) ?? { dates: [], owner_type: n.owner_type };
-    entry.dates.push(n.stay_date);
-    byOwner.set(key, entry);
+    const existing = byOwner.get(key);
+    if (existing) {
+      existing.dates.push(n.stay_date);
+    } else {
+      byOwner.set(key, { dates: [n.stay_date], owner_type: n.owner_type });
+    }
   }
 
   const events: { uid: string; dtstart: string; dtend: string; summary: string }[] = [];
   for (const [, entry] of byOwner.entries()) {
-    const sorted = entry.dates.sort();
-    const first = sorted[0] ?? "";
-    let rangeStart = first;
-    let prev = first;
+    const sorted = [...entry.dates].sort();
+    let rangeStart = sorted[0] ?? "";
+    let prev = rangeStart;
     for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i] === addDay(prev)) {
-        prev = sorted[i];
+      const cur = sorted[i] ?? "";
+      if (cur === addDay(prev)) {
+        prev = cur;
       } else {
-        events.push({ uid: `bridges-${unitId}-${rangeStart}`, dtstart: toIcalDate(rangeStart), dtend: toIcalDate(addDay(prev)), summary: entry.owner_type === "reservation" ? "Unavailable" : "Blocked" });
-        rangeStart = sorted[i] ?? "";
-        prev = sorted[i] ?? "";
+        events.push({
+          uid: `bridges-${unitId}-${rangeStart}`,
+          dtstart: toIcalDate(rangeStart),
+          dtend: toIcalDate(addDay(prev)),
+          summary: entry.owner_type === "reservation" ? "Unavailable" : "Blocked",
+        });
+        rangeStart = cur;
+        prev = cur;
       }
     }
-    events.push({ uid: `bridges-${unitId}-${rangeStart}`, dtstart: toIcalDate(rangeStart), dtend: toIcalDate(addDay(prev)), summary: entry.owner_type === "reservation" ? "Unavailable" : "Blocked" });
+    events.push({
+      uid: `bridges-${unitId}-${rangeStart}`,
+      dtstart: toIcalDate(rangeStart),
+      dtend: toIcalDate(addDay(prev)),
+      summary: entry.owner_type === "reservation" ? "Unavailable" : "Blocked",
+    });
   }
 
   const now = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
@@ -221,7 +276,15 @@ export async function buildUnitIcsExport(unitId: string, token: string): Promise
     `X-WR-CALNAME:The Bridges ${unit.unit_code}`,
   ];
   for (const ev of events) {
-    lines.push("BEGIN:VEVENT", `UID:${ev.uid}`, `DTSTAMP:${now}`, `DTSTART;VALUE=DATE:${ev.dtstart}`, `DTEND;VALUE=DATE:${ev.dtend}`, `SUMMARY:${ev.summary}`, "END:VEVENT");
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${ev.uid}`,
+      `DTSTAMP:${now}`,
+      `DTSTART;VALUE=DATE:${ev.dtstart}`,
+      `DTEND;VALUE=DATE:${ev.dtend}`,
+      `SUMMARY:${ev.summary}`,
+      "END:VEVENT",
+    );
   }
   lines.push("END:VCALENDAR");
   return lines.join("\r\n");
@@ -247,7 +310,16 @@ export async function runScheduledSync(): Promise<ImportOutcome[]> {
     try {
       results.push(await syncUnitIcal(supabaseAdmin, u.id, u.ical_import_url));
     } catch (e) {
-      results.push({ unit_id: u.id, unit_code: u.unit_code, status: "failed", imported: 0, updated: 0, cancelled: 0, raw_events: 0, error: (e as Error).message });
+      results.push({
+        unit_id: u.id,
+        unit_code: u.unit_code,
+        status: "failed",
+        imported: 0,
+        updated: 0,
+        cancelled: 0,
+        raw_events: 0,
+        error: (e as Error).message,
+      });
     }
   }
   return results;
@@ -268,7 +340,10 @@ export async function checkIcalFreshness(): Promise<{ stale: string[] }> {
     .neq("ical_import_url", "")
     .or(`ical_last_synced_at.is.null,ical_last_synced_at.lt.${cutoff}`);
   for (const u of staleUnits ?? []) {
-    await supabaseAdmin.from("units").update({ ical_sync_status: "stale" }).eq("id", (u as { id: string }).id);
+    await supabaseAdmin
+      .from("units")
+      .update({ ical_sync_status: "stale" })
+      .eq("id", (u as { id: string }).id);
   }
   return { stale: (staleUnits ?? []).map((u) => (u as { id: string }).id) };
 }
@@ -288,7 +363,9 @@ export type IcalUnit = {
 export async function listIcalUnits(supabase: SupabaseClient): Promise<IcalUnit[]> {
   const { data, error } = await supabase
     .from("units")
-    .select("id, unit_code, public_name, airbnb_listing_id, airbnb_url, ical_import_url, ical_export_token, ical_sync_status, ical_last_synced_at")
+    .select(
+      "id, unit_code, public_name, airbnb_listing_id, airbnb_url, ical_import_url, ical_export_token, ical_sync_status, ical_last_synced_at",
+    )
     .order("sort_order, unit_code");
   if (error) throw new Error(error.message);
   return (data ?? []) as unknown as IcalUnit[];
@@ -302,25 +379,36 @@ export type IcalMappingInput = {
   ical_sync_enabled?: boolean | null;
 };
 
-export async function updateIcalMapping(supabase: SupabaseClient, input: IcalMappingInput): Promise<void> {
+export async function updateIcalMapping(
+  supabase: SupabaseClient,
+  input: IcalMappingInput,
+): Promise<void> {
   const patch: Record<string, string | boolean | null> = {};
-  if (input.airbnb_listing_id !== undefined) patch.airbnb_listing_id = input.airbnb_listing_id ?? null;
-  if (input.airbnb_url !== undefined) patch.airbnb_url = input.airbnb_url ?? null;
-  if (input.ical_import_url !== undefined) patch.ical_import_url = input.ical_import_url ?? null;
-  if (input.ical_sync_enabled !== undefined) {
-    if (input.ical_sync_enabled) {
-      patch.ical_sync_status = "configured";
-    } else if (input.ical_import_url === null || input.ical_import_url === "") {
-      patch.ical_sync_status = "disabled";
+  if (input["airbnb_listing_id"] !== undefined)
+    patch["airbnb_listing_id"] = input["airbnb_listing_id"] ?? null;
+  if (input["airbnb_url"] !== undefined) patch["airbnb_url"] = input["airbnb_url"] ?? null;
+  if (input["ical_import_url"] !== undefined)
+    patch["ical_import_url"] = input["ical_import_url"] ?? null;
+  if (input["ical_sync_enabled"] !== undefined) {
+    if (input["ical_sync_enabled"]) {
+      patch["ical_sync_status"] = "configured";
+    } else if (input["ical_import_url"] === null || input["ical_import_url"] === "") {
+      patch["ical_sync_status"] = "disabled";
     }
   }
   const { error } = await supabase.from("units").update(patch).eq("id", input.unit_id);
   if (error) throw new Error(error.message);
 }
 
-export async function regenerateExportToken(supabase: SupabaseClient, unitId: string): Promise<string> {
+export async function regenerateExportToken(
+  supabase: SupabaseClient,
+  unitId: string,
+): Promise<string> {
   const token = crypto.randomUUID();
-  const { error } = await supabase.from("units").update({ ical_export_token: token }).eq("id", unitId);
+  const { error } = await supabase
+    .from("units")
+    .update({ ical_export_token: token })
+    .eq("id", unitId);
   if (error) throw new Error(error.message);
   return token;
 }
@@ -344,7 +432,9 @@ export async function getSyncHistory(
 > {
   const { data, error } = await supabase
     .from("ical_sync_log")
-    .select("id, status, started_at, finished_at, imported_count, updated_count, cancelled_count, raw_event_count, error_message")
+    .select(
+      "id, status, started_at, finished_at, imported_count, updated_count, cancelled_count, raw_event_count, error_message",
+    )
     .eq("unit_id", unitId)
     .order("started_at", { ascending: false })
     .limit(limit);
@@ -370,7 +460,9 @@ export async function getSyncSettings(supabase: SupabaseClient): Promise<{
 }> {
   const { data } = await supabase
     .from("integration_settings")
-    .select("ical_sync_enabled, ical_sync_interval_minutes, ical_export_base_url, ical_stale_after_hours")
+    .select(
+      "ical_sync_enabled, ical_sync_interval_minutes, ical_export_base_url, ical_stale_after_hours",
+    )
     .eq("id", 1)
     .single();
   return {

@@ -31,7 +31,9 @@ const mappingSchema = z.object({
 export const updateIcalMappingFn = createServerFn({ method: "POST" })
   .validator((d) => mappingSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) => updateIcalMapping(context.supabase, data as IcalMappingInput));
+  .handler(async ({ context, data }) =>
+    updateIcalMapping(context.supabase, data as IcalMappingInput),
+  );
 
 export const regenerateExportTokenFn = createServerFn({ method: "POST" })
   .validator((d) => z.object({ unit_id: z.string() }).parse(d))
@@ -41,7 +43,9 @@ export const regenerateExportTokenFn = createServerFn({ method: "POST" })
 export const syncUnitIcalFn = createServerFn({ method: "POST" })
   .validator((d) => z.object({ unit_id: z.string(), feed_url: z.string().url() }).parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) => syncUnitIcal(context.supabase, data.unit_id, data.feed_url));
+  .handler(async ({ context, data }) =>
+    syncUnitIcal(context.supabase, data.unit_id, data.feed_url),
+  );
 
 export const runScheduledSyncFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -67,9 +71,26 @@ const settingsSchema = z.object({
   ical_stale_after_hours: z.number().int().min(1).max(168).optional(),
 });
 
+type SettingsUpdate = {
+  ical_sync_enabled?: boolean;
+  ical_sync_interval_minutes?: number;
+  ical_export_base_url?: string | null;
+  ical_stale_after_hours?: number;
+};
+
 export const updateSyncSettingsFn = createServerFn({ method: "POST" })
   .validator((d) => settingsSchema.parse(d))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) => updateSyncSettings(context.supabase, data));
+  .handler(async ({ context, data }) => {
+    const update: SettingsUpdate = {};
+    if (data.ical_sync_enabled !== undefined) update.ical_sync_enabled = data.ical_sync_enabled;
+    if (data.ical_sync_interval_minutes !== undefined)
+      update.ical_sync_interval_minutes = data.ical_sync_interval_minutes;
+    if (data.ical_export_base_url !== undefined)
+      update.ical_export_base_url = data.ical_export_base_url ?? null;
+    if (data.ical_stale_after_hours !== undefined)
+      update.ical_stale_after_hours = data.ical_stale_after_hours;
+    return updateSyncSettings(context.supabase, update);
+  });
 
 export type { IcalUnit, IcalMappingInput, ImportOutcome };
