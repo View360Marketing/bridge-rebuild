@@ -55,7 +55,11 @@ export const listPublishedUnitsFn = createServerFn({ method: "GET" }).handler(as
       .in("unit_id", ids)
       .order("sort_order");
     const primaryMap = new Map<string, string>();
-    for (const m of (media ?? []) as { unit_id: string; image_url: string; is_primary: boolean }[]) {
+    for (const m of (media ?? []) as {
+      unit_id: string;
+      image_url: string;
+      is_primary: boolean;
+    }[]) {
       if (m.is_primary || !primaryMap.has(m.unit_id)) {
         primaryMap.set(m.unit_id, m.image_url);
       }

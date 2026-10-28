@@ -1,17 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { timingSafeEqual } from "crypto";
 
 /**
  * Scheduler trigger for iCal import (Airbnb -> website).
  *
- * POST /api/ical/sync  with header `x-cron-secret: <CRON_SECRET>`.
+ * POST /api/ical/sync  with header `x-cron-secret: <ICAL_CRON_SECRET>`.
  *
  * Designed to be called by an external durable scheduler (cron) roughly
  * every 5 minutes, staggered. It imports every unit that has a saved
- * Airbnb import URL and runs the atomic claim_block reconciliation.
+ * Airbnb import URL and runs the atomic reconciliation.
  *
- * Authorization: a shared secret (CRON_SECRET) kept server-side. If the
+ * Authorization: a shared secret (ICAL_CRON_SECRET) kept server-side. If the
  * secret is not configured the endpoint returns 503 so callers know the
  * scheduler is not wired up; it never runs unauthenticated.
+ *
+ * NOTE: This endpoint exists and is reachable, but it does NOT schedule
+ * itself. A recurring cron job must be configured externally to call this
+ * endpoint. Saving ICAL_CRON_SECRET enables authorization; it does not by
+ * itself activate scheduling.
  */
 export const Route = createFileRoute("/api/ical/sync")({
   server: {
@@ -24,10 +30,10 @@ export const Route = createFileRoute("/api/ical/sync")({
             { status: 503 },
           );
         }
-        const provided = request.headers.get("x-cron-secret") ?? "";
-        // timingSafeEqual would be better but crypto.subtle is async; constant-time compare
-        // of equal-length strings is sufficient here since the secret is fixed-length.
-        if (!provided || provided.length !== secret.length || provided !== secret) {
+        const provided = Buffer.from(request.headers.get("x-cron-secret") ?? "");
+        const expected = Buffer.from(secret);
+        // Constant-time comparison; mismatched lengths are rejected.
+        if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) {
           return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
         }
 

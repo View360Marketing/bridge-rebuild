@@ -331,3 +331,68 @@ media dependencies and were intentionally preserved per instructions.
 All retiring-host media dependencies have been replaced with durable
 app-owned URLs. The old WordPress host can be retired without breaking any
 image, video, logo, or gallery on the new site.
+
+## iCal Integration Repair — 2026-10-28
+
+### Issues fixed
+1. **Paid direct bookings now export to iCal** — `buildUnitIcsExport` fetches
+   authoritative `reservations.status` and exports reservations whose status
+   is `confirmed`, `checked_in`, or `checked_out`, regardless of the
+   `inventory_nights.claim_reason` label. A paid booking whose inventory is
+   still labeled "held" exports correctly because eligibility is decided by
+   the reservation status, not the inventory classification.
+   `confirmReservationPayment` advances the reservation to `confirmed` and
+   updates the inventory claim_reason to match.
+
+2. **Airbnb owner_type now permitted** — Migration
+   `20261028152256_add_airbnb_to_the_allowed_owner_type.sql` adds `'airbnb'`
+   to the `inventory_nights_owner_type_check` constraint. Dedicated
+   `claim_external_block`, `release_external_block`, and
+   `reconcile_external_event` RPCs (migration
+   `20261028152751_add_dedicated_external_block_airbnb.sql`) write
+   `inventory_nights` only (never the `blocks` table whose CHECK rejects
+   `airbnb`). The unique active (unit, night) invariant is preserved.
+
+3. **Failed imports no longer make availability look fresh** —
+   `syncUnitIcal` updates `ical_last_attempt_at` on failure but NOT
+   `ical_last_synced_at`. Only a successful reconciliation updates
+   `ical_last_synced_at`. `checkIcalFreshness` uses `ical_last_synced_at`
+   (not the attempt timestamp) for staleness.
+
+4. **Transactional event changes** — Date changes now use
+   `reconcile_external_event` which releases the event's old nights AND
+   claims the new nights in a single SQL transaction. A unique-index
+   conflict on any new night rolls back the release — a failed amendment
+   preserves the original booking (no half-moved inventory). Cancellations
+   use `release_external_block` by source_uid (explicit event-to-block
+   relationship, not reason-text matching).
+
+5. **Private integration data protected** — Column-level GRANT in migration
+   `20261028152751` revokes `anon` SELECT on `units` and grants only safe
+   public columns. The `ical_*` fields are unreadable through the public
+   Data API. `listPublishedUnitsFn` uses explicit safe column selection
+   (never `select("*")`).
+
+6. **Reservation authorization for status/checkout** — `createCheckoutFn`
+   and `getReservationStatusFn` require either a valid access capability
+   token (verified by `resolveAccessCapability`) or staff auth.
+
+7. **RPC input serialization verified** — `p_units` is passed as the
+   structured array (`input.units`), not `JSON.stringify`. The supabase-js
+   client serializes it to JSONB; `acquire_inventory` uses
+   `jsonb_array_elements(p_units)`. Correct.
+
+8. **Scheduler status** — `POST /api/ical/sync` is implemented with
+   `ICAL_CRON_SECRET` authorization (constant-time compare via
+   `timingSafeEqual`). It does not schedule itself — an external durable
+   cron job is required. The Integrations UI states this honestly.
+
+### Remaining dependencies
+- **ICAL_CRON_SECRET**: set as a server secret for the sync endpoint.
+- **External cron job**: must call `POST /api/ical/sync` every ~5 min.
+  This platform has no built-in cron scheduler; an external service is
+  required.
+- **Airbnb iCal import URLs**: staff paste each listing's iCal export URL
+  into Integrations → Airbnb Calendars for each unit.
+- **Airbnb-side iCal subscription**: Airbnb must subscribe to our export
+  .ics URLs shown in Integrations.

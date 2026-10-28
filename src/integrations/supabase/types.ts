@@ -1987,6 +1987,17 @@ export type Database = {
         }
         Returns: Json
       }
+      claim_external_block: {
+        Args: {
+          p_checkin_date: string
+          p_checkout_date: string
+          p_created_by?: string
+          p_owner_type: string
+          p_source_uid: string
+          p_unit_id: string
+        }
+        Returns: Json
+      }
       group_pickup: {
         Args: {
           p_adults: number
@@ -2013,7 +2024,21 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      reconcile_external_event: {
+        Args: {
+          p_checkin_date: string
+          p_checkout_date: string
+          p_owner_type: string
+          p_source_uid: string
+          p_unit_id: string
+        }
+        Returns: Json
+      }
       release_block: { Args: { p_block_id: string }; Returns: undefined }
+      release_external_block: {
+        Args: { p_source_uid: string; p_unit_id: string }
+        Returns: undefined
+      }
       release_reservation: {
         Args: { p_reservation_id: string }
         Returns: undefined

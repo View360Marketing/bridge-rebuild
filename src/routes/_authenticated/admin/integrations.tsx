@@ -159,10 +159,13 @@ function SyncSettings({
       </button>
       {save.isError && <p className="text-xs text-red-600 mt-2">Failed to save settings.</p>}
       <p className="text-xs text-stone-500 mt-2">
-        Scheduled import runs via an external cron calling{" "}
-        <code className="text-stone-700">POST /api/ical/sync</code> with a shared secret. Our poll
-        interval does not control how often Airbnb reads our export feed (Airbnb imports ~3-hour
-        cycles). Configure ICAL_CRON_SECRET as a server secret to activate the scheduler.
+        Import runs via an external durable scheduler calling{" "}
+        <code className="text-stone-700">POST /api/ical/sync</code> with the{" "}
+        <code className="text-stone-700">ICAL_CRON_SECRET</code> header. This endpoint is
+        implemented but does not schedule itself — an external cron job must be configured to call
+        it. Saving the secret enables authorization; it does not by itself activate scheduling. Our
+        poll interval does not control how often Airbnb reads our export feed (Airbnb imports
+        ~3-hour cycles).
       </p>
     </div>
   );

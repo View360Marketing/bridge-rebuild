@@ -16,12 +16,13 @@ export type ImportOutcome = {
 
 /**
  * Import a single unit's Airbnb iCal feed. Acquires 'airbnb' blocks for each
- * event night through the atomic claim_block RPC so they conflict with direct
- * bookings in availability search. Reconciliation:
+ * event night through the dedicated claim_external_block RPC so they conflict
+ * with direct bookings in availability search. Reconciliation:
  *  - New events -> insert ical_imported_events + claim nights.
- *  - Changed events -> update dates, release old nights, claim new nights.
+ *  - Changed events -> reconcile_external_event (release old + claim new in
+ *    one transaction; a conflict rolls back, preserving the original blocks).
  *  - Missing events -> mark stale (don't release; feed may be incomplete).
- *  - Cancelled events -> release their nights.
+ *  - Cancelled events -> release their nights via release_external_block.
  *  - A fetch failure preserves existing blocks (stale, not empty).
  */
 export async function syncUnitIcal(
@@ -96,23 +97,27 @@ export async function syncUnitIcal(
     const status = ev.status === "cancelled" ? "cancelled" : "confirmed";
 
     if (prev) {
-      const prevStart = prev.dtstart ? new Date(prev.dtstart as string).toISOString() : null;
-      const prevEnd = prev.dtend ? new Date(prev.dtend as string).toISOString() : null;
-      const datesChanged = prevStart !== ev.dtstart || prevEnd !== ev.dtend;
       if (status === "cancelled" && prev.status !== "cancelled") {
-        // Cancellation: release this event's own nights by ical_uid.
+        // Cancellation: release this event's own nights by source_uid.
         await releaseAirbnbNightsByUid(unitId, ev.uid);
         await supabaseAdmin
           .from("ical_imported_events")
           .update({ status: "cancelled", imported_at: new Date().toISOString() })
           .eq("id", prev.id);
         cancelled++;
-      } else if (datesChanged && status === "confirmed") {
-        // Transactional amendment: claim NEW nights first, then release old.
-        // If the new dates conflict, claimAirbnbNights throws and the old
-        // nights stay intact — the original booking is preserved.
-        await claimAirbnbNights(unitId, ev.uid, checkin, checkout);
-        await releaseAirbnbNightsByUid(unitId, ev.uid);
+      } else if (status === "confirmed") {
+        // Transactional amendment via reconcile_external_event: releases the
+        // event's OLD nights AND claims the NEW nights in one SQL
+        // transaction. If any new night conflicts with a direct booking, the
+        // whole call rolls back — old nights stay intact (the original
+        // booking is preserved). No half-moved inventory.
+        const prevStart = prev.dtstart ? new Date(prev.dtstart as string).toISOString() : null;
+        const prevEnd = prev.dtend ? new Date(prev.dtend as string).toISOString() : null;
+        const datesChanged = prevStart !== ev.dtstart || prevEnd !== ev.dtend;
+        if (datesChanged) {
+          await reconcileAirbnbEvent(unitId, ev.uid, checkin, checkout);
+          updated++;
+        }
         await supabaseAdmin
           .from("ical_imported_events")
           .update({
@@ -123,7 +128,6 @@ export async function syncUnitIcal(
             imported_at: new Date().toISOString(),
           })
           .eq("id", prev.id);
-        updated++;
       }
     } else if (status === "confirmed") {
       await claimAirbnbNights(unitId, ev.uid, checkin, checkout);
@@ -182,45 +186,73 @@ export async function syncUnitIcal(
   };
 }
 
+// Source UID used as the claim_reason key for external (Airbnb) blocks.
+// This is an explicit event-to-block relationship, not reason-text matching.
+const AIRBNB_REASON = (icalUid: string) => icalUid;
+
+/** Acquire Airbnb-imported nights via the dedicated claim_external_block RPC. */
 async function claimAirbnbNights(
   unitId: string,
   icalUid: string,
   checkin: string,
   checkout: string,
 ): Promise<void> {
-  const { error } = await supabaseAdmin.rpc("claim_block", {
+  const reason = AIRBNB_REASON(icalUid);
+  const { error } = await supabaseAdmin.rpc("claim_external_block", {
     p_unit_id: unitId,
     p_checkin_date: checkin,
     p_checkout_date: checkout,
     p_owner_type: "airbnb",
-    p_reason: `Airbnb iCal: ${icalUid}`,
+    p_source_uid: reason,
   });
-  if (error && !error.message.includes("already claimed") && !error.message.includes("conflict")) {
+  if (
+    error &&
+    !error.message.includes("already claimed") &&
+    !error.message.includes("conflict") &&
+    !error.message.includes("duplicate")
+  ) {
     throw error;
   }
 }
 
-/**
- * Release Airbnb-imported nights by the ical_uid stored in claim_reason.
- * Uses explicit event-to-block relationship (claim_reason contains the uid)
- * instead of reason-text matching on the blocks table.
- */
+/** Release Airbnb-imported nights for this event via the dedicated release_external_block RPC. */
 async function releaseAirbnbNightsByUid(unitId: string, icalUid: string): Promise<void> {
-  // Release inventory_nights where owner_type='airbnb' and the claim_reason
-  // references this specific ical_uid. This is an explicit event-to-block
-  // relationship, not a broad reason-text search.
-  const { data: nights } = await supabaseAdmin
-    .from("inventory_nights")
-    .select("id")
-    .eq("unit_id", unitId)
-    .eq("owner_type", "airbnb")
-    .ilike("claim_reason", `%${icalUid}%`)
-    .eq("is_active", true);
-  for (const n of nights ?? []) {
-    await supabaseAdmin
-      .from("inventory_nights")
-      .update({ is_active: false })
-      .eq("id", (n as { id: string }).id);
+  const reason = AIRBNB_REASON(icalUid);
+  const { error } = await supabaseAdmin.rpc("release_external_block", {
+    p_unit_id: unitId,
+    p_source_uid: reason,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Transactional amendment for an imported event: release this event's old
+ * nights + claim new nights in a single SQL call (reconcile_external_event).
+ * A unique-index conflict on any new night aborts the whole call and rolls
+ * back the release, so the original blocks are preserved (failed amendment
+ * never leaves the room half-moved).
+ */
+async function reconcileAirbnbEvent(
+  unitId: string,
+  icalUid: string,
+  checkin: string,
+  checkout: string,
+): Promise<void> {
+  const reason = AIRBNB_REASON(icalUid);
+  const { error } = await supabaseAdmin.rpc("reconcile_external_event", {
+    p_unit_id: unitId,
+    p_source_uid: reason,
+    p_checkin_date: checkin,
+    p_checkout_date: checkout,
+    p_owner_type: "airbnb",
+  });
+  if (
+    error &&
+    !error.message.includes("already claimed") &&
+    !error.message.includes("conflict") &&
+    !error.message.includes("duplicate")
+  ) {
+    throw error;
   }
 }
 
@@ -249,9 +281,7 @@ export async function buildUnitIcsExport(unitId: string, token: string): Promise
   // Fetch authoritative reservation statuses for the owner_ids that are
   // reservation-type, so we can decide export eligibility correctly.
   const reservationOwnerIds = (nights ?? [])
-    .filter(
-      (n) => (n as NightRow).owner_type === "reservation" && (n as NightRow).owner_id,
-    )
+    .filter((n) => (n as NightRow).owner_type === "reservation" && (n as NightRow).owner_id)
     .map((n) => (n as NightRow).owner_id as string);
   const reservationStatusMap = new Map<string, string>();
   if (reservationOwnerIds.length > 0) {
@@ -278,11 +308,7 @@ export async function buildUnitIcsExport(unitId: string, token: string): Promise
       // Only export reservations that are confirmed, checked_in, or checked_out.
       // Pending/hold/draft/cancelled/expired reservations are not exported.
       const resStatus = n.owner_id ? reservationStatusMap.get(n.owner_id) : undefined;
-      if (
-        resStatus !== "confirmed" &&
-        resStatus !== "checked_in" &&
-        resStatus !== "checked_out"
-      ) {
+      if (resStatus !== "confirmed" && resStatus !== "checked_in" && resStatus !== "checked_out") {
         continue;
       }
     }

@@ -125,7 +125,7 @@ export async function createReservation(
     p_adults: input.adults,
     p_children: input.children,
     p_created_by: userId,
-    p_units: JSON.stringify(input.units),
+    p_units: input.units,
     p_owner_type: "reservation",
     ...(input.group_id ? { p_group_id: input.group_id } : {}),
   });
@@ -192,7 +192,7 @@ export async function amendReservation(
   await requireStaff(supabase, userId);
   const { data, error } = await supabaseAdmin.rpc("amend_reservation", {
     p_reservation_id: input.reservation_id,
-    p_new_units: JSON.stringify(input.units),
+    p_new_units: input.units,
     p_new_checkin: input.checkin_date,
     p_new_checkout: input.checkout_date,
     p_new_total_cents: input.total_cents,
@@ -471,7 +471,13 @@ export async function buildCalendar(
     let status: CalendarCell["status"] = "free";
     if (n.owner_type === "reservation") status = n.claim_reason === "held" ? "hold" : "reservation";
     else if (n.owner_type === "group") status = "group";
-    else if (n.owner_type === "maintenance" || n.owner_type === "owner") status = "block";
+    else if (
+      n.owner_type === "maintenance" ||
+      n.owner_type === "owner" ||
+      n.owner_type === "airbnb" ||
+      n.owner_type === "external"
+    )
+      status = "block";
     claimMap.set(key, { status, owner_type: n.owner_type, reference: n.owner_id });
   }
 
