@@ -144,7 +144,7 @@ export async function createGuestReservation(input: {
       const unitIds = input.units.map((u) => u.unit_id);
       const { data: unitRows } = await supabaseAdmin
         .from("units")
-        .select("id, unit_code, base_rate_cents, max_adults, max_children")
+        .select("id, unit_code, base_rate_cents, max_adults, max_children, room_type_id")
         .in("id", unitIds);
       const unitMap = new Map(
         (unitRows ?? []).map((r) => [
@@ -154,6 +154,7 @@ export async function createGuestReservation(input: {
             base_rate_cents: number;
             max_adults: number;
             max_children: number;
+            room_type_id: string | null;
           },
         ]),
       );
@@ -166,6 +167,7 @@ export async function createGuestReservation(input: {
             base_rate_cents: urow?.base_rate_cents ?? 0,
             max_adults: urow?.max_adults ?? u.adults,
             max_children: urow?.max_children ?? 0,
+            room_type_id: urow?.room_type_id ?? null,
           };
         }),
         checkin_date: input.checkin_date,

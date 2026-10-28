@@ -99,6 +99,7 @@ function BookingReviewPage() {
               base_rate_cents: unit?.base_rate_cents ?? 0,
               max_adults: unit?.max_adults ?? 2,
               max_children: (unit?.max_guests ?? 2) - (unit?.max_adults ?? 2),
+              room_type_id: unit?.room_type_id ?? null,
             },
           ],
           checkin_date: checkin,

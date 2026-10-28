@@ -73,6 +73,7 @@ export type UnitPricingInput = {
   base_rate_cents: number;
   max_adults: number;
   max_children: number;
+  room_type_id?: string | null;
 };
 
 export type QuoteLine = {
@@ -147,33 +148,67 @@ async function loadPromotion(supabase: SupabaseClient, code: string): Promise<Pr
   return (data as unknown as PromotionRow) ?? null;
 }
 
-/** Resolve the nightly rate in cents for one unit on one date. */
+/** Load the active third_night_free promotion (used when no explicit code is
+ * supplied, so the seasonal "book two nights, third night free" offer is
+ * honoured automatically). Only the first active one is applied — we do not
+ * stack promotions. */
+async function loadActiveThirdNightFreePromotion(
+  supabase: SupabaseClient,
+): Promise<PromotionRow | null> {
+  const { data, error } = await supabase
+    .from("promotions")
+    .select("*")
+    .eq("is_active", true)
+    .eq("mechanic", "third_night_free")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as unknown as PromotionRow) ?? null;
+}
+
+/** Resolve the nightly rate in cents for one unit on one date.
+ *
+ * Plan selection precedence (first match wins):
+ *   1. per-unit plan (unit_id = this unit)
+ *   2. per-room-type plan (room_type_id = this unit's room type, unit_id null)
+ *   3. catch-all plan (room_type_id null, unit_id null)
+ *
+ * For the selected plan, nightly resolution precedence:
+ *   a. per-unit date override
+ *   b. per-plan date override
+ *   c. weekend rate (if the night is a weekend day and a weekend rate is set)
+ *   d. base nightly rate
+ *   e. unit.base_rate_cents fallback
+ */
 export function resolveNightlyRate(
   unit: UnitPricingInput,
   date: string,
   plans: RatePlanRow[],
   overrides: DateOverrideRow[],
 ): { amount: number; reason: string } {
-  // 1. per-unit override
+  // 1. per-unit date override
   const unitOverride = overrides.find((o) => o.unit_id === unit.unit_id && o.stay_date === date);
   if (unitOverride) return { amount: unitOverride.nightly_cents, reason: "unit override" };
 
-  // 2. find the best-matching active rate plan for this unit
+  // 2. find the best-matching active rate plan for this unit, honouring room_type_id.
   const plan =
     plans.find((p) => p.unit_id === unit.unit_id) ??
+    (unit.room_type_id
+      ? plans.find((p) => p.room_type_id === unit.room_type_id && p.unit_id === null)
+      : undefined) ??
     plans.find((p) => p.room_type_id === null && p.unit_id === null);
 
-  // 3. per-plan override
+  // 3. per-plan override + effective window + weekend/base
   if (plan) {
     const planOverride = overrides.find((o) => o.rate_plan_id === plan.id && o.stay_date === date);
     if (planOverride) return { amount: planOverride.nightly_cents, reason: "plan override" };
 
-    // effective date window
-    if (plan.effective_from && date < plan.effective_from) {
-      // plan not effective; fall through to base
-    } else if (plan.effective_to && date > plan.effective_to) {
-      // plan not effective; fall through to base
-    } else {
+    const withinWindow =
+      (!plan.effective_from || date >= plan.effective_from) &&
+      (!plan.effective_to || date <= plan.effective_to);
+
+    if (withinWindow) {
       // 4. weekend rate
       const dow = new Date(date + "T00:00:00Z").getUTCDay();
       if (plan.weekend_nightly_cents != null && plan.weekend_days.includes(dow)) {
@@ -193,12 +228,19 @@ export async function computeQuote(
   supabase: SupabaseClient,
   input: QuoteInput,
 ): Promise<QuoteResult> {
-  const [plans, overrides, fees, taxes, promotion] = await Promise.all([
+  // If an explicit promotion_code is supplied, look it up; otherwise fall back
+  // to the active third_night_free promotion so the seasonal offer is honoured
+  // automatically without requiring the client to pass a code.
+  let promotion = await loadPromotion(supabase, input.promotion_code ?? "");
+  if (!promotion) {
+    promotion = await loadActiveThirdNightFreePromotion(supabase);
+  }
+
+  const [plans, overrides, fees, taxes] = await Promise.all([
     loadRatePlans(supabase),
     loadOverrides(supabase, input.checkin_date, input.checkout_date),
     loadFees(supabase),
     loadTaxes(supabase),
-    loadPromotion(supabase, input.promotion_code ?? ""),
   ]);
 
   const nights: string[] = [];
@@ -215,10 +257,16 @@ export async function computeQuote(
     }
   }
 
-  // additional-person fees
+  // additional-person fees — use the same room-type-aware plan matching as
+  // resolveNightlyRate so per-room-type plans are honoured here too.
   let additionalPerson = 0;
   for (const unit of input.units) {
-    const plan = plans.find((p) => p.unit_id === unit.unit_id);
+    const plan =
+      plans.find((p) => p.unit_id === unit.unit_id) ??
+      (unit.room_type_id
+        ? plans.find((p) => p.room_type_id === unit.room_type_id && p.unit_id === null)
+        : undefined) ??
+      plans.find((p) => p.room_type_id === null && p.unit_id === null);
     const extraAdults = Math.max(0, input.adults - unit.max_adults);
     additionalPerson += extraAdults * (plan?.additional_adult_cents ?? 0);
     additionalPerson += input.children * (plan?.additional_child_cents ?? 0);

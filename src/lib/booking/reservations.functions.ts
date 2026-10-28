@@ -66,6 +66,7 @@ const quoteSchema = z.object({
       base_rate_cents: z.number().int(),
       max_adults: z.number().int(),
       max_children: z.number().int(),
+      room_type_id: z.string().nullable().optional(),
     }),
   ),
   checkin_date: z.string(),
