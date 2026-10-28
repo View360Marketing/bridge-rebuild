@@ -217,7 +217,7 @@ export async function createGuestReservation(input: {
         p_checkout_date: input.checkout_date,
         p_adults: input.adults,
         p_children: input.children,
-        p_units: JSON.stringify(input.units),
+        p_units: input.units,
         p_owner_type: "reservation",
       });
       if (error) throw new Error(error.message);

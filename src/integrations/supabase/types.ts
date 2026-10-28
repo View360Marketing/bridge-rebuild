@@ -1740,6 +1740,7 @@ export type Database = {
           description: string | null
           ical_export_token: string | null
           ical_import_url: string | null
+          ical_last_attempt_at: string | null
           ical_last_synced_at: string | null
           ical_sync_status: string | null
           id: string
@@ -1774,6 +1775,7 @@ export type Database = {
           description?: string | null
           ical_export_token?: string | null
           ical_import_url?: string | null
+          ical_last_attempt_at?: string | null
           ical_last_synced_at?: string | null
           ical_sync_status?: string | null
           id?: string
@@ -1808,6 +1810,7 @@ export type Database = {
           description?: string | null
           ical_export_token?: string | null
           ical_import_url?: string | null
+          ical_last_attempt_at?: string | null
           ical_last_synced_at?: string | null
           ical_sync_status?: string | null
           id?: string

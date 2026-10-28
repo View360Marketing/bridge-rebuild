@@ -55,9 +55,11 @@ export async function syncUnitIcal(
         .update({ status: "failed", error_message: msg, finished_at: new Date().toISOString() })
         .eq("id", logId);
     }
+    // Record the attempt timestamp but do NOT update ical_last_synced_at —
+    // a failed or invalid feed must not make availability look fresh.
     await supabaseAdmin
       .from("units")
-      .update({ ical_sync_status: "error", ical_last_synced_at: new Date().toISOString() })
+      .update({ ical_sync_status: "error", ical_last_attempt_at: new Date().toISOString() })
       .eq("id", unitId);
     return {
       unit_id: unitId,
@@ -98,15 +100,19 @@ export async function syncUnitIcal(
       const prevEnd = prev.dtend ? new Date(prev.dtend as string).toISOString() : null;
       const datesChanged = prevStart !== ev.dtstart || prevEnd !== ev.dtend;
       if (status === "cancelled" && prev.status !== "cancelled") {
-        await releaseAirbnbNights(unitId, prev.ical_uid as string);
+        // Cancellation: release this event's own nights by ical_uid.
+        await releaseAirbnbNightsByUid(unitId, ev.uid);
         await supabaseAdmin
           .from("ical_imported_events")
           .update({ status: "cancelled", imported_at: new Date().toISOString() })
           .eq("id", prev.id);
         cancelled++;
       } else if (datesChanged && status === "confirmed") {
-        await releaseAirbnbNights(unitId, prev.ical_uid as string);
+        // Transactional amendment: claim NEW nights first, then release old.
+        // If the new dates conflict, claimAirbnbNights throws and the old
+        // nights stay intact — the original booking is preserved.
         await claimAirbnbNights(unitId, ev.uid, checkin, checkout);
+        await releaseAirbnbNightsByUid(unitId, ev.uid);
         await supabaseAdmin
           .from("ical_imported_events")
           .update({
@@ -155,9 +161,14 @@ export async function syncUnitIcal(
       })
       .eq("id", logId);
   }
+  // Only update ical_last_synced_at on a successful reconciliation.
   await supabaseAdmin
     .from("units")
-    .update({ ical_sync_status: "synced", ical_last_synced_at: new Date().toISOString() })
+    .update({
+      ical_sync_status: "synced",
+      ical_last_synced_at: new Date().toISOString(),
+      ical_last_attempt_at: new Date().toISOString(),
+    })
     .eq("id", unitId);
 
   return {
@@ -189,15 +200,27 @@ async function claimAirbnbNights(
   }
 }
 
-async function releaseAirbnbNights(unitId: string, icalUid: string): Promise<void> {
-  const { data: blocks } = await supabaseAdmin
-    .from("blocks")
+/**
+ * Release Airbnb-imported nights by the ical_uid stored in claim_reason.
+ * Uses explicit event-to-block relationship (claim_reason contains the uid)
+ * instead of reason-text matching on the blocks table.
+ */
+async function releaseAirbnbNightsByUid(unitId: string, icalUid: string): Promise<void> {
+  // Release inventory_nights where owner_type='airbnb' and the claim_reason
+  // references this specific ical_uid. This is an explicit event-to-block
+  // relationship, not a broad reason-text search.
+  const { data: nights } = await supabaseAdmin
+    .from("inventory_nights")
     .select("id")
     .eq("unit_id", unitId)
     .eq("owner_type", "airbnb")
-    .ilike("reason", `%${icalUid}%`);
-  for (const b of blocks ?? []) {
-    await supabaseAdmin.rpc("release_block", { p_block_id: b.id });
+    .ilike("claim_reason", `%${icalUid}%`)
+    .eq("is_active", true);
+  for (const n of nights ?? []) {
+    await supabaseAdmin
+      .from("inventory_nights")
+      .update({ is_active: false })
+      .eq("id", (n as { id: string }).id);
   }
 }
 
@@ -211,6 +234,10 @@ export async function buildUnitIcsExport(unitId: string, token: string): Promise
     .single();
   if (!unit || unit.ical_export_token !== token) return null;
 
+  // Fetch active inventory nights for this unit (exclude airbnb-imported to
+  // prevent circular sync). For reservation-owned nights, join the
+  // reservations table to get the authoritative status — a paid booking
+  // whose inventory_nights.claim_reason is still "held" must still export.
   const { data: nights, error } = await supabaseAdmin
     .from("inventory_nights")
     .select("stay_date, owner_type, claim_reason, owner_id")
@@ -218,6 +245,24 @@ export async function buildUnitIcsExport(unitId: string, token: string): Promise
     .eq("is_active", true)
     .neq("owner_type", "airbnb");
   if (error) throw new Error(error.message);
+
+  // Fetch authoritative reservation statuses for the owner_ids that are
+  // reservation-type, so we can decide export eligibility correctly.
+  const reservationOwnerIds = (nights ?? [])
+    .filter(
+      (n) => (n as NightRow).owner_type === "reservation" && (n as NightRow).owner_id,
+    )
+    .map((n) => (n as NightRow).owner_id as string);
+  const reservationStatusMap = new Map<string, string>();
+  if (reservationOwnerIds.length > 0) {
+    const { data: resRows } = await supabaseAdmin
+      .from("reservations")
+      .select("id, status")
+      .in("id", reservationOwnerIds);
+    for (const r of (resRows ?? []) as { id: string; status: string }[]) {
+      reservationStatusMap.set(r.id, r.status);
+    }
+  }
 
   // Group contiguous nights by reservation/block.
   type NightRow = {
@@ -228,7 +273,19 @@ export async function buildUnitIcsExport(unitId: string, token: string): Promise
   };
   const byOwner = new Map<string, { dates: string[]; owner_type: string }>();
   for (const n of (nights ?? []) as unknown as NightRow[]) {
-    if (n.owner_type === "reservation" && n.claim_reason === "held") continue;
+    if (n.owner_type === "reservation") {
+      // Use the authoritative reservation status to decide export eligibility.
+      // Only export reservations that are confirmed, checked_in, or checked_out.
+      // Pending/hold/draft/cancelled/expired reservations are not exported.
+      const resStatus = n.owner_id ? reservationStatusMap.get(n.owner_id) : undefined;
+      if (
+        resStatus !== "confirmed" &&
+        resStatus !== "checked_in" &&
+        resStatus !== "checked_out"
+      ) {
+        continue;
+      }
+    }
     const key = n.owner_id ?? n.claim_reason ?? n.owner_type;
     const existing = byOwner.get(key);
     if (existing) {

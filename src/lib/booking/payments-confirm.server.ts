@@ -60,6 +60,18 @@ export async function confirmReservationPayment(
     .update({ paid_cents: newPaid, status: newStatus, updated_at: new Date().toISOString() })
     .eq("id", reservationId);
 
+  // Update the inventory_nights claim_reason to match the authoritative
+  // reservation status. When a reservation is confirmed, its inventory
+  // claims move from "held" → "confirmed" so the iCal export includes them.
+  if (newStatus === "confirmed") {
+    await supabaseAdmin
+      .from("inventory_nights")
+      .update({ claim_reason: "confirmed" })
+      .eq("owner_id", reservationId)
+      .eq("owner_type", "reservation")
+      .eq("is_active", true);
+  }
+
   if (attemptId) {
     await supabaseAdmin
       .from("payment_attempts")

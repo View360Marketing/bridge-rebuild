@@ -44,30 +44,19 @@ export const createGuestReservationFn = createServerFn({ method: "POST" })
   .validator((d) => guestReservationSchema.parse(d))
   .handler(async ({ data }) => createGuestReservation(data));
 
-/** Public: create a Stripe Checkout Session for a reservation's balance. */
+/** Create a Stripe Checkout Session for a reservation's balance (by access token). */
 const checkoutSchema = z.object({
   reservation_id: z.string(),
   guest_email: z.string().optional(),
   origin: z.string(),
+  access_token: z.string().optional(),
 });
 
 export const createCheckoutFn = createServerFn({ method: "POST" })
   .validator((d) => checkoutSchema.parse(d))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    return createCheckout(supabaseAdmin, data);
-  });
-
-/** Public: get authoritative reservation + payment status (by access token). */
-const statusSchema = z.object({
-  reservation_id: z.string(),
-  access_token: z.string().optional(),
-});
-
-export const getReservationStatusFn = createServerFn({ method: "GET" })
-  .validator((d) => statusSchema.parse(d))
-  .handler(async ({ data }) => {
-    // If an access token is provided, verify it grants access to this reservation.
+    // Require either a valid access capability for this reservation, or the
+    // reservation was just created by this caller (access token provided).
     if (data.access_token) {
       const cap = await resolveAccessCapability(data.access_token);
       if (!cap || cap.reservation_id !== data.reservation_id) {
@@ -75,7 +64,39 @@ export const getReservationStatusFn = createServerFn({ method: "GET" })
       }
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    return getReservationStatus(supabaseAdmin, data.reservation_id);
+    return createCheckout(supabaseAdmin, {
+      reservation_id: data.reservation_id,
+      ...(data.guest_email !== undefined ? { guest_email: data.guest_email } : {}),
+      origin: data.origin,
+    });
+  });
+
+/** Get authoritative reservation + payment status (by access token OR staff auth). */
+const statusSchema = z.object({
+  reservation_id: z.string(),
+  access_token: z.string().optional(),
+});
+
+export const getReservationStatusFn = createServerFn({ method: "GET" })
+  .validator((d) => statusSchema.parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    // Require either a valid access capability for this reservation, or staff auth.
+    if (data.access_token) {
+      const cap = await resolveAccessCapability(data.access_token);
+      if (!cap || cap.reservation_id !== data.reservation_id) {
+        throw new Error("Unauthorized: invalid or expired access link.");
+      }
+    } else {
+      // No access token — require staff authorization.
+      const { data: isStaff } = await context.supabase.rpc("is_staff", {
+        _user_id: context.userId,
+      });
+      if (!isStaff) {
+        throw new Error("Unauthorized: access token or staff role required.");
+      }
+    }
+    return getReservationStatus(context.supabase, data.reservation_id);
   });
 
 /** Public: resolve an access token to a reservation ID (for the /reservation page). */
