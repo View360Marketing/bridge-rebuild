@@ -72,16 +72,6 @@ export function Header() {
             >
               Massage &amp; Wellness
             </Link>
-            <Link
-              to="/stay"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
-              activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
-              }}
-            >
-              Book Room
-            </Link>
-
             {/* About dropdown */}
             <div
               className="relative"
@@ -193,15 +183,6 @@ export function Header() {
           >
             Massage &amp; Wellness
           </Link>
-          <a
-            href="https://www.airbnb.com/users/show/244417704"
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-stone-200 hover:bg-white/10"
-          >
-            Book Room
-          </a>
           <Link
             to="/gallery"
             onClick={() => setMobileMenuOpen(false)}
