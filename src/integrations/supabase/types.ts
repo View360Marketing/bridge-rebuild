@@ -316,6 +316,103 @@ export type Database = {
           },
         ]
       }
+      ical_imported_events: {
+        Row: {
+          dtend: string | null
+          dtstart: string | null
+          feed_uid: string
+          ical_uid: string
+          id: string
+          imported_at: string
+          source: string
+          status: string
+          summary: string | null
+          unit_id: string
+        }
+        Insert: {
+          dtend?: string | null
+          dtstart?: string | null
+          feed_uid: string
+          ical_uid: string
+          id?: string
+          imported_at?: string
+          source?: string
+          status?: string
+          summary?: string | null
+          unit_id: string
+        }
+        Update: {
+          dtend?: string | null
+          dtstart?: string | null
+          feed_uid?: string
+          ical_uid?: string
+          id?: string
+          imported_at?: string
+          source?: string
+          status?: string
+          summary?: string | null
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ical_imported_events_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ical_sync_log: {
+        Row: {
+          cancelled_count: number
+          error_message: string | null
+          feed_url: string
+          finished_at: string | null
+          id: string
+          imported_count: number
+          raw_event_count: number
+          started_at: string
+          status: string
+          unit_id: string
+          updated_count: number
+        }
+        Insert: {
+          cancelled_count?: number
+          error_message?: string | null
+          feed_url: string
+          finished_at?: string | null
+          id?: string
+          imported_count?: number
+          raw_event_count?: number
+          started_at?: string
+          status?: string
+          unit_id: string
+          updated_count?: number
+        }
+        Update: {
+          cancelled_count?: number
+          error_message?: string | null
+          feed_url?: string
+          finished_at?: string | null
+          id?: string
+          imported_count?: number
+          raw_event_count?: number
+          started_at?: string
+          status?: string
+          unit_id?: string
+          updated_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ical_sync_log_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idempotency_keys: {
         Row: {
           created_at: string
@@ -395,6 +492,10 @@ export type Database = {
           default_hold_minutes: number
           deposit_percent: number | null
           expected_room_count: number
+          ical_export_base_url: string | null
+          ical_stale_after_hours: number
+          ical_sync_enabled: boolean
+          ical_sync_interval_minutes: number
           id: number
           instant_booking_enabled: boolean
           inventory_authority: string
@@ -418,6 +519,10 @@ export type Database = {
           default_hold_minutes?: number
           deposit_percent?: number | null
           expected_room_count?: number
+          ical_export_base_url?: string | null
+          ical_stale_after_hours?: number
+          ical_sync_enabled?: boolean
+          ical_sync_interval_minutes?: number
           id?: number
           instant_booking_enabled?: boolean
           inventory_authority?: string
@@ -441,6 +546,10 @@ export type Database = {
           default_hold_minutes?: number
           deposit_percent?: number | null
           expected_room_count?: number
+          ical_export_base_url?: string | null
+          ical_stale_after_hours?: number
+          ical_sync_enabled?: boolean
+          ical_sync_interval_minutes?: number
           id?: number
           instant_booking_enabled?: boolean
           inventory_authority?: string
