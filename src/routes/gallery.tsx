@@ -71,16 +71,24 @@ function GalleryPage() {
     <div className="min-h-screen bg-[#faf8f5] text-stone-800 font-sans">
       <Header />
 
-      <section className="py-20 lg:py-28 bg-[#faf8f5] border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 lg:py-28 border-b border-stone-200 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://vibe.filesafe.space/1790196628861484830/assets/30945ebf-a148-4ad5-a769-9044e5e3bc37.jpg"
+            alt="The Natural Bridge at The Bridges, Tennessee"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1a231c]/85 via-[#1a231c]/60 to-[#1a231c]/30" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#2f4032] block">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#88b283] block">
               PHOTO GALLERY
             </span>
-            <h1 className="font-serif text-4xl sm:text-6xl font-bold text-[#1a231c] tracking-tight leading-[1.1]">
+            <h1 className="font-serif text-4xl sm:text-6xl font-bold text-white tracking-tight leading-[1.1]">
               Moments at The Bridges
             </h1>
-            <p className="text-stone-600 text-base sm:text-lg leading-relaxed font-light">
+            <p className="text-stone-200 text-base sm:text-lg leading-relaxed font-light">
               Explore our scenic grounds, natural bridge landmark, Ice Cave, The Willows event
               space, and comfortable lodging.
             </p>

@@ -67,16 +67,24 @@ function ContactPage() {
       <Header />
 
       {/* Header */}
-      <section className="py-20 lg:py-28 bg-[#faf8f5] border-b border-stone-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 lg:py-28 border-b border-stone-200 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://vibe.filesafe.space/1790196628861484830/assets/cab64087-066e-4e81-bd41-ad9bd9aba5f4.jpg"
+            alt="The Bridges resort grounds and scenery"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1a231c]/85 via-[#1a231c]/55 to-[#1a231c]/20" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-4">
-            <span className="text-xs font-bold uppercase tracking-widest text-[#2f4032] block">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#88b283] block">
               GET IN TOUCH
             </span>
-            <h1 className="font-serif text-4xl sm:text-6xl font-bold text-[#1a231c] tracking-tight leading-[1.1]">
+            <h1 className="font-serif text-4xl sm:text-6xl font-bold text-white tracking-tight leading-[1.1]">
               Contact The Bridges
             </h1>
-            <p className="text-stone-600 text-base sm:text-lg leading-relaxed font-light">
+            <p className="text-stone-200 text-base sm:text-lg leading-relaxed font-light">
               We would love to help you plan your 2027 wedding, group retreat, cabin stay, or
               private pool event. Reach out below and our team will get back to you promptly.
             </p>
