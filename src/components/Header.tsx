@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnnouncementBar } from "./AnnouncementBar";
-import { Phone, Compass, Menu, X, ChevronDown } from "lucide-react";
+import { Phone, Compass, Menu, X } from "lucide-react";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full transition-all">
@@ -72,37 +71,32 @@ export function Header() {
             >
               Massage &amp; Wellness
             </Link>
-            {/* About dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setAboutDropdownOpen(true)}
-              onMouseLeave={() => setAboutDropdownOpen(false)}
+            <Link
+              to="/about-us"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
             >
-              <button
-                type="button"
-                className="flex items-center px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
-              >
-                <span>About Us</span>
-                <ChevronDown className="ml-1 w-3.5 h-3.5 opacity-80" />
-              </button>
-
-              {aboutDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-44 rounded-2xl shadow-xl bg-[#596d5e] border border-white/20 py-2 z-50 backdrop-blur-lg">
-                  <Link
-                    to="/gallery"
-                    className="block px-4 py-2 text-xs text-white/90 hover:bg-white/15 hover:text-white"
-                  >
-                    Gallery
-                  </Link>
-                  <Link
-                    to="/contact-us"
-                    className="block px-4 py-2 text-xs text-white/90 hover:bg-white/15 hover:text-white"
-                  >
-                    Contact Us
-                  </Link>
-                </div>
-              )}
-            </div>
+              About Us
+            </Link>
+            <Link
+              to="/gallery"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              Gallery
+            </Link>
+            <Link
+              to="/contact-us"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              Contact Us
+            </Link>
           </nav>
 
           {/* Header Action Round Buttons (Phone & Directions) in bubbly style */}
@@ -182,6 +176,13 @@ export function Header() {
             className="block px-3 py-2 rounded-md text-base font-medium text-stone-200 hover:bg-white/10"
           >
             Massage &amp; Wellness
+          </Link>
+          <Link
+            to="/about-us"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-md text-base font-medium text-stone-200 hover:bg-white/10"
+          >
+            About Us
           </Link>
           <Link
             to="/gallery"
