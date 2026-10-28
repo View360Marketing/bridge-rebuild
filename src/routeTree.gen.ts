@@ -32,6 +32,7 @@ import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminGroupsRouteImport } from './routes/_authenticated/admin/groups'
 import { Route as AuthenticatedAdminGuestsRouteImport } from './routes/_authenticated/admin/guests'
 import { Route as AuthenticatedAdminHousekeepingRouteImport } from './routes/_authenticated/admin/housekeeping'
+import { Route as AuthenticatedAdminIntegrationsRouteImport } from './routes/_authenticated/admin/integrations'
 import { Route as AuthenticatedAdminPaymentsRouteImport } from './routes/_authenticated/admin/payments'
 import { Route as AuthenticatedAdminRatesRouteImport } from './routes/_authenticated/admin/rates'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
@@ -39,6 +40,8 @@ import { Route as AuthenticatedAdminReservationsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin/rooms'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as ApiIcalExportDoticsRouteImport } from './routes/api/ical/export[.]ics'
+import { Route as ApiIcalSyncRouteImport } from './routes/api/ical/sync'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 
 const IndexRoute = IndexRouteImport.update({
@@ -159,6 +162,12 @@ const AuthenticatedAdminHousekeepingRoute =
     path: '/housekeeping',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminIntegrationsRoute =
+  AuthenticatedAdminIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPaymentsRoute =
   AuthenticatedAdminPaymentsRouteImport.update({
     id: '/payments',
@@ -198,6 +207,16 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiIcalExportDoticsRoute = ApiIcalExportDoticsRouteImport.update({
+  id: '/api/ical/export.ics',
+  path: '/api/ical/export.ics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIcalSyncRoute = ApiIcalSyncRouteImport.update({
+  id: '/api/ical/sync',
+  path: '/api/ical/sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
   id: '/api/webhooks/stripe',
   path: '/api/webhooks/stripe',
@@ -226,6 +245,7 @@ export interface FileRoutesByFullPath {
   '/admin/groups': typeof AuthenticatedAdminGroupsRoute
   '/admin/guests': typeof AuthenticatedAdminGuestsRoute
   '/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
+  '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/rates': typeof AuthenticatedAdminRatesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -233,6 +253,8 @@ export interface FileRoutesByFullPath {
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/api/ical/export.ics': typeof ApiIcalExportDoticsRoute
+  '/api/ical/sync': typeof ApiIcalSyncRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -256,6 +278,7 @@ export interface FileRoutesByTo {
   '/admin/groups': typeof AuthenticatedAdminGroupsRoute
   '/admin/guests': typeof AuthenticatedAdminGuestsRoute
   '/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
+  '/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/admin/rates': typeof AuthenticatedAdminRatesRoute
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -263,6 +286,8 @@ export interface FileRoutesByTo {
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/api/ical/export.ics': typeof ApiIcalExportDoticsRoute
+  '/api/ical/sync': typeof ApiIcalSyncRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -290,6 +315,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/groups': typeof AuthenticatedAdminGroupsRoute
   '/_authenticated/admin/guests': typeof AuthenticatedAdminGuestsRoute
   '/_authenticated/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
+  '/_authenticated/admin/integrations': typeof AuthenticatedAdminIntegrationsRoute
   '/_authenticated/admin/payments': typeof AuthenticatedAdminPaymentsRoute
   '/_authenticated/admin/rates': typeof AuthenticatedAdminRatesRoute
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
@@ -297,6 +323,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/api/ical/export.ics': typeof ApiIcalExportDoticsRoute
+  '/api/ical/sync': typeof ApiIcalSyncRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -324,6 +352,7 @@ export interface FileRouteTypes {
     | '/admin/groups'
     | '/admin/guests'
     | '/admin/housekeeping'
+    | '/admin/integrations'
     | '/admin/payments'
     | '/admin/rates'
     | '/admin/reports'
@@ -331,6 +360,8 @@ export interface FileRouteTypes {
     | '/admin/rooms'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/ical/export.ics'
+    | '/api/ical/sync'
     | '/api/webhooks/stripe'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -354,6 +385,7 @@ export interface FileRouteTypes {
     | '/admin/groups'
     | '/admin/guests'
     | '/admin/housekeeping'
+    | '/admin/integrations'
     | '/admin/payments'
     | '/admin/rates'
     | '/admin/reports'
@@ -361,6 +393,8 @@ export interface FileRouteTypes {
     | '/admin/rooms'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/ical/export.ics'
+    | '/api/ical/sync'
     | '/api/webhooks/stripe'
     | '/admin'
   id:
@@ -387,6 +421,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/groups'
     | '/_authenticated/admin/guests'
     | '/_authenticated/admin/housekeeping'
+    | '/_authenticated/admin/integrations'
     | '/_authenticated/admin/payments'
     | '/_authenticated/admin/rates'
     | '/_authenticated/admin/reports'
@@ -394,6 +429,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/rooms'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
+    | '/api/ical/export.ics'
+    | '/api/ical/sync'
     | '/api/webhooks/stripe'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -414,6 +451,8 @@ export interface RootRouteChildren {
   BookingReviewRoute: typeof BookingReviewRoute
   BookingStatusRoute: typeof BookingStatusRoute
   ReservationIdRoute: typeof ReservationIdRoute
+  ApiIcalExportDoticsRoute: typeof ApiIcalExportDoticsRoute
+  ApiIcalSyncRoute: typeof ApiIcalSyncRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
 
@@ -580,6 +619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminHousekeepingRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/integrations': {
+      id: '/_authenticated/admin/integrations'
+      path: '/integrations'
+      fullPath: '/admin/integrations'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/payments': {
       id: '/_authenticated/admin/payments'
       path: '/payments'
@@ -629,6 +675,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/ical/export.ics': {
+      id: '/api/ical/export.ics'
+      path: '/api/ical/export.ics'
+      fullPath: '/api/ical/export.ics'
+      preLoaderRoute: typeof ApiIcalExportDoticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ical/sync': {
+      id: '/api/ical/sync'
+      path: '/api/ical/sync'
+      fullPath: '/api/ical/sync'
+      preLoaderRoute: typeof ApiIcalSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/stripe': {
       id: '/api/webhooks/stripe'
       path: '/api/webhooks/stripe'
@@ -644,6 +704,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminGroupsRoute: typeof AuthenticatedAdminGroupsRoute
   AuthenticatedAdminGuestsRoute: typeof AuthenticatedAdminGuestsRoute
   AuthenticatedAdminHousekeepingRoute: typeof AuthenticatedAdminHousekeepingRoute
+  AuthenticatedAdminIntegrationsRoute: typeof AuthenticatedAdminIntegrationsRoute
   AuthenticatedAdminPaymentsRoute: typeof AuthenticatedAdminPaymentsRoute
   AuthenticatedAdminRatesRoute: typeof AuthenticatedAdminRatesRoute
   AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
@@ -659,6 +720,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminGroupsRoute: AuthenticatedAdminGroupsRoute,
   AuthenticatedAdminGuestsRoute: AuthenticatedAdminGuestsRoute,
   AuthenticatedAdminHousekeepingRoute: AuthenticatedAdminHousekeepingRoute,
+  AuthenticatedAdminIntegrationsRoute: AuthenticatedAdminIntegrationsRoute,
   AuthenticatedAdminPaymentsRoute: AuthenticatedAdminPaymentsRoute,
   AuthenticatedAdminRatesRoute: AuthenticatedAdminRatesRoute,
   AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
@@ -711,6 +773,8 @@ const rootRouteChildren: RootRouteChildren = {
   BookingReviewRoute: BookingReviewRoute,
   BookingStatusRoute: BookingStatusRoute,
   ReservationIdRoute: ReservationIdRoute,
+  ApiIcalExportDoticsRoute: ApiIcalExportDoticsRoute,
+  ApiIcalSyncRoute: ApiIcalSyncRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport

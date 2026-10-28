@@ -7,7 +7,7 @@ import {
   DollarSign,
   Sparkles,
   ClipboardList,
-  Bell,
+  Plug,
   Settings,
   LayoutGrid,
   Wrench,
@@ -39,7 +39,7 @@ const NAV = [
   { key: "reports", label: "Reports", to: "/admin/reports", icon: BarChart3, ready: true },
   { key: "users", label: "Users", to: "/admin/users", icon: UserCog, ready: true },
   { key: "settings", label: "Settings", to: "/admin/settings", icon: Settings, ready: true },
-  { key: "integrations", label: "Integrations", to: "/admin/settings", icon: Bell, ready: true },
+  { key: "integrations", label: "Integrations", to: "/admin/integrations", icon: Plug, ready: true },
 ];
 
 export function AdminShell({ active, children }: { active: string; children: React.ReactNode }) {
