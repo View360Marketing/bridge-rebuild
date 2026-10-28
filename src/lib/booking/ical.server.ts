@@ -388,8 +388,20 @@ export async function runScheduledSync(): Promise<ImportOutcome[]> {
     .select("id, unit_code, ical_import_url")
     .not("ical_import_url", "is", null)
     .neq("ical_import_url", "");
+  const queue = (units ?? []) as { id: string; unit_code: string; ical_import_url: string }[];
+
+  // Durable batching: bounded concurrency + a wall-clock budget so the run
+  // stays within platform execution limits. Each fetch has a 15s timeout;
+  // with CONCURRENCY=5 the worst-case batch is ~15s, and the overall budget
+  // caps total runtime. Units that don't fit in the budget are left for the
+  // next scheduled call (their last-known blocks are preserved).
+  const CONCURRENCY = 5;
+  const BUDGET_MS = 25_000; // keep well under typical Worker CPU/wall limits
+  const startedAt = Date.now();
   const results: ImportOutcome[] = [];
-  for (const u of (units ?? []) as { id: string; unit_code: string; ical_import_url: string }[]) {
+  let index = 0;
+
+  async function runOne(u: { id: string; unit_code: string; ical_import_url: string }) {
     try {
       results.push(await syncUnitIcal(supabaseAdmin, u.id, u.ical_import_url));
     } catch (e) {
@@ -405,6 +417,14 @@ export async function runScheduledSync(): Promise<ImportOutcome[]> {
       });
     }
   }
+
+  while (index < queue.length && Date.now() - startedAt < BUDGET_MS) {
+    const batch = queue.slice(index, index + CONCURRENCY);
+    index += batch.length;
+    await Promise.all(batch.map(runOne));
+  }
+  // Any units skipped due to the time budget are intentionally left for the
+  // next run; their existing imported blocks remain active.
   return results;
 }
 
