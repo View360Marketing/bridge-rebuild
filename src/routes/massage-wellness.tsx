@@ -50,7 +50,7 @@ function WellnessPage() {
                   className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1f2b21] text-white font-medium px-6 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors shadow-sm"
                 >
                   <Phone className="w-4 h-4" />
-                  <span>Call/Text Jessica · 931-981-1281</span>
+                  <span>Book Massage</span>
                 </a>
                 <a
                   href="sms:+19319811281"
@@ -90,7 +90,7 @@ function WellnessPage() {
                   className="text-xs font-semibold uppercase tracking-wider text-[#2a382c] hover:underline inline-flex items-center gap-1"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>Call/Text Jessica · 931-981-1281</span>
+                  <span>Book Massage</span>
                 </a>
               </div>
             </div>
