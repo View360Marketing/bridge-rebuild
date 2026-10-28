@@ -4,7 +4,7 @@ import { Phone, ArrowRight } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-stone-900 text-white">
+    <section className="relative min-h-[calc(85vh+10rem)] flex items-center justify-center overflow-hidden bg-stone-900 text-white -mt-40 xl:-mt-44 pt-32 xl:pt-44">
       {/* Background Video */}
       <video
         autoPlay
