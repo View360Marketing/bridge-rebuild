@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AdminShell } from "@/components/admin/AdminShell";
 import {
   listIcalUnitsFn,
   updateIcalMappingFn,
@@ -28,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/admin/integrations")({
 
 function IntegrationsPage() {
   return (
-    <AdminShell active="integrations">
+    <>
       <div className="mb-6">
         <h1 className="font-serif text-3xl font-bold text-stone-900">Integrations</h1>
         <p className="text-sm text-stone-500 mt-1">
@@ -38,7 +37,7 @@ function IntegrationsPage() {
       <AirbnbCalendars />
       <WebhooksSection />
       <MigrationChecklist />
-    </AdminShell>
+    </>
   );
 }
 

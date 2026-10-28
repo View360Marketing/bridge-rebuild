@@ -23,6 +23,15 @@ function AdminLayout() {
   if (matchRoute({ to: "/admin/rooms", fuzzy: true })) active = "rooms";
   else if (matchRoute({ to: "/admin/calendar", fuzzy: true })) active = "calendar";
   else if (matchRoute({ to: "/admin/reservations", fuzzy: true })) active = "reservations";
+  else if (matchRoute({ to: "/admin/guests", fuzzy: true })) active = "guests";
+  else if (matchRoute({ to: "/admin/payments", fuzzy: true })) active = "payments";
+  else if (matchRoute({ to: "/admin/housekeeping", fuzzy: true })) active = "housekeeping";
+  else if (matchRoute({ to: "/admin/rates", fuzzy: true })) active = "rates";
+  else if (matchRoute({ to: "/admin/reports", fuzzy: true })) active = "reports";
+  else if (matchRoute({ to: "/admin/users", fuzzy: true })) active = "users";
+  else if (matchRoute({ to: "/admin/settings", fuzzy: true })) active = "settings";
+  else if (matchRoute({ to: "/admin/integrations", fuzzy: true })) active = "integrations";
+  else if (matchRoute({ to: "/admin/groups", fuzzy: true })) active = "groups";
   else if (matchRoute({ to: "/admin" })) active = "overview";
   return (
     <AdminShell active={active}>
