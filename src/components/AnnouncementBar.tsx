@@ -44,7 +44,7 @@ function Track({ ariaHidden = false }: { ariaHidden?: boolean }) {
           </span>
           <span
             style={{ flexShrink: 0, whiteSpace: "nowrap" }}
-            className="text-white/60 mx-1"
+            className="text-[#2f4032]/45 mx-1"
             aria-hidden="true"
           >
             {SEPARATOR}
@@ -54,7 +54,7 @@ function Track({ ariaHidden = false }: { ariaHidden?: boolean }) {
       <a
         href="tel:+19317225589"
         aria-label="Call The Bridges at 931-722-5589"
-        className="mx-3 inline-flex items-center gap-1.5 text-white hover:text-white"
+        className="mx-3 inline-flex items-center gap-1.5 text-[#2f4032] font-semibold hover:text-[#1b251e]"
         style={{ flexShrink: 0, whiteSpace: "nowrap" }}
       >
         <Phone className="w-3.5 h-3.5 shrink-0" />
@@ -95,7 +95,7 @@ export function AnnouncementBar() {
 
   return (
     <div
-      className="bg-[#1b251e] text-white border-b border-white/10"
+      className="bg-[#D3D0C2] text-[#2f4032] border-b border-[#2f4032]/15"
       onMouseEnter={(e) => {
         if (!animate) return;
         const m = e.currentTarget.querySelector<HTMLElement>("[data-marquee]");
