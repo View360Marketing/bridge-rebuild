@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { listPropertyEventsFn, listSeasonalOffersFn } from "@/lib/booking/seasonal.functions";
+import { generateGoogleCalendarUrl, downloadIcs } from "@/lib/booking/calendar-export";
 import {
   Calendar,
   Sparkles,
@@ -17,6 +18,8 @@ import {
   Mail,
   Clock,
   AlertCircle,
+  Ticket,
+  CalendarPlus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/events")({
@@ -161,53 +164,118 @@ function EventsPage() {
 
           {confirmedEvents.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {confirmedEvents.map((e) => (
-                <div
-                  key={e.id}
-                  className="bg-[#faf8f5] rounded-3xl border border-stone-200 overflow-hidden flex flex-col"
-                >
-                  <div className="bg-[#2a382c] text-white p-5 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
-                      <Calendar className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <div className="text-xs uppercase tracking-wider text-white/70">
-                        {fmtDateShort(e.event_date)}
+              {confirmedEvents.map((e) => {
+                const calEv = {
+                  code: e.code,
+                  title: e.title,
+                  description: e.description,
+                  eventDate: e.event_date,
+                  endDate: e.end_date,
+                  startTime: e.start_time,
+                  endTime: e.end_time,
+                  location: e.location,
+                };
+                return (
+                  <div
+                    key={e.id}
+                    className="bg-[#faf8f5] rounded-3xl border border-stone-200 overflow-hidden flex flex-col"
+                  >
+                    {e.image_url ? (
+                      <div className="relative h-40 overflow-hidden">
+                        <img
+                          src={e.image_url}
+                          alt={e.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#2a382c]/85 to-transparent" />
+                        <div className="absolute bottom-3 left-4 right-4 text-white">
+                          <div className="text-xs uppercase tracking-wider text-white/80">
+                            {fmtDateShort(e.event_date)}
+                          </div>
+                          <div className="font-serif text-lg font-bold leading-tight">
+                            {e.title}
+                          </div>
+                        </div>
                       </div>
-                      <div className="font-serif text-lg font-bold leading-tight">{e.title}</div>
+                    ) : (
+                      <div className="bg-[#2a382c] text-white p-5 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center shrink-0">
+                          <Calendar className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <div className="text-xs uppercase tracking-wider text-white/70">
+                            {fmtDateShort(e.event_date)}
+                          </div>
+                          <div className="font-serif text-lg font-bold leading-tight">
+                            {e.title}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="p-5 flex-1 flex flex-col gap-3">
+                      {!e.image_url && e.subtitle && (
+                        <p className="text-sm font-medium text-[#3e5340]">{e.subtitle}</p>
+                      )}
+                      {e.description && (
+                        <p className="text-sm text-stone-600 leading-relaxed">{e.description}</p>
+                      )}
+                      {(e.start_time || e.end_time) && (
+                        <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                          <Clock className="w-3.5 h-3.5" />
+                          {e.start_time}
+                          {e.start_time && e.end_time ? "–" : ""}
+                          {e.end_time}
+                        </div>
+                      )}
+                      {e.location && (
+                        <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                          <Compass className="w-3.5 h-3.5" />
+                          {e.location}
+                        </div>
+                      )}
+                      {e.includes_overnight_access && (
+                        <div className="mt-1 bg-[#2a382c]/5 border border-[#2a382c]/15 rounded-xl px-3 py-2 text-xs text-[#2a382c]">
+                          <span className="font-semibold">Stay with us</span> on a December event
+                          weekend and enjoy the event included with your room stay for registered
+                          overnight guests.
+                        </div>
+                      )}
+                      {e.ticket_url && (
+                        <a
+                          href={e.ticket_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors mt-1 self-start"
+                        >
+                          <Ticket className="w-4 h-4" /> Get Tickets
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                      <div className="flex items-center gap-2 mt-1 pt-3 border-t border-stone-200">
+                        <span className="text-xs text-stone-500 flex items-center gap-1.5">
+                          <CalendarPlus className="w-3.5 h-3.5" /> Add to:
+                        </span>
+                        <a
+                          href={generateGoogleCalendarUrl(calEv)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-medium text-[#2a382c] hover:underline"
+                        >
+                          Google
+                        </a>
+                        <span className="text-stone-300">·</span>
+                        <button
+                          onClick={() => downloadIcs(calEv)}
+                          className="text-xs font-medium text-[#2a382c] hover:underline"
+                        >
+                          Apple / Outlook
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <div className="p-5 flex-1 flex flex-col gap-3">
-                    {e.subtitle && (
-                      <p className="text-sm font-medium text-[#3e5340]">{e.subtitle}</p>
-                    )}
-                    {e.description && (
-                      <p className="text-sm text-stone-600 leading-relaxed">{e.description}</p>
-                    )}
-                    {(e.start_time || e.end_time) && (
-                      <div className="flex items-center gap-1.5 text-xs text-stone-500">
-                        <Clock className="w-3.5 h-3.5" />
-                        {e.start_time}
-                        {e.start_time && e.end_time ? "–" : ""}
-                        {e.end_time}
-                      </div>
-                    )}
-                    {e.location && (
-                      <div className="flex items-center gap-1.5 text-xs text-stone-500">
-                        <Compass className="w-3.5 h-3.5" />
-                        {e.location}
-                      </div>
-                    )}
-                    {e.includes_overnight_access && (
-                      <div className="mt-1 bg-[#2a382c]/5 border border-[#2a382c]/15 rounded-xl px-3 py-2 text-xs text-[#2a382c]">
-                        <span className="font-semibold">Stay with us</span> on a December event
-                        weekend and enjoy the event included with your room stay for registered
-                        overnight guests.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

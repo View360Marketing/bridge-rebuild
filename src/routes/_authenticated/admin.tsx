@@ -27,6 +27,7 @@ function AdminLayout() {
   else if (matchRoute({ to: "/admin/payments", fuzzy: true })) active = "payments";
   else if (matchRoute({ to: "/admin/housekeeping", fuzzy: true })) active = "housekeeping";
   else if (matchRoute({ to: "/admin/rates", fuzzy: true })) active = "rates";
+  else if (matchRoute({ to: "/admin/events", fuzzy: true })) active = "events";
   else if (matchRoute({ to: "/admin/reports", fuzzy: true })) active = "reports";
   else if (matchRoute({ to: "/admin/users", fuzzy: true })) active = "users";
   else if (matchRoute({ to: "/admin/settings", fuzzy: true })) active = "settings";

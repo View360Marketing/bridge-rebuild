@@ -29,6 +29,7 @@ import { Route as StayIndexRouteImport } from './routes/stay.index'
 import { Route as StayUnitIdRouteImport } from './routes/stay.$unitId'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCalendarRouteImport } from './routes/_authenticated/admin/calendar'
+import { Route as AuthenticatedAdminEventsRouteImport } from './routes/_authenticated/admin/events'
 import { Route as AuthenticatedAdminGroupsRouteImport } from './routes/_authenticated/admin/groups'
 import { Route as AuthenticatedAdminGuestsRouteImport } from './routes/_authenticated/admin/guests'
 import { Route as AuthenticatedAdminHousekeepingRouteImport } from './routes/_authenticated/admin/housekeeping'
@@ -144,6 +145,12 @@ const AuthenticatedAdminCalendarRoute =
     path: '/calendar',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEventsRoute =
+  AuthenticatedAdminEventsRouteImport.update({
+    id: '/events',
+    path: '/events',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminGroupsRoute =
   AuthenticatedAdminGroupsRouteImport.update({
     id: '/groups',
@@ -242,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/stay/$unitId': typeof StayUnitIdRoute
   '/stay/': typeof StayIndexRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/events': typeof AuthenticatedAdminEventsRoute
   '/admin/groups': typeof AuthenticatedAdminGroupsRoute
   '/admin/guests': typeof AuthenticatedAdminGuestsRoute
   '/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
@@ -275,6 +283,7 @@ export interface FileRoutesByTo {
   '/stay/$unitId': typeof StayUnitIdRoute
   '/stay': typeof StayIndexRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/admin/events': typeof AuthenticatedAdminEventsRoute
   '/admin/groups': typeof AuthenticatedAdminGroupsRoute
   '/admin/guests': typeof AuthenticatedAdminGuestsRoute
   '/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
@@ -312,6 +321,7 @@ export interface FileRoutesById {
   '/stay/$unitId': typeof StayUnitIdRoute
   '/stay/': typeof StayIndexRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
+  '/_authenticated/admin/events': typeof AuthenticatedAdminEventsRoute
   '/_authenticated/admin/groups': typeof AuthenticatedAdminGroupsRoute
   '/_authenticated/admin/guests': typeof AuthenticatedAdminGuestsRoute
   '/_authenticated/admin/housekeeping': typeof AuthenticatedAdminHousekeepingRoute
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/stay/$unitId'
     | '/stay/'
     | '/admin/calendar'
+    | '/admin/events'
     | '/admin/groups'
     | '/admin/guests'
     | '/admin/housekeeping'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/stay/$unitId'
     | '/stay'
     | '/admin/calendar'
+    | '/admin/events'
     | '/admin/groups'
     | '/admin/guests'
     | '/admin/housekeeping'
@@ -418,6 +430,7 @@ export interface FileRouteTypes {
     | '/stay/$unitId'
     | '/stay/'
     | '/_authenticated/admin/calendar'
+    | '/_authenticated/admin/events'
     | '/_authenticated/admin/groups'
     | '/_authenticated/admin/guests'
     | '/_authenticated/admin/housekeeping'
@@ -598,6 +611,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCalendarRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/events': {
+      id: '/_authenticated/admin/events'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AuthenticatedAdminEventsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/groups': {
       id: '/_authenticated/admin/groups'
       path: '/groups'
@@ -701,6 +721,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCalendarRoute: typeof AuthenticatedAdminCalendarRoute
+  AuthenticatedAdminEventsRoute: typeof AuthenticatedAdminEventsRoute
   AuthenticatedAdminGroupsRoute: typeof AuthenticatedAdminGroupsRoute
   AuthenticatedAdminGuestsRoute: typeof AuthenticatedAdminGuestsRoute
   AuthenticatedAdminHousekeepingRoute: typeof AuthenticatedAdminHousekeepingRoute
@@ -717,6 +738,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCalendarRoute: AuthenticatedAdminCalendarRoute,
+  AuthenticatedAdminEventsRoute: AuthenticatedAdminEventsRoute,
   AuthenticatedAdminGroupsRoute: AuthenticatedAdminGroupsRoute,
   AuthenticatedAdminGuestsRoute: AuthenticatedAdminGuestsRoute,
   AuthenticatedAdminHousekeepingRoute: AuthenticatedAdminHousekeepingRoute,

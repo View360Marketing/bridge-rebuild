@@ -5,9 +5,12 @@ import {
   listSeasonalOffers,
   listVenueRateCards,
   listPropertyEvents,
+  listAllPropertyEvents,
   upsertSeasonalOffer,
   upsertVenueRateCard,
   upsertPropertyEvent,
+  deletePropertyEvent,
+  setPropertyEventActive,
   type SeasonalOfferInput,
   type VenueRateCardInput,
   type PropertyEventInput,
@@ -86,9 +89,12 @@ const propertyEventSchema = z.object({
   subtitle: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   event_date: z.string(),
+  end_date: z.string().nullable().optional(),
   start_time: z.string().nullable().optional(),
   end_time: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
+  ticket_url: z.string().nullable().optional(),
+  image_url: z.string().nullable().optional(),
   is_tentative: z.boolean().optional(),
   is_confirmed: z.boolean().optional(),
   includes_overnight_access: z.boolean().optional(),
@@ -101,4 +107,24 @@ export const upsertPropertyEventFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) =>
     upsertPropertyEvent(context.supabase, data as unknown as PropertyEventInput),
+  );
+
+export const listAllPropertyEventsFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => listAllPropertyEvents(context.supabase));
+
+const deleteEventSchema = z.object({ code: z.string().min(1) });
+
+export const deletePropertyEventFn = createServerFn({ method: "POST" })
+  .validator((d) => deleteEventSchema.parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => deletePropertyEvent(context.supabase, data.code));
+
+const toggleEventSchema = z.object({ code: z.string().min(1), is_active: z.boolean() });
+
+export const togglePropertyEventFn = createServerFn({ method: "POST" })
+  .validator((d) => toggleEventSchema.parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) =>
+    setPropertyEventActive(context.supabase, data.code, data.is_active),
   );

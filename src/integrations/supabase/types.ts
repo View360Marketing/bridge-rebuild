@@ -1053,9 +1053,11 @@ export type Database = {
           code: string
           created_at: string
           description: string | null
+          end_date: string | null
           end_time: string | null
           event_date: string
           id: string
+          image_url: string | null
           includes_overnight_access: boolean
           is_active: boolean
           is_confirmed: boolean
@@ -1064,6 +1066,7 @@ export type Database = {
           sort_order: number
           start_time: string | null
           subtitle: string | null
+          ticket_url: string | null
           title: string
           updated_at: string
         }
@@ -1071,9 +1074,11 @@ export type Database = {
           code: string
           created_at?: string
           description?: string | null
+          end_date?: string | null
           end_time?: string | null
           event_date: string
           id?: string
+          image_url?: string | null
           includes_overnight_access?: boolean
           is_active?: boolean
           is_confirmed?: boolean
@@ -1082,6 +1087,7 @@ export type Database = {
           sort_order?: number
           start_time?: string | null
           subtitle?: string | null
+          ticket_url?: string | null
           title: string
           updated_at?: string
         }
@@ -1089,9 +1095,11 @@ export type Database = {
           code?: string
           created_at?: string
           description?: string | null
+          end_date?: string | null
           end_time?: string | null
           event_date?: string
           id?: string
+          image_url?: string | null
           includes_overnight_access?: boolean
           is_active?: boolean
           is_confirmed?: boolean
@@ -1100,6 +1108,7 @@ export type Database = {
           sort_order?: number
           start_time?: string | null
           subtitle?: string | null
+          ticket_url?: string | null
           title?: string
           updated_at?: string
         }

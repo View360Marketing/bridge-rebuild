@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   BarChart3,
   UserCog,
+  Megaphone,
 } from "lucide-react";
 
 type NavItem = {
@@ -66,6 +67,13 @@ const NAV_SECTIONS: { heading: string; items: NavItem[] }[] = [
         ready: true,
       },
       { key: "rates", label: "Rates & Rules", to: "/admin/rates", icon: DollarSign, ready: true },
+      {
+        key: "events",
+        label: "Events",
+        to: "/admin/events",
+        icon: Megaphone,
+        ready: true,
+      },
     ],
   },
   {

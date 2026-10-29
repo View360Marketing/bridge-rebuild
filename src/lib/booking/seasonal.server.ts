@@ -43,13 +43,17 @@ export type PropertyEventRow = {
   subtitle: string | null;
   description: string | null;
   event_date: string;
+  end_date: string | null;
   start_time: string | null;
   end_time: string | null;
   location: string | null;
+  ticket_url: string | null;
+  image_url: string | null;
   is_tentative: boolean;
   is_confirmed: boolean;
   includes_overnight_access: boolean;
   sort_order: number;
+  is_active: boolean;
 };
 
 /** Public: active seasonal offers ordered by sort_order. */
@@ -80,6 +84,16 @@ export async function listPropertyEvents(supabase: SupabaseClient): Promise<Prop
     .from("property_events")
     .select("*")
     .eq("is_active", true)
+    .order("event_date,sort_order");
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as PropertyEventRow[];
+}
+
+/** Admin: all property events (including inactive) ordered by event_date. */
+export async function listAllPropertyEvents(supabase: SupabaseClient): Promise<PropertyEventRow[]> {
+  const { data, error } = await supabase
+    .from("property_events")
+    .select("*")
     .order("event_date,sort_order");
   if (error) throw new Error(error.message);
   return (data ?? []) as unknown as PropertyEventRow[];
@@ -127,9 +141,12 @@ export type PropertyEventInput = {
   subtitle?: string | null;
   description?: string | null;
   event_date: string;
+  end_date?: string | null;
   start_time?: string | null;
   end_time?: string | null;
   location?: string | null;
+  ticket_url?: string | null;
+  image_url?: string | null;
   is_tentative?: boolean;
   is_confirmed?: boolean;
   includes_overnight_access?: boolean;
@@ -214,9 +231,12 @@ export async function upsertPropertyEvent(
         subtitle: input.subtitle ?? null,
         description: input.description ?? null,
         event_date: input.event_date,
+        end_date: input.end_date ?? null,
         start_time: input.start_time ?? null,
         end_time: input.end_time ?? null,
         location: input.location ?? null,
+        ticket_url: input.ticket_url ?? null,
+        image_url: input.image_url ?? null,
         is_tentative: input.is_tentative ?? false,
         is_confirmed: input.is_confirmed ?? true,
         includes_overnight_access: input.includes_overnight_access ?? false,
@@ -230,4 +250,21 @@ export async function upsertPropertyEvent(
     .single();
   if (error) throw new Error(error.message);
   return data as unknown as PropertyEventRow;
+}
+
+export async function deletePropertyEvent(supabase: SupabaseClient, code: string): Promise<void> {
+  const { error } = await supabase.from("property_events").delete().eq("code", code);
+  if (error) throw new Error(error.message);
+}
+
+export async function setPropertyEventActive(
+  supabase: SupabaseClient,
+  code: string,
+  isActive: boolean,
+): Promise<void> {
+  const { error } = await supabase
+    .from("property_events")
+    .update({ is_active: isActive, updated_at: new Date().toISOString() })
+    .eq("code", code);
+  if (error) throw new Error(error.message);
 }
