@@ -109,7 +109,7 @@ export function Footer() {
               <h5 className="font-serif text-sm font-semibold text-white mb-2">Social Media</h5>
               <div className="flex flex-col gap-1.5 text-xs text-stone-300">
                 <a
-                  href="https://www.google.com/search?q=The+Bridges+Waynesboro%2C+TN"
+                  href="https://share.google/IXYzS5MoS9I9r1aZv"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-white transition-colors"
@@ -117,7 +117,7 @@ export function Footer() {
                   Google
                 </a>
                 <a
-                  href="https://www.facebook.com/thebridgestn"
+                  href="https://www.facebook.com/thebridgestn/"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-white transition-colors"
@@ -125,7 +125,7 @@ export function Footer() {
                   Facebook
                 </a>
                 <a
-                  href="https://www.instagram.com/thebridges.tn/?hl=en"
+                  href="https://www.instagram.com/thebridges.tn/"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-white transition-colors"

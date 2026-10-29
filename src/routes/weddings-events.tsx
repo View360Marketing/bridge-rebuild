@@ -252,8 +252,8 @@ function WillowsPage() {
               <div className="lg:col-span-5">
                 <div className="rounded-3xl overflow-hidden border border-stone-200 h-64 sm:h-72 relative group">
                   <img
-                    src="https://vibe.filesafe.space/1790196628861484830/assets/b8fc567d-a74f-475f-a864-1e55446e5777.jpg"
-                    alt="Restaurant space available for private rental at The Bridges"
+                    src="https://vibe.filesafe.space/1790196628861484830/attachments/cf7db24f-6482-4064-85d8-32ffac0e558f.jpg"
+                    alt="The Willows restaurant space available for private rental at The Bridges"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />

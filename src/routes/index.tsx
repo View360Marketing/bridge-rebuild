@@ -151,7 +151,7 @@ function Index() {
               </p>
               <div className="flex items-center gap-2 pt-1">
                 <a
-                  href="https://www.facebook.com/thebridgestn"
+                  href="https://www.facebook.com/thebridgestn/"
                   target="_blank"
                   rel="noreferrer"
                   className="bg-[#2a382c] hover:bg-[#1b251e] text-white font-medium px-4 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors"
