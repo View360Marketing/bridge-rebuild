@@ -26,7 +26,8 @@ export const Route = createFileRoute("/contact-us")({
 });
 
 function ContactPage() {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [eventType, setEventType] = useState("Wedding");
@@ -35,8 +36,8 @@ function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email) {
-      toast.error("Please provide your name and email.");
+    if (!firstName || !lastName || !email) {
+      toast.error("Please provide your first name, last name, and email.");
       return;
     }
     setSubmitted(true);
@@ -44,13 +45,15 @@ function ContactPage() {
 
     const payload = buildTrackingPayload("contact-form", "Contact Form");
     payload.formData = {
-      first_name: name,
+      first_name: firstName,
+      last_name: lastName,
       email,
       phone,
       calendar_notes: message,
     };
     payload.formLabels = {
-      first_name: "Full Name",
+      first_name: "First Name",
+      last_name: "Last Name",
       email: "Email",
       phone: "Phone",
       calendar_notes: "Your Message",
@@ -184,16 +187,29 @@ function ContactPage() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-                    <div>
-                      <label className="block text-stone-700 font-medium mb-1">Full Name</label>
-                      <input
-                        type="text"
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="John Doe"
-                        className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-800 focus:outline-hidden focus:border-[#2a382c]"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-stone-700 font-medium mb-1">First Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          placeholder="John"
+                          className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-800 focus:outline-hidden focus:border-[#2a382c]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-stone-700 font-medium mb-1">Last Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          placeholder="Doe"
+                          className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-stone-800 focus:outline-hidden focus:border-[#2a382c]"
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
