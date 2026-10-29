@@ -571,7 +571,7 @@ export async function getSyncSettings(supabase: SupabaseClient): Promise<{
   return {
     ical_sync_enabled: data?.ical_sync_enabled ?? false,
     ical_sync_interval_minutes: data?.ical_sync_interval_minutes ?? 5,
-    ical_export_base_url: data?.ical_export_base_url ?? null,
+    ical_export_base_url: data?.ical_export_base_url ?? "https://thebridgestn.com",
     ical_stale_after_hours: data?.ical_stale_after_hours ?? 24,
   };
 }

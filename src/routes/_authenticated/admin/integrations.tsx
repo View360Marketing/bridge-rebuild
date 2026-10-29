@@ -144,7 +144,7 @@ function SyncSettings({
           <input
             type="text"
             value={baseUrl}
-            placeholder="https://bridge-rebuild.vibepreview.app"
+            placeholder="https://thebridgestn.com"
             onChange={(e) => setBaseUrl(e.target.value)}
             className="block w-full mt-1 px-2 py-1 border border-stone-300 rounded text-sm"
           />

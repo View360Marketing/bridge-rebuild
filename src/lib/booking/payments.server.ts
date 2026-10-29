@@ -39,6 +39,8 @@ export type CheckoutResult = {
 
 /** Trusted application origin whitelist for return URLs. */
 const ALLOWED_ORIGINS = [
+  "https://thebridgestn.com",
+  "https://www.thebridgestn.com",
   "https://preview-1790196628861484830.vibepreview.app",
   "https://bridge-rebuild.vibepreview.app",
   "http://localhost:8080",
@@ -46,7 +48,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 function sanitizeOrigin(origin: string): string {
-  return ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]!;
+  return ALLOWED_ORIGINS.includes(origin) ? origin : "https://thebridgestn.com";
 }
 
 /** Create a Stripe Checkout Session for a reservation's outstanding balance. Idempotent. */
