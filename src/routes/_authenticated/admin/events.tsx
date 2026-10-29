@@ -167,12 +167,7 @@ function EventsAdminPage() {
           <h1 className="font-serif text-3xl font-bold text-stone-900">Events</h1>
           <p className="text-sm text-stone-500 mt-1">
             Manage events displayed on the public{" "}
-            <a
-              href="/events"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#2a382c] underline"
-            >
+            <a href="/events" target="_blank" rel="noreferrer" className="text-[#2a382c] underline">
               Events page
             </a>
             . Guests can add events to Apple/Google calendars.
@@ -192,7 +187,9 @@ function EventsAdminPage() {
         {(events ?? []).length === 0 && !isLoading && (
           <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
             <Calendar className="w-10 h-10 text-stone-300 mx-auto mb-3" />
-            <p className="text-stone-500 text-sm">No events yet. Click “Add Event” to create one.</p>
+            <p className="text-stone-500 text-sm">
+              No events yet. Click “Add Event” to create one.
+            </p>
           </div>
         )}
         {(events ?? [])
@@ -362,9 +359,7 @@ function EventModal({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-stone-600 mb-1">
-                Event Date *
-              </label>
+              <label className="block text-xs font-medium text-stone-600 mb-1">Event Date *</label>
               <input
                 type="date"
                 value={draft.event_date}
@@ -384,9 +379,7 @@ function EventModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-stone-600 mb-1">
-                Start Time
-              </label>
+              <label className="block text-xs font-medium text-stone-600 mb-1">Start Time</label>
               <input
                 type="time"
                 value={draft.start_time}

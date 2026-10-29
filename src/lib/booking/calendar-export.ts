@@ -18,7 +18,10 @@ export type CalendarEventInput = {
 
 /** Returns the IANA offset string for America/Chicago on the given date. */
 function chicagoOffset(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
+  const parts = dateStr.split("-").map(Number);
+  const y = parts[0] ?? 0;
+  const m = parts[1] ?? 0;
+  const d = parts[2] ?? 0;
   if (m < 3 || m > 11) return "-06:00"; // CST
   if (m > 3 && m < 11) return "-05:00"; // CDT
   if (m === 3) {
@@ -41,17 +44,26 @@ function nthSunday(year: number, month: number, nth: number): number {
 function toUtcCompact(dateStr: string, timeStr: string): string {
   const offset = chicagoOffset(dateStr);
   const dt = new Date(`${dateStr}T${timeStr}:00${offset}`);
-  return dt.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  return dt
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
 }
 
 /** Returns a compact UTC timestamp for DTSTAMP. */
 function icsTimestamp(): string {
-  return new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  return new Date()
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
 }
 
 /** Adds one day to a "YYYY-MM-DD" string (for exclusive end dates). */
 function addDay(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
+  const parts = dateStr.split("-").map(Number);
+  const y = parts[0] ?? 0;
+  const m = parts[1] ?? 0;
+  const d = parts[2] ?? 0;
   const dt = new Date(Date.UTC(y, m - 1, d));
   dt.setUTCDate(dt.getUTCDate() + 1);
   return dt.toISOString().slice(0, 10);

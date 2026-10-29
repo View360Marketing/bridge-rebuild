@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
-import { bootstrapAdmin } from "@/lib/booking/admin.functions";
 import { toast } from "sonner";
-import { Lock, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Lock, ArrowLeft, ShieldCheck, KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({
     meta: [
-      { title: "Admin Sign In | The Bridges" },
+      { title: "Staff Portal | The Bridges" },
       {
         name: "description",
         content: "Staff sign-in for The Bridges booking & property management.",
@@ -24,34 +22,40 @@ function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [bootstrapping, setBootstrapping] = useState(false);
-  const runBootstrap = useServerFn(bootstrapAdmin);
+  const [error, setError] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      toast.error(error.message);
+      setError("Wrong email or password. Please try again.");
       return;
     }
     navigate({ to: "/admin" });
   }
 
-  async function handleBootstrap() {
-    setBootstrapping(true);
-    try {
-      const res = await runBootstrap();
-      if (res.ok) {
-        toast.success(res.message);
-      } else {
-        toast.error(res.message);
-      }
-    } catch (err) {
-      toast.error((err as Error).message);
+  async function handleForgotPassword() {
+    if (!email) {
+      setError("Enter your email above, then click Forgot Password.");
+      return;
     }
-    setBootstrapping(false);
+    setResetting(true);
+    setError(null);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/admin/login",
+    });
+    setResetting(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setResetSent(true);
+    toast.success("Password reset link sent.");
   }
 
   return (
@@ -65,15 +69,34 @@ function AdminLogin() {
         </Link>
 
         <div className="bg-white text-stone-900 rounded-3xl shadow-2xl p-8 space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#2a382c] text-white flex items-center justify-center">
-              <Lock className="w-5 h-5" />
+          <div className="flex flex-col items-center text-center gap-3">
+            <img
+              src="https://vibe.filesafe.space/1790196628861484830/assets/1d550afa-3cde-43cf-b5e7-67b08b8974ed.png"
+              alt="The Bridges"
+              className="h-14 w-auto"
+            />
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-[#2a382c] text-white flex items-center justify-center">
+                <Lock className="w-4 h-4" />
+              </div>
+              <h1 className="font-serif text-2xl font-bold">Staff Portal</h1>
             </div>
-            <div>
-              <h1 className="font-serif text-2xl font-bold">Staff Sign In</h1>
-              <p className="text-xs text-stone-500">The Bridges booking & property management</p>
-            </div>
+            <p className="text-xs text-stone-500">The Bridges booking & property management</p>
           </div>
+
+          {error && (
+            <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+              <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {resetSent && (
+            <div className="flex items-start gap-2 text-sm text-[#2a382c] bg-[#2a382c]/10 border border-[#2a382c]/20 rounded-xl px-4 py-3">
+              <KeyRound className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>Check your email for a password reset link.</span>
+            </div>
+          )}
 
           <form onSubmit={handleSignIn} className="space-y-4">
             <div>
@@ -107,21 +130,14 @@ function AdminLogin() {
             </button>
           </form>
 
-          <div className="border-t border-stone-200 pt-5">
-            <p className="text-xs text-stone-500 mb-3 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#2a382c]" />
-              First-time setup? Provision the initial admin account once.
-            </p>
+          <div className="border-t border-stone-200 pt-4 text-center">
             <button
-              onClick={handleBootstrap}
-              disabled={bootstrapping}
-              className="w-full border border-stone-300 hover:bg-stone-100 text-stone-700 font-medium py-2.5 rounded-xl text-xs transition-colors disabled:opacity-60"
+              onClick={handleForgotPassword}
+              disabled={resetting}
+              className="text-sm text-[#2a382c] hover:underline font-medium disabled:opacity-60"
             >
-              {bootstrapping ? "Provisioning…" : "Provision Initial Admin"}
+              {resetting ? "Sending reset link…" : "Forgot Password?"}
             </button>
-            <p className="text-[11px] text-stone-400 mt-2 leading-relaxed">
-              Uses server-side credentials. Disabled automatically after first success.
-            </p>
           </div>
         </div>
       </div>
