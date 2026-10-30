@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { MapEmbed } from "../components/MapEmbed";
 import { MapPin, Phone, Mail, Clock, Compass, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { postTrackingEvent, buildTrackingPayload, INQUIRY_CATEGORY_FIELD_ID } from "@/lib/tracking";
@@ -164,6 +165,13 @@ function ContactPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Map */}
+              <MapEmbed
+                title="Find Us"
+                subtitle="299 Natural Bridge Park Rd, Waynesboro, TN 38485"
+                className="pt-2"
+              />
             </div>
 
             {/* Form */}
