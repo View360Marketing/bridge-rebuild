@@ -77,19 +77,19 @@ function AboutPage() {
 
       <section className="py-16 bg-[#faf8f5] border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
+          <div className="mb-8">
             <span className="text-xs font-bold uppercase tracking-widest text-[#2f4032] block mb-3">
               FIND US
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1a231c] tracking-tight mb-4">
               The Bridges
             </h2>
-            <p className="text-stone-600 text-base leading-relaxed font-light mb-6">
+            <p className="text-stone-600 text-base leading-relaxed font-light max-w-3xl">
               299 Natural Bridge Park Rd, Waynesboro, TN 38485 &mdash; just minutes from the scenic
               Natchez Trace Parkway.
             </p>
-            <MapEmbed heightClass="h-[380px]" />
           </div>
+          <MapEmbed heightClass="h-[420px]" />
         </div>
       </section>
 

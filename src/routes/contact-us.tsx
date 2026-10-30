@@ -165,13 +165,6 @@ function ContactPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Map */}
-              <MapEmbed
-                title="Find Us"
-                subtitle="299 Natural Bridge Park Rd, Waynesboro, TN 38485"
-                className="pt-2"
-              />
             </div>
 
             {/* Form */}
@@ -284,6 +277,17 @@ function ContactPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Full-width map */}
+      <section className="pb-20 bg-white border-b border-stone-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <MapEmbed
+            title="Find Us"
+            subtitle="299 Natural Bridge Park Rd, Waynesboro, TN 38485"
+            heightClass="h-[420px]"
+          />
         </div>
       </section>
 
