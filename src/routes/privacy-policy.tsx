@@ -16,8 +16,7 @@ export const Route = createFileRoute("/privacy-policy")({
       { property: "og:title", content: "Privacy Policy | The Bridges TN" },
       {
         property: "og:description",
-        content:
-          "Privacy Policy for The Bridges in Waynesboro, Tennessee.",
+        content: "Privacy Policy for The Bridges in Waynesboro, Tennessee.",
       },
     ],
   }),
@@ -53,8 +52,8 @@ function PrivacyPolicyPage() {
                 information you provide directly to us, such as your name, email address, phone
                 number, and inquiry details when you submit a contact or inquiry form, request a
                 reservation, or sign up for event notifications. We may also collect limited
-                technical information automatically, such as your browser type and pages visited,
-                to improve our website.
+                technical information automatically, such as your browser type and pages visited, to
+                improve our website.
               </p>
             </div>
 
@@ -108,9 +107,7 @@ function PrivacyPolicyPage() {
             </div>
 
             <div>
-              <h2 className="font-serif text-2xl font-bold text-stone-900 mb-3">
-                6. Your Rights
-              </h2>
+              <h2 className="font-serif text-2xl font-bold text-stone-900 mb-3">6. Your Rights</h2>
               <p>
                 You may request access to, correction of, or deletion of your personal information
                 by contacting us using the details below. You may also opt out of marketing or event
@@ -119,9 +116,7 @@ function PrivacyPolicyPage() {
             </div>
 
             <div>
-              <h2 className="font-serif text-2xl font-bold text-stone-900 mb-3">
-                7. Security
-              </h2>
+              <h2 className="font-serif text-2xl font-bold text-stone-900 mb-3">7. Security</h2>
               <p>
                 We take reasonable measures to protect your personal information using appropriate
                 technical and organizational safeguards. However, no method of transmission over the
@@ -151,9 +146,7 @@ function PrivacyPolicyPage() {
 
             <div>
               <h2 className="font-serif text-2xl font-bold text-stone-900 mb-3">10. Contact Us</h2>
-              <p>
-                If you have questions about this Privacy Policy, please contact us:
-              </p>
+              <p>If you have questions about this Privacy Policy, please contact us:</p>
               <div className="mt-3 space-y-2 text-sm">
                 <p className="flex items-center gap-2.5">
                   <MapPin className="w-4 h-4 text-[#2a382c] shrink-0" />

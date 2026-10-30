@@ -568,8 +568,8 @@ function EventEmailSignup() {
         type: "external_form_submission" as const,
         timestamp: Date.now(),
         formId: "events-notification-signup",
-        formData: { email: trimmed } as Record<string, unknown>,
-        formLabels: { email: "Email Address" } as Record<string, string>,
+        formData: { "contact.email": trimmed } as Record<string, unknown>,
+        formLabels: { "contact.email": "Email Address" } as Record<string, string>,
         url: window.location.href,
         title: document.title,
         path: window.location.pathname,
@@ -579,17 +579,14 @@ function EventEmailSignup() {
         projectId: "1790196628861484830",
         sessionId: (() => {
           try {
-            const sid = document.cookie
-              .match(/(?:^|;\s*)__vibe_sid=([0-9a-f-]{36})(?:;|$)/)?.[1];
+            const sid = document.cookie.match(/(?:^|;\s*)__vibe_sid=([0-9a-f-]{36})(?:;|$)/)?.[1];
             return sid || crypto.randomUUID();
           } catch {
             return crypto.randomUUID();
           }
         })(),
         properties: {
-          deviceType: /Mobile|Android|iPhone/i.test(navigator.userAgent)
-            ? "mobile"
-            : "desktop",
+          deviceType: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? "mobile" : "desktop",
           source: "ai_studio",
           projectId: "1790196628861484830",
           formName: "Events Notification Signup",
@@ -651,9 +648,7 @@ function EventEmailSignup() {
             </button>
           </form>
         )}
-        <p className="text-xs text-stone-400 mt-4">
-          We respect your privacy. Unsubscribe anytime.
-        </p>
+        <p className="text-xs text-stone-400 mt-4">We respect your privacy. Unsubscribe anytime.</p>
       </div>
     </section>
   );

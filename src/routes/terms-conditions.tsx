@@ -16,8 +16,7 @@ export const Route = createFileRoute("/terms-conditions")({
       { property: "og:title", content: "Terms & Conditions | The Bridges TN" },
       {
         property: "og:description",
-        content:
-          "Terms & Conditions for The Bridges in Waynesboro, Tennessee.",
+        content: "Terms & Conditions for The Bridges in Waynesboro, Tennessee.",
       },
     ],
   }),
@@ -61,16 +60,14 @@ function TermsPage() {
               </h2>
               <p>
                 Reservation requests are subject to availability and confirmation by The Bridges. A
-                reservation is not confirmed until you receive written confirmation from us. Pricing,
-                availability, and offers are subject to change without notice. Any displayed rates do
-                not include all taxes and fees unless expressly stated.
+                reservation is not confirmed until you receive written confirmation from us.
+                Pricing, availability, and offers are subject to change without notice. Any
+                displayed rates do not include all taxes and fees unless expressly stated.
               </p>
             </div>
 
             <div>
-              <h2 className="font-serif text-2xl font-bold text-stone-900 mb-3">
-                3. Payments
-              </h2>
+              <h2 className="font-serif text-2xl font-bold text-stone-900 mb-3">3. Payments</h2>
               <p>
                 Payments are processed through our secure third-party payment provider. Approved
                 payment methods and any deposit or balance schedule will be communicated at the time
@@ -84,9 +81,10 @@ function TermsPage() {
                 4. Cancellations &amp; Refunds
               </h2>
               <p>
-                Cancellation and refund policies vary by reservation type and will be provided at the
-                time of booking. Applicable cancellation terms must be agreed to before a reservation
-                is confirmed. Please review the specific policy provided for your reservation.
+                Cancellation and refund policies vary by reservation type and will be provided at
+                the time of booking. Applicable cancellation terms must be agreed to before a
+                reservation is confirmed. Please review the specific policy provided for your
+                reservation.
               </p>
             </div>
 
@@ -118,8 +116,8 @@ function TermsPage() {
                 7. Website Content
               </h2>
               <p>
-                All content on this website is provided for general informational purposes. We strive
-                for accuracy but do not warrant that all information is complete, current, or
+                All content on this website is provided for general informational purposes. We
+                strive for accuracy but do not warrant that all information is complete, current, or
                 error-free. Images are representative and may not reflect exact accommodations.
               </p>
             </div>
