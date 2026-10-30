@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +20,7 @@ import {
   AlertCircle,
   Ticket,
   CalendarPlus,
+  CheckCircle2,
 } from "lucide-react";
 
 export const Route = createFileRoute("/events")({
@@ -546,7 +547,114 @@ function EventsPage() {
         </div>
       </section>
 
+      {/* Upcoming Events Email Notification */}
+      <EventEmailSignup />
+
       <Footer />
     </div>
+  );
+}
+
+function EventEmailSignup() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return;
+    try {
+      const payload = {
+        type: "external_form_submission" as const,
+        timestamp: Date.now(),
+        formId: "events-notification-signup",
+        formData: { email: trimmed } as Record<string, unknown>,
+        formLabels: { email: "Email Address" } as Record<string, string>,
+        url: window.location.href,
+        title: document.title,
+        path: window.location.pathname,
+        userAgent: navigator.userAgent,
+        trackingId: "tk_f5207799ac094e8aa5ff24029a8b469d",
+        locationId: "Crq24gOD3w7117fkPynT",
+        projectId: "1790196628861484830",
+        sessionId: (() => {
+          try {
+            const sid = document.cookie
+              .match(/(?:^|;\s*)__vibe_sid=([0-9a-f-]{36})(?:;|$)/)?.[1];
+            return sid || crypto.randomUUID();
+          } catch {
+            return crypto.randomUUID();
+          }
+        })(),
+        properties: {
+          deviceType: /Mobile|Android|iPhone/i.test(navigator.userAgent)
+            ? "mobile"
+            : "desktop",
+          source: "ai_studio",
+          projectId: "1790196628861484830",
+          formName: "Events Notification Signup",
+        },
+      };
+      const body = new FormData();
+      body.append("event", JSON.stringify(payload));
+      fetch("https://backend.leadconnectorhq.com/external-tracking/events", {
+        method: "POST",
+        headers: { version: "2021-07-28" },
+        body,
+      }).catch(() => {});
+      setSubmitted(true);
+      setEmail("");
+    } catch {
+      /* fire-and-forget — never block UX */
+    }
+  }
+
+  return (
+    <section className="py-16 bg-[#f4eee6] border-t border-stone-200">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span className="text-xs font-bold uppercase tracking-widest text-[#3e5340] block mb-2">
+          STAY IN THE LOOP
+        </span>
+        <h2 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900 mb-3">
+          Get Notified About Upcoming Events
+        </h2>
+        <p className="text-stone-600 text-sm sm:text-base leading-relaxed mb-6 max-w-xl mx-auto">
+          New events are being added throughout the season. Share your email and we&apos;ll let you
+          know as dates and details are confirmed.
+        </p>
+        {submitted ? (
+          <div className="bg-white border border-stone-200 rounded-2xl px-6 py-5 inline-flex items-center gap-2 shadow-xs">
+            <CheckCircle2 className="w-5 h-5 text-[#3e5340]" />
+            <span className="text-sm text-stone-800 font-medium">
+              Thanks! We&apos;ll send event updates to your inbox.
+            </span>
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+          >
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              aria-label="Email address"
+              className="flex-1 px-4 py-3 rounded-full border border-stone-300 bg-white text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#657B6A] focus:border-[#657B6A]"
+            />
+            <button
+              type="submit"
+              className="bg-[#2a382c] hover:bg-[#1f2b21] text-white font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-sm whitespace-nowrap"
+            >
+              Notify Me
+            </button>
+          </form>
+        )}
+        <p className="text-xs text-stone-400 mt-4">
+          We respect your privacy. Unsubscribe anytime.
+        </p>
+      </div>
+    </section>
   );
 }

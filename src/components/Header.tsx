@@ -99,14 +99,15 @@ export function Header() {
             </Link>
           </nav>
 
-          {/* Header Action Round Buttons (Phone & Directions) in bubbly style */}
-          <div className="hidden sm:flex items-center space-x-2 shrink-0">
+          {/* Top-right: phone number + directions */}
+          <div className="hidden sm:flex items-center gap-3 shrink-0">
             <a
               href="tel:+19317225589"
-              aria-label="Call The Bridges"
-              className="w-11 h-11 rounded-full bg-[#657B6A]/90 hover:bg-[#657B6A] border border-white/25 flex items-center justify-center text-white transition-all shadow-md active:scale-95"
+              aria-label="Call The Bridges at 931-722-5589"
+              className="inline-flex items-center gap-1.5 text-white text-sm font-semibold hover:text-white/90 transition-colors"
             >
               <Phone className="w-4 h-4" />
+              <span>931-722-5589</span>
             </a>
             <a
               href="https://maps.app.goo.gl/HiuVGpDerVDiNx4S7"

@@ -150,14 +150,12 @@ function Index() {
                 The Bridges.
               </p>
               <div className="flex items-center gap-2 pt-1">
-                <a
-                  href="https://www.facebook.com/thebridgestn/"
-                  target="_blank"
-                  rel="noreferrer"
+                <Link
+                  to="/events"
                   className="bg-[#2a382c] hover:bg-[#1b251e] text-white font-medium px-4 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors"
                 >
                   View Events
-                </a>
+                </Link>
                 <Link
                   to="/contact-us"
                   className="bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium px-4 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors"
@@ -198,7 +196,7 @@ function Index() {
                 A Peaceful Resort Built Around A Natural Landmark
               </h2>
               <p className="text-stone-600 text-base leading-relaxed font-light">
-                In Waynesboro, The Bridges gives groups a rare natural setting for weddings,
+                In Waynesboro, TN, The Bridges gives groups a rare natural setting for weddings,
                 retreats, team building, and overnight stays.
               </p>
 

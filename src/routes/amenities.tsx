@@ -67,7 +67,7 @@ function AmenitiesPage() {
                   className="inline-flex items-center gap-2 bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 font-medium px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-xs"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>Book Massage</span>
+                  <span>Call to Schedule</span>
                 </a>
                 <Link
                   to="/contact-us"

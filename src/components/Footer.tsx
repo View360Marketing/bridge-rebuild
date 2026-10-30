@@ -144,10 +144,10 @@ export function Footer() {
           </p>
           <p>Copyright © 2026 The Bridges | All Rights Reserved</p>
           <div className="flex items-center space-x-4">
-            <Link to="/contact-us" className="hover:text-stone-200">
-              Terms &amp; Condition
+            <Link to="/terms-conditions" className="hover:text-stone-200">
+              Terms &amp; Conditions
             </Link>
-            <Link to="/contact-us" className="hover:text-stone-200">
+            <Link to="/privacy-policy" className="hover:text-stone-200">
               Privacy Policy
             </Link>
             <Link to="/admin/login" className="hover:text-stone-200 transition-colors">

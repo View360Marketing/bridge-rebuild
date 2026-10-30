@@ -17,7 +17,9 @@ import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as MassageWellnessRouteImport } from './routes/massage-wellness'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as StayRouteImport } from './routes/stay'
+import { Route as TermsConditionsRouteImport } from './routes/terms-conditions'
 import { Route as TheAlpineRouteImport } from './routes/the-alpine'
 import { Route as WeddingsEventsRouteImport } from './routes/weddings-events'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -84,9 +86,19 @@ const MassageWellnessRoute = MassageWellnessRouteImport.update({
   path: '/massage-wellness',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StayRoute = StayRouteImport.update({
   id: '/stay',
   path: '/stay',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsConditionsRoute = TermsConditionsRouteImport.update({
+  id: '/terms-conditions',
+  path: '/terms-conditions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TheAlpineRoute = TheAlpineRouteImport.update({
@@ -238,7 +250,9 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/stay': typeof StayRouteWithChildren
+  '/terms-conditions': typeof TermsConditionsRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -274,6 +288,8 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/terms-conditions': typeof TermsConditionsRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -310,7 +326,9 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/stay': typeof StayRouteWithChildren
+  '/terms-conditions': typeof TermsConditionsRoute
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -348,7 +366,9 @@ export interface FileRouteTypes {
     | '/events'
     | '/gallery'
     | '/massage-wellness'
+    | '/privacy-policy'
     | '/stay'
+    | '/terms-conditions'
     | '/the-alpine'
     | '/weddings-events'
     | '/admin'
@@ -384,6 +404,8 @@ export interface FileRouteTypes {
     | '/events'
     | '/gallery'
     | '/massage-wellness'
+    | '/privacy-policy'
+    | '/terms-conditions'
     | '/the-alpine'
     | '/weddings-events'
     | '/admin/login'
@@ -419,7 +441,9 @@ export interface FileRouteTypes {
     | '/events'
     | '/gallery'
     | '/massage-wellness'
+    | '/privacy-policy'
     | '/stay'
+    | '/terms-conditions'
     | '/the-alpine'
     | '/weddings-events'
     | '/_authenticated/admin'
@@ -457,7 +481,9 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   GalleryRoute: typeof GalleryRoute
   MassageWellnessRoute: typeof MassageWellnessRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   StayRoute: typeof StayRouteWithChildren
+  TermsConditionsRoute: typeof TermsConditionsRoute
   TheAlpineRoute: typeof TheAlpineRoute
   WeddingsEventsRoute: typeof WeddingsEventsRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -527,11 +553,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MassageWellnessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stay': {
       id: '/stay'
       path: '/stay'
       fullPath: '/stay'
       preLoaderRoute: typeof StayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms-conditions': {
+      id: '/terms-conditions'
+      path: '/terms-conditions'
+      fullPath: '/terms-conditions'
+      preLoaderRoute: typeof TermsConditionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/the-alpine': {
@@ -788,7 +828,9 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   GalleryRoute: GalleryRoute,
   MassageWellnessRoute: MassageWellnessRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   StayRoute: StayRouteWithChildren,
+  TermsConditionsRoute: TermsConditionsRoute,
   TheAlpineRoute: TheAlpineRoute,
   WeddingsEventsRoute: WeddingsEventsRoute,
   AdminLoginRoute: AdminLoginRoute,
