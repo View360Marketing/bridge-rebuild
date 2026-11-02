@@ -65,7 +65,12 @@ export const createSocialPostFn = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { data: isMgr } = await context.supabase.rpc("is_manager", { _user_id: context.userId });
     if (!isMgr) throw new Error("Manager role required to create social posts.");
-    const postInput: { body: string; account_ids: string[]; media_urls: string[]; scheduled_at?: string } = {
+    const postInput: {
+      body: string;
+      account_ids: string[];
+      media_urls: string[];
+      scheduled_at?: string;
+    } = {
       body: data.body,
       account_ids: data.account_ids,
       media_urls: data.media_urls ?? [],

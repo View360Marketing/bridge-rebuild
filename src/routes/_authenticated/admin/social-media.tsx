@@ -127,7 +127,9 @@ function CreatePost({ configured }: { configured: boolean }) {
       await create({
         data: { body, account_ids: accounts, scheduled_at: scheduled || undefined },
       });
-      toast.success(scheduled ? "Post scheduled" : configured ? "Post submitted" : "Draft saved locally");
+      toast.success(
+        scheduled ? "Post scheduled" : configured ? "Post submitted" : "Draft saved locally",
+      );
       setBody("");
       setAccounts([]);
       setScheduled("");

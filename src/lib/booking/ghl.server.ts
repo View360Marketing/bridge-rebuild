@@ -51,9 +51,7 @@ export function isGhlConfigured(): boolean {
 async function ghlFetch(path: string, init?: RequestInit): Promise<Response> {
   const { token, locationId } = ghlConfig();
   if (!token || !locationId) throw new Error("GoHighLevel not configured.");
-  const url = path.startsWith("http")
-    ? path
-    : `https://services.leadconnectorhq.com${path}`;
+  const url = path.startsWith("http") ? path : `https://services.leadconnectorhq.com${path}`;
   const headers = new Headers(init?.headers);
   headers.set("Authorization", `Bearer ${token}`);
   headers.set("Version", "2021-07-28");
@@ -67,7 +65,9 @@ async function ghlFetch(path: string, init?: RequestInit): Promise<Response> {
 /** Search GHL contacts with pagination (advanced search). */
 export async function fetchGhlContacts(): Promise<GhlContact[]> {
   if (!isGhlConfigured()) {
-    throw new Error("GoHighLevel credentials not configured (GHL_PRIVATE_TOKEN / GHL_LOCATION_ID).");
+    throw new Error(
+      "GoHighLevel credentials not configured (GHL_PRIVATE_TOKEN / GHL_LOCATION_ID).",
+    );
   }
   const { locationId } = ghlConfig();
   const all: GhlContact[] = [];
@@ -95,7 +95,8 @@ export async function fetchGhlContacts(): Promise<GhlContact[]> {
         last_name: (c["lastName"] as string) ?? null,
         email: (c["email"] as string) ?? null,
         phone: (c["phone"] as string) ?? null,
-        address: [c["address1"], c["city"], c["state"], c["country"]].filter(Boolean).join(", ") || null,
+        address:
+          [c["address1"], c["city"], c["state"], c["country"]].filter(Boolean).join(", ") || null,
         contact_source: (c["source"] as string) ?? null,
         tags: Array.isArray(c["tags"]) ? (c["tags"] as string[]) : [],
         dnd_opted_out: Boolean(c["dnd"]), // GHL provides dnd info when available
@@ -120,7 +121,8 @@ export async function syncGhlContacts(
       imported: 0,
       updated: 0,
       failed: 0,
-      error: "GoHighLevel not configured. Set GHL_PRIVATE_TOKEN and GHL_LOCATION_ID in server secrets.",
+      error:
+        "GoHighLevel not configured. Set GHL_PRIVATE_TOKEN and GHL_LOCATION_ID in server secrets.",
     };
   }
 
@@ -160,25 +162,23 @@ export async function syncGhlContacts(
         }
 
         // Upsert ghl_contacts row by (location, contact id).
-        const { error } = await supabaseAdmin
-          .from("ghl_contacts")
-          .upsert(
-            {
-              ghl_contact_id: c.ghl_contact_id,
-              ghl_location_id: c.ghl_location_id,
-              first_name: c.first_name,
-              last_name: c.last_name,
-              email: c.email,
-              phone: c.phone,
-              address: c.address,
-              contact_source: c.contact_source,
-              tags: c.tags,
-              dnd_opted_out: c.dnd_opted_out,
-              last_synced_at: now,
-              linked_guest_id: linkedGuestId,
-            },
-            { onConflict: "ghl_location_id,ghl_contact_id" },
-          );
+        const { error } = await supabaseAdmin.from("ghl_contacts").upsert(
+          {
+            ghl_contact_id: c.ghl_contact_id,
+            ghl_location_id: c.ghl_location_id,
+            first_name: c.first_name,
+            last_name: c.last_name,
+            email: c.email,
+            phone: c.phone,
+            address: c.address,
+            contact_source: c.contact_source,
+            tags: c.tags,
+            dnd_opted_out: c.dnd_opted_out,
+            last_synced_at: now,
+            linked_guest_id: linkedGuestId,
+          },
+          { onConflict: "ghl_location_id,ghl_contact_id" },
+        );
         if (error) {
           failed++;
         } else {
@@ -219,10 +219,7 @@ export async function listGhlContacts(
   _supabase: SupabaseClient,
   search?: string,
 ): Promise<GhlContact[]> {
-  let q = supabaseAdmin
-    .from("ghl_contacts")
-    .select("*")
-    .order("updated_at", { ascending: false });
+  let q = supabaseAdmin.from("ghl_contacts").select("*").order("updated_at", { ascending: false });
   if (search) {
     q = q.or(
       `first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`,
@@ -245,8 +242,7 @@ export async function getGhlSyncStatus(): Promise<{
     .order("started_at", { ascending: false })
     .limit(1);
   const row = (data ?? [])[0] as
-    | { status: string; finished_at: string | null; error: string | null }
-    | undefined;
+    { status: string; finished_at: string | null; error: string | null } | undefined;
   if (!row) return { lastSync: null, lastStatus: null, lastError: null };
   return {
     lastSync: row.finished_at,
@@ -290,10 +286,10 @@ export async function getSocialAccounts(): Promise<GhlSocialAccount[]> {
   }
   const json = (await res.json()) as { accounts?: Record<string, unknown>[] };
   return (json.accounts ?? []).map((a) => ({
-    id: String(a.id ?? ""),
-    name: String(a.name ?? a.username ?? "Unknown"),
-    platform: String(a.platform ?? a.type ?? "unknown"),
-    status: String(a.status ?? a.connectionStatus ?? "connected"),
+    id: String(a["id"] ?? ""),
+    name: String(a["name"] ?? a["username"] ?? "Unknown"),
+    platform: String(a["platform"] ?? a["type"] ?? "unknown"),
+    status: String(a["status"] ?? a["connectionStatus"] ?? "connected"),
   }));
 }
 
@@ -335,8 +331,8 @@ export async function createGhlSocialPost(
       body: input.body,
       accountIds: input.account_ids,
     };
-    if (input.media_urls && input.media_urls.length > 0) body.mediaUrls = input.media_urls;
-    if (input.scheduled_at) body.scheduledAt = input.scheduled_at;
+    if (input.media_urls && input.media_urls.length > 0) body["mediaUrls"] = input.media_urls;
+    if (input.scheduled_at) body["scheduledAt"] = input.scheduled_at;
 
     const res = await ghlFetch(`/social-media/posts`, {
       method: "POST",
@@ -359,7 +355,11 @@ export async function createGhlSocialPost(
       })
       .eq("id", localId);
 
-    return { ghl_post_id: ghlPostId, localId, status: input.scheduled_at ? "scheduled" : "processing" };
+    return {
+      ghl_post_id: ghlPostId,
+      localId,
+      status: input.scheduled_at ? "scheduled" : "processing",
+    };
   } catch (e) {
     const msg = (e as Error).message;
     await supabaseAdmin
@@ -438,9 +438,12 @@ export async function resolvePreviewPermissions(
       .select("role")
       .eq("user_id", session.target_user_id);
     const roleList = (roles ?? []).map((r) => (r as { role: string }).role);
-    if (roleList.includes("super_admin")) return { role: "super_admin", isPreview: true, targetUserId: session.target_user_id };
-    if (roleList.includes("admin")) return { role: "admin", isPreview: true, targetUserId: session.target_user_id };
-    if (roleList.includes("manager")) return { role: "manager", isPreview: true, targetUserId: session.target_user_id };
+    if (roleList.includes("super_admin"))
+      return { role: "super_admin", isPreview: true, targetUserId: session.target_user_id };
+    if (roleList.includes("admin"))
+      return { role: "admin", isPreview: true, targetUserId: session.target_user_id };
+    if (roleList.includes("manager"))
+      return { role: "manager", isPreview: true, targetUserId: session.target_user_id };
     return { role: "manager", isPreview: true, targetUserId: session.target_user_id };
   }
   return { role: session.target_role ?? "manager", isPreview: true };
