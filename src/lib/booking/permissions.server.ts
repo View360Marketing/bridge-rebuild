@@ -11,7 +11,15 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
  */
 
 export type ModuleKey =
-  "overview" | "calendar" | "reservations" | "guests" | "rooms" | "social" | "reports";
+  | "overview"
+  | "calendar"
+  | "reservations"
+  | "guests"
+  | "rooms"
+  | "social"
+  | "reports"
+  | "events"
+  | "massage";
 
 export type AccessLevel = "none" | "view" | "manage";
 
@@ -25,6 +33,8 @@ export const ALL_MODULES: ModuleKey[] = [
   "rooms",
   "social",
   "reports",
+  "events",
+  "massage",
 ];
 
 const MODULE_LABELS: Record<ModuleKey, string> = {
@@ -35,6 +45,8 @@ const MODULE_LABELS: Record<ModuleKey, string> = {
   rooms: "Rooms & Properties",
   social: "Social Media",
   reports: "Reports",
+  events: "Events",
+  massage: "Massage Bookings",
 };
 
 export function moduleLabel(m: ModuleKey): string {
@@ -42,7 +54,7 @@ export function moduleLabel(m: ModuleKey): string {
 }
 
 /** Role -> default module access. Admins/super_admin get full access to ops modules. */
-function defaultAccessForRole(role: string): ResolvedPermissions {
+export function defaultAccessForRole(role: string): ResolvedPermissions {
   if (role === "super_admin" || role === "admin") {
     return {
       overview: "manage",
@@ -52,17 +64,21 @@ function defaultAccessForRole(role: string): ResolvedPermissions {
       rooms: "manage",
       social: "manage",
       reports: "manage",
+      events: "manage",
+      massage: "manage",
     };
   }
-  // Manager defaults (spec §2 DEFAULT MANAGER ACCESS)
+  // Manager defaults (spec: Calendar + Events + Massage manage; others none)
   return {
-    overview: "view",
+    overview: "none",
     calendar: "manage",
-    reservations: "manage",
-    guests: "manage",
-    rooms: "view",
-    social: "manage",
+    reservations: "none",
+    guests: "none",
+    rooms: "none",
+    social: "none",
     reports: "none",
+    events: "manage",
+    massage: "manage",
   };
 }
 
@@ -102,7 +118,11 @@ export async function resolvePermissions(
     }
   }
 
-  return { role, permissions };
+  const result: { role: string; permissions: ResolvedPermissions; email?: string } = {
+    role,
+    permissions,
+  };
+  return result;
 }
 
 /** Load saved per-manager permissions (super_admin only) for the access editor. */
@@ -210,12 +230,18 @@ export async function resolveEffectivePermissions(
     if (active.target_user_id) previewTarget.userId = active.target_user_id;
     if (name) previewTarget.name = name;
 
-    return {
+    const previewResult: {
+      role: string;
+      permissions: ResolvedPermissions;
+      isPreview: boolean;
+      previewTarget?: { role: string; userId?: string; name?: string };
+    } = {
       role,
       permissions: capped,
       isPreview: true,
-      previewTarget,
     };
+    previewResult.previewTarget = previewTarget;
+    return previewResult;
   }
 
   const real = await resolvePermissions(supabase, actorId);

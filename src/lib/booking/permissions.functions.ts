@@ -5,6 +5,7 @@ import {
   resolveEffectivePermissions,
   getManagerPermissions,
   saveManagerPermissions,
+  defaultAccessForRole,
   type ResolvedPermissions,
   type ModuleKey,
   type AccessLevel,
@@ -23,6 +24,8 @@ const accessSchema = z.object({
   rooms: z.enum(["none", "view", "manage"]),
   social: z.enum(["none", "view", "manage"]),
   reports: z.enum(["none", "view", "manage"]),
+  events: z.enum(["none", "view", "manage"]),
+  massage: z.enum(["none", "view", "manage"]),
 });
 
 export const getManagerPermissionsFn = createServerFn({ method: "GET" })
@@ -50,6 +53,15 @@ export const saveManagerPermissionsFn = createServerFn({ method: "POST" })
       data.permissions as ResolvedPermissions,
     );
     return { ok: true };
+  });
+
+/** Get the default permissions for a role (used by Access Control page). */
+export const getRoleDefaultsFn = createServerFn({ method: "GET" })
+  .validator((d) => z.object({ role: z.enum(["manager", "admin"]).optional() }).parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data }) => {
+    const role = data.role ?? "manager";
+    return defaultAccessForRole(role) as ResolvedPermissions;
   });
 
 export type { ResolvedPermissions, ModuleKey, AccessLevel };

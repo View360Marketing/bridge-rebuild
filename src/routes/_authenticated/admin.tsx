@@ -32,6 +32,7 @@ function AdminLayout() {
   else if (matchRoute({ to: "/admin/users", fuzzy: true })) active = "users";
   else if (matchRoute({ to: "/admin/settings", fuzzy: true })) active = "settings";
   else if (matchRoute({ to: "/admin/integrations", fuzzy: true })) active = "integrations";
+  else if (matchRoute({ to: "/admin/access-control", fuzzy: true })) active = "access";
   else if (matchRoute({ to: "/admin/groups", fuzzy: true })) active = "groups";
   else if (matchRoute({ to: "/admin" })) active = "overview";
   return (
