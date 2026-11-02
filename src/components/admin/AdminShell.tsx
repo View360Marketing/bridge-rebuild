@@ -59,7 +59,7 @@ const MODULE_ITEMS: NavItem[] = [
     label: "Dashboard",
     to: "/admin/manager-dashboard",
     icon: LayoutGrid,
-    module: "overview",
+    // Always visible — this is the staff landing page.
   },
   {
     key: "calendar",
