@@ -289,9 +289,7 @@ function GhlContactsSection() {
       if (result.status === "failed") {
         toast.error(result.error ?? "Sync failed");
       } else {
-        toast.success(
-          `Synced: ${result.updated} updated, ${result.failed} failed`,
-        );
+        toast.success(`Synced: ${result.updated} updated, ${result.failed} failed`);
       }
       await qc.invalidateQueries({ queryKey: ["ghl-contacts"] });
       await qc.invalidateQueries({ queryKey: ["ghl-sync-status"] });
@@ -308,9 +306,7 @@ function GhlContactsSection() {
         <div className="flex items-center gap-2">
           <Cloud className="w-5 h-5 text-[#2a382c]" />
           <div>
-            <h2 className="font-serif text-xl font-bold text-stone-900">
-              CRM Contacts
-            </h2>
+            <h2 className="font-serif text-xl font-bold text-stone-900">CRM Contacts</h2>
             <p className="text-xs text-stone-500">
               {configured
                 ? syncStatus?.lastSync
@@ -332,8 +328,8 @@ function GhlContactsSection() {
       {!configured && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
           <p className="text-xs text-amber-800">
-            GoHighLevel is not configured. Add GHL_PRIVATE_TOKEN and
-            GHL_LOCATION_ID in server secrets to import contacts.
+            GoHighLevel is not configured. Add GHL_PRIVATE_TOKEN and GHL_LOCATION_ID in server
+            secrets to import contacts.
           </p>
         </div>
       )}
@@ -351,7 +347,8 @@ function GhlContactsSection() {
           {isLoading && <p className="text-sm text-stone-500">Loading contacts…</p>}
           {contacts && contacts.length === 0 && !isLoading && (
             <p className="text-sm text-stone-500">
-              No contacts {search ? "match your search" : "imported yet"}. Click Sync Now to import from CRM.
+              No contacts {search ? "match your search" : "imported yet"}. Click Sync Now to import
+              from CRM.
             </p>
           )}
           {contacts && contacts.length > 0 && (
@@ -366,7 +363,8 @@ function GhlContactsSection() {
                       {[c.first_name, c.last_name].filter(Boolean).join(" ") || "Unknown"}
                     </span>
                     <span className="text-stone-500">
-                      {" "}{c.email ?? "no email"} · {c.phone ?? "no phone"}
+                      {" "}
+                      {c.email ?? "no email"} · {c.phone ?? "no phone"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">

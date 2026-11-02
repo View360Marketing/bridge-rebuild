@@ -711,6 +711,33 @@ export type Database = {
           },
         ]
       }
+      manager_permissions: {
+        Row: {
+          access: string
+          id: string
+          module: string
+          updated_at: string | null
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          access?: string
+          id?: string
+          module: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          access?: string
+          id?: string
+          module?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       manual_payments: {
         Row: {
           amount_cents: number
