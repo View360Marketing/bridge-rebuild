@@ -40,7 +40,7 @@ const ROLE_DEFAULTS: Record<string, ResolvedPermissions> = {
     reservations: "none",
     guests: "none",
     rooms: "none",
-    social: "none",
+    social: "manage",
     reports: "none",
     events: "manage",
     massage: "manage",

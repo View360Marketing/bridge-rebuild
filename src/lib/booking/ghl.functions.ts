@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   listGhlContacts,
   syncGhlContacts,
@@ -9,6 +10,9 @@ import {
   getSocialAccounts,
   createGhlSocialPost,
   listSocialPosts,
+  uploadSocialMediaAsset,
+  syncGhlSocialPosts,
+  deleteGhlSocialPost,
   startPreview,
   endPreview,
   getActivePreview,
@@ -18,8 +22,17 @@ import {
   type SocialPost,
   type PreviewSession,
 } from "./ghl.server";
+import { resolveEffectivePermissions } from "./permissions.server";
 
-// ── GHL Contacts ────────────────────────────────────────────────────────────
+// ── Preview guard ─────────────────────────────────────────────────────────────
+
+/** Block mutations while the caller has an active View-as preview session. */
+async function assertNotPreview(supabase: SupabaseClient, userId: string): Promise<void> {
+  const { isPreview } = await resolveEffectivePermissions(supabase, userId);
+  if (isPreview) throw new Error("Preview mode is read-only. Exit preview to make changes.");
+}
+
+// ── GHL Contacts ──────────────────────────────────────────────────────────────
 
 export const getGhlConfigStatusFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -38,7 +51,7 @@ export const getGhlSyncStatusFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => getGhlSyncStatus());
 
-// ── Social Planner ───────────────────────────────────────────────────────────
+// ── Social Planner ────────────────────────────────────────────────────────────
 
 export const listSocialAccountsFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -57,25 +70,27 @@ const socialPostSchema = z.object({
   account_ids: z.array(z.string()).min(1),
   media_urls: z.array(z.string()).optional(),
   scheduled_at: z.string().optional(),
+  mode: z.enum(["draft", "schedule", "publish"]).optional(),
 });
 
 export const createSocialPostFn = createServerFn({ method: "POST" })
   .validator((d) => socialPostSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { data: isMgr } = await context.supabase.rpc("is_manager", { _user_id: context.userId });
-    if (!isMgr) throw new Error("Manager role required to create social posts.");
+    await assertNotPreview(context.supabase, context.userId);
     const postInput: {
       body: string;
       account_ids: string[];
       media_urls: string[];
       scheduled_at?: string;
+      mode?: "draft" | "schedule" | "publish";
     } = {
       body: data.body,
       account_ids: data.account_ids,
       media_urls: data.media_urls ?? [],
     };
     if (data.scheduled_at) postInput.scheduled_at = data.scheduled_at;
+    if (data.mode) postInput.mode = data.mode;
     return createGhlSocialPost(context.userId, postInput);
   });
 
@@ -83,7 +98,39 @@ export const listSocialPostsFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => listSocialPosts());
 
-// ── View-as preview ──────────────────────────────────────────────────────────
+export const uploadSocialMediaAssetFn = createServerFn({ method: "POST" })
+  .validator((d) =>
+    z
+      .object({
+        fileName: z.string(),
+        base64: z.string(),
+        mimeType: z.string(),
+      })
+      .parse(d),
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    await assertNotPreview(context.supabase, context.userId);
+    return uploadSocialMediaAsset(data.fileName, data.base64, data.mimeType);
+  });
+
+export const syncGhlSocialPostsFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertNotPreview(context.supabase, context.userId);
+    return syncGhlSocialPosts();
+  });
+
+export const deleteSocialPostFn = createServerFn({ method: "POST" })
+  .validator((d) => z.object({ id: z.string() }).parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    await assertNotPreview(context.supabase, context.userId);
+    await deleteGhlSocialPost(data.id);
+    return { ok: true };
+  });
+
+// ── View-as preview ───────────────────────────────────────────────────────────
 
 const previewStartSchema = z.object({
   target_role: z.string().optional(),

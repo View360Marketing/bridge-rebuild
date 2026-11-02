@@ -25,6 +25,7 @@ import {
   Clock,
   MapPin,
   ClipboardList,
+  Share2,
 } from "lucide-react";
 
 type PropertyEvent = {
@@ -219,6 +220,13 @@ function ManagerDashboardPage() {
         )}
         {permissions && permissions.guests !== "none" && (
           <QuickLink to="/admin/guests" label="Guests" icon={<Users className="w-4 h-4" />} />
+        )}
+        {permissions && permissions.social !== "none" && (
+          <QuickLink
+            to="/admin/social-media"
+            label="Social Media"
+            icon={<Share2 className="w-4 h-4" />}
+          />
         )}
       </div>
 

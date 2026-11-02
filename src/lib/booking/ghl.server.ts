@@ -298,17 +298,21 @@ export type SocialPostInput = {
   account_ids: string[];
   media_urls?: string[];
   scheduled_at?: string; // ISO, or omit for "publish now"
+  mode?: "draft" | "schedule" | "publish";
 };
 
 export async function createGhlSocialPost(
   actorId: string,
   input: SocialPostInput,
 ): Promise<{ ghl_post_id: string | null; localId: string; status: string }> {
+  const mode = input.mode ?? (input.scheduled_at ? "schedule" : "publish");
+
   // Record locally first (durable, idempotency base).
+  const localStatus = mode === "draft" ? "draft" : mode === "schedule" ? "scheduled" : "processing";
   const { data: local, error } = await supabaseAdmin
     .from("social_posts")
     .insert({
-      status: "draft",
+      status: localStatus,
       body: input.body,
       media_urls: input.media_urls ?? [],
       account_ids: input.account_ids,
@@ -320,18 +324,19 @@ export async function createGhlSocialPost(
   if (error || !local) throw new Error(error?.message ?? "Failed to create social post record.");
   const localId = (local as { id: string }).id;
 
-  if (!isGhlConfigured()) {
-    return { ghl_post_id: null, localId, status: "draft_local_only" };
+  // Drafts stay local-only; don't push to the provider until scheduled or published.
+  if (mode === "draft" || !isGhlConfigured()) {
+    return { ghl_post_id: null, localId, status: localStatus };
   }
 
   try {
     const { locationId } = ghlConfig();
     const body: Record<string, unknown> = {
       locationId,
-      body: input.body,
+      postBody: input.body,
       accountIds: input.account_ids,
     };
-    if (input.media_urls && input.media_urls.length > 0) body["mediaUrls"] = input.media_urls;
+    if (input.media_urls && input.media_urls.length > 0) body["mediaLinks"] = input.media_urls;
     if (input.scheduled_at) body["scheduledAt"] = input.scheduled_at;
 
     const res = await ghlFetch(`/social-media/posts`, {
@@ -350,15 +355,14 @@ export async function createGhlSocialPost(
       .from("social_posts")
       .update({
         ghl_post_id: ghlPostId,
-        status: input.scheduled_at ? "scheduled" : "processing",
-        published_at: input.scheduled_at ? null : new Date().toISOString(),
+        status: mode === "schedule" ? "scheduled" : "processing",
       })
       .eq("id", localId);
 
     return {
       ghl_post_id: ghlPostId,
       localId,
-      status: input.scheduled_at ? "scheduled" : "processing",
+      status: mode === "schedule" ? "scheduled" : "processing",
     };
   } catch (e) {
     const msg = (e as Error).message;
@@ -368,6 +372,84 @@ export async function createGhlSocialPost(
       .eq("id", localId);
     throw new Error(msg);
   }
+}
+
+/** Upload a media asset to durable storage and return a public URL. */
+export async function uploadSocialMediaAsset(
+  fileName: string,
+  base64Data: string,
+  mimeType: string,
+): Promise<{ url: string; path: string }> {
+  const raw = base64Data.includes(",") ? base64Data.split(",")[1]! : base64Data;
+  const buf = Buffer.from(raw, "base64");
+  const ext = fileName.split(".").pop()?.toLowerCase() ?? "jpg";
+  const path = `posts/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabaseAdmin.storage
+    .from("social-media")
+    .upload(path, buf, { contentType: mimeType, upsert: false });
+  if (error) throw new Error(`Upload failed: ${error.message}`);
+  const url = `${process.env["SUPABASE_URL"]}/storage/v1/object/public/social-media/${path}`;
+  return { url, path };
+}
+
+/** Sync posts from the Social Planner into the local table (upsert by ghl_post_id). */
+export async function syncGhlSocialPosts(): Promise<{ synced: number; error?: string }> {
+  if (!isGhlConfigured()) return { synced: 0, error: "Social Planner not configured." };
+  const { locationId } = ghlConfig();
+  const now = new Date();
+  const startRange = new Date(now.getTime() - 90 * 86400000).toISOString();
+  const endRange = new Date(now.getTime() + 365 * 86400000).toISOString();
+  const res = await ghlFetch(
+    `/social-media/posts?locationId=${locationId}&startRange=${startRange}&endRange=${endRange}`,
+  );
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    return { synced: 0, error: `Social posts sync failed (${res.status}): ${txt.slice(0, 200)}` };
+  }
+  const json = (await res.json()) as { posts?: Record<string, unknown>[] };
+  const posts = json.posts ?? [];
+  let synced = 0;
+  for (const p of posts) {
+    const post = p as Record<string, unknown>;
+    const ghlId = String(post["id"] ?? "");
+    if (!ghlId) continue;
+    const { error } = await supabaseAdmin.from("social_posts").upsert(
+      {
+        ghl_post_id: ghlId,
+        body: String(post["postBody"] ?? post["body"] ?? ""),
+        media_urls: Array.isArray(post["mediaLinks"])
+          ? (post["mediaLinks"] as string[])
+          : Array.isArray(post["mediaUrls"])
+            ? (post["mediaUrls"] as string[])
+            : [],
+        account_ids: Array.isArray(post["accountIds"]) ? (post["accountIds"] as string[]) : [],
+        scheduled_at: post["scheduledAt"] ? String(post["scheduledAt"]) : null,
+        status: post["scheduledAt"] ? "scheduled" : "published",
+        published_at: post["createdAt"] ? String(post["createdAt"]) : null,
+      },
+      { onConflict: "ghl_post_id" },
+    );
+    if (!error) synced++;
+  }
+  return { synced };
+}
+
+/** Delete a social post (local row + provider if it has a ghl_post_id). */
+export async function deleteGhlSocialPost(localId: string): Promise<void> {
+  const { data } = await supabaseAdmin
+    .from("social_posts")
+    .select("ghl_post_id")
+    .eq("id", localId)
+    .single();
+  const row = data as { ghl_post_id: string | null } | null;
+  if (row?.ghl_post_id && isGhlConfigured()) {
+    try {
+      await ghlFetch(`/social-media/posts/${row.ghl_post_id}`, { method: "DELETE" });
+    } catch {
+      // Best-effort delete; the local row is still removed.
+    }
+  }
+  await supabaseAdmin.from("social_posts").delete().eq("id", localId);
 }
 
 export async function listSocialPosts(): Promise<SocialPost[]> {
