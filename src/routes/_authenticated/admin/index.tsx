@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { getEffectivePermissionsFn } from "@/lib/booking/permissions.functions";
 import { getDashboardStats, getCurrentStaff } from "@/lib/booking/admin.functions";
 import { Building2, BedDouble, CheckCircle2, AlertTriangle, Settings, LogOut } from "lucide-react";
 
@@ -18,10 +19,19 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 
 function AdminOverview() {
   const navigate = useNavigate();
+  const fetchPerms = useServerFn(getEffectivePermissionsFn);
   const fetchStats = useServerFn(getDashboardStats);
   const fetchStaff = useServerFn(getCurrentStaff);
+  const perms = useQuery({ queryKey: ["effective-perms"], queryFn: fetchPerms });
   const stats = useQuery({ queryKey: ["admin-stats"], queryFn: fetchStats });
   const staff = useQuery({ queryKey: ["admin-staff"], queryFn: fetchStaff });
+
+  // Managers land on their operations dashboard instead of the super-admin overview.
+  useEffect(() => {
+    if (perms.data?.role === "manager" && !perms.data.isPreview) {
+      navigate({ to: "/admin/manager-dashboard", replace: true });
+    }
+  }, [perms.data, navigate]);
 
   async function signOut() {
     await supabase.auth.signOut();

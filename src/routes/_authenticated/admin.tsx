@@ -21,6 +21,8 @@ function AdminLayout() {
   const matchRoute = useMatchRoute();
   let active = "";
   if (matchRoute({ to: "/admin/rooms", fuzzy: true })) active = "rooms";
+  else if (matchRoute({ to: "/admin/manager-dashboard", fuzzy: true }))
+    active = "manager-dashboard";
   else if (matchRoute({ to: "/admin/calendar", fuzzy: true })) active = "calendar";
   else if (matchRoute({ to: "/admin/reservations", fuzzy: true })) active = "reservations";
   else if (matchRoute({ to: "/admin/guests", fuzzy: true })) active = "guests";

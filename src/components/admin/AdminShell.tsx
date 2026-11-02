@@ -55,6 +55,13 @@ const ADMIN_ONLY_ITEMS: NavItem[] = [
 const MODULE_ITEMS: NavItem[] = [
   { key: "overview", label: "Overview", to: "/admin", icon: LayoutGrid, module: "overview" },
   {
+    key: "manager-dashboard",
+    label: "Dashboard",
+    to: "/admin/manager-dashboard",
+    icon: LayoutGrid,
+    module: "overview",
+  },
+  {
     key: "calendar",
     label: "Calendar",
     to: "/admin/calendar",
@@ -149,9 +156,9 @@ export function AdminShell({ active, children }: { active: string; children: Rea
         toast.success("Previewing staff member");
       }
       await qc.invalidateQueries({ queryKey: ["effective-perms"] });
-      // Navigate to calendar for manager preview (their default landing).
+      // Land managers on their operations dashboard (their default landing).
       if (option === "manager" || option.startsWith("user:")) {
-        navigate({ to: "/admin/calendar" });
+        navigate({ to: "/admin/manager-dashboard" });
       }
     } catch (e) {
       toast.error((e as Error).message);
@@ -186,7 +193,7 @@ export function AdminShell({ active, children }: { active: string; children: Rea
           </p>
           <div className="space-y-0.5">
             {visibleModuleItems
-              .filter((i) => ["overview"].includes(i.key))
+              .filter((i) => ["overview", "manager-dashboard"].includes(i.key))
               .map((item) => renderNav(item, active))}
           </div>
         </div>
