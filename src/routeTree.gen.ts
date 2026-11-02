@@ -42,6 +42,7 @@ import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminReservationsRouteImport } from './routes/_authenticated/admin/reservations'
 import { Route as AuthenticatedAdminRoomsRouteImport } from './routes/_authenticated/admin/rooms'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
+import { Route as AuthenticatedAdminSocialMediaRouteImport } from './routes/_authenticated/admin/social-media'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as ApiIcalExportDoticsRouteImport } from './routes/api/ical/export[.]ics'
 import { Route as ApiIcalSyncRouteImport } from './routes/api/ical/sync'
@@ -221,6 +222,12 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSocialMediaRoute =
+  AuthenticatedAdminSocialMediaRouteImport.update({
+    id: '/social-media',
+    path: '/social-media',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -274,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/social-media': typeof AuthenticatedAdminSocialMediaRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/ical/export.ics': typeof ApiIcalExportDoticsRoute
   '/api/ical/sync': typeof ApiIcalSyncRoute
@@ -310,6 +318,7 @@ export interface FileRoutesByTo {
   '/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/social-media': typeof AuthenticatedAdminSocialMediaRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/ical/export.ics': typeof ApiIcalExportDoticsRoute
   '/api/ical/sync': typeof ApiIcalSyncRoute
@@ -350,6 +359,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/reservations': typeof AuthenticatedAdminReservationsRoute
   '/_authenticated/admin/rooms': typeof AuthenticatedAdminRoomsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/social-media': typeof AuthenticatedAdminSocialMediaRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/api/ical/export.ics': typeof ApiIcalExportDoticsRoute
   '/api/ical/sync': typeof ApiIcalSyncRoute
@@ -390,6 +400,7 @@ export interface FileRouteTypes {
     | '/admin/reservations'
     | '/admin/rooms'
     | '/admin/settings'
+    | '/admin/social-media'
     | '/admin/users'
     | '/api/ical/export.ics'
     | '/api/ical/sync'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/admin/reservations'
     | '/admin/rooms'
     | '/admin/settings'
+    | '/admin/social-media'
     | '/admin/users'
     | '/api/ical/export.ics'
     | '/api/ical/sync'
@@ -465,6 +477,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/reservations'
     | '/_authenticated/admin/rooms'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/social-media'
     | '/_authenticated/admin/users'
     | '/api/ical/export.ics'
     | '/api/ical/sync'
@@ -728,6 +741,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/social-media': {
+      id: '/_authenticated/admin/social-media'
+      path: '/social-media'
+      fullPath: '/admin/social-media'
+      preLoaderRoute: typeof AuthenticatedAdminSocialMediaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -772,6 +792,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminReservationsRoute: typeof AuthenticatedAdminReservationsRoute
   AuthenticatedAdminRoomsRoute: typeof AuthenticatedAdminRoomsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSocialMediaRoute: typeof AuthenticatedAdminSocialMediaRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -789,6 +810,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminReservationsRoute: AuthenticatedAdminReservationsRoute,
   AuthenticatedAdminRoomsRoute: AuthenticatedAdminRoomsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSocialMediaRoute: AuthenticatedAdminSocialMediaRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }

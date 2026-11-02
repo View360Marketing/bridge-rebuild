@@ -172,6 +172,101 @@ export type Database = {
         }
         Relationships: []
       }
+      ghl_contacts: {
+        Row: {
+          address: string | null
+          contact_source: string | null
+          created_at: string | null
+          dnd_opted_out: boolean | null
+          email: string | null
+          first_name: string | null
+          ghl_contact_id: string
+          ghl_location_id: string
+          id: string
+          last_name: string | null
+          last_synced_at: string | null
+          linked_guest_id: string | null
+          phone: string | null
+          tags: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_source?: string | null
+          created_at?: string | null
+          dnd_opted_out?: boolean | null
+          email?: string | null
+          first_name?: string | null
+          ghl_contact_id: string
+          ghl_location_id: string
+          id?: string
+          last_name?: string | null
+          last_synced_at?: string | null
+          linked_guest_id?: string | null
+          phone?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_source?: string | null
+          created_at?: string | null
+          dnd_opted_out?: boolean | null
+          email?: string | null
+          first_name?: string | null
+          ghl_contact_id?: string
+          ghl_location_id?: string
+          id?: string
+          last_name?: string | null
+          last_synced_at?: string | null
+          linked_guest_id?: string | null
+          phone?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ghl_contacts_linked_guest_id_fkey"
+            columns: ["linked_guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ghl_sync_log: {
+        Row: {
+          error: string | null
+          failed_count: number | null
+          finished_at: string | null
+          id: string
+          imported_count: number | null
+          started_at: string | null
+          status: string
+          updated_count: number | null
+        }
+        Insert: {
+          error?: string | null
+          failed_count?: number | null
+          finished_at?: string | null
+          id?: string
+          imported_count?: number | null
+          started_at?: string | null
+          status: string
+          updated_count?: number | null
+        }
+        Update: {
+          error?: string | null
+          failed_count?: number | null
+          finished_at?: string | null
+          id?: string
+          imported_count?: number | null
+          started_at?: string | null
+          status?: string
+          updated_count?: number | null
+        }
+        Relationships: []
+      }
       groups: {
         Row: {
           checkin_date: string | null
@@ -225,6 +320,7 @@ export type Database = {
           auth_user_id: string | null
           created_at: string
           email: string | null
+          ghl_contact_id: string | null
           id: string
           name: string
           notes: Json | null
@@ -235,6 +331,7 @@ export type Database = {
           auth_user_id?: string | null
           created_at?: string
           email?: string | null
+          ghl_contact_id?: string | null
           id?: string
           name: string
           notes?: Json | null
@@ -245,6 +342,7 @@ export type Database = {
           auth_user_id?: string | null
           created_at?: string
           email?: string | null
+          ghl_contact_id?: string | null
           id?: string
           name?: string
           notes?: Json | null
@@ -961,6 +1059,33 @@ export type Database = {
         }
         Relationships: []
       }
+      preview_sessions: {
+        Row: {
+          actor_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          target_role: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          actor_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          target_role?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          actor_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          target_role?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       promotions: {
         Row: {
           code: string
@@ -1662,6 +1787,51 @@ export type Database = {
         }
         Relationships: []
       }
+      social_posts: {
+        Row: {
+          account_ids: string[] | null
+          body: string | null
+          created_at: string | null
+          created_by: string | null
+          error: string | null
+          ghl_post_id: string | null
+          id: string
+          media_urls: string[] | null
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_ids?: string[] | null
+          body?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          error?: string | null
+          ghl_post_id?: string | null
+          id?: string
+          media_urls?: string[] | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_ids?: string[] | null
+          body?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          error?: string | null
+          ghl_post_id?: string | null
+          id?: string
+          media_urls?: string[] | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       taxes: {
         Row: {
           code: string
@@ -2007,6 +2177,7 @@ export type Database = {
         }
         Returns: Json
       }
+      count_active_super_admins: { Args: never; Returns: number }
       group_pickup: {
         Args: {
           p_adults: number
@@ -2033,6 +2204,7 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_manager: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       reconcile_external_event: {
         Args: {
           p_checkin_date: string
@@ -2064,6 +2236,7 @@ export type Database = {
         | "front_desk"
         | "housekeeping"
         | "read_only"
+        | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2197,6 +2370,7 @@ export const Constants = {
         "front_desk",
         "housekeeping",
         "read_only",
+        "admin",
       ],
     },
   },
