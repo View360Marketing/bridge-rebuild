@@ -18,8 +18,17 @@ export type StaffUser = {
 
 async function requireAdmin(supabase: SupabaseClient, userId: string): Promise<void> {
   const { data } = await supabase.rpc("is_admin", { _user_id: userId });
-  if (!data) throw new Error("Super-admin role required for user management.");
+  if (!data) throw new Error("Administrator role required for user management.");
 }
+
+/** Super-admin-only check (Ben). Used for destructive/sensitive operations. */
+async function requireSuperAdmin(supabase: SupabaseClient, userId: string): Promise<void> {
+  const { data } = await supabase.rpc("is_super_admin", { _user_id: userId });
+  if (!data)
+    throw new Error("Only the super-admin (ben@view360.marketing) may perform this action.");
+}
+
+type StaffRole = "super_admin" | "admin" | "manager" | "front_desk" | "housekeeping" | "read_only";
 
 /** List all auth users with their roles. Never returns password fields. */
 export async function listStaffUsers(supabase: SupabaseClient): Promise<StaffUser[]> {
@@ -79,11 +88,15 @@ export async function createStaffUser(
   input: {
     email: string;
     password: string;
-    role: "manager" | "front_desk" | "housekeeping" | "read_only";
+    role: StaffRole;
     sendInvite?: boolean;
   },
 ): Promise<{ id: string; email: string; invited: boolean }> {
   await requireAdmin(supabase, userId);
+  // Only Ben can create Admin accounts; Admins can create Managers and below.
+  if (input.role === "admin") await requireSuperAdmin(supabase, userId);
+  if (input.role === "super_admin")
+    throw new Error("Super-admin accounts cannot be created through the dashboard.");
 
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email: input.email,
@@ -96,6 +109,14 @@ export async function createStaffUser(
     .from("user_roles")
     .insert({ user_id: data.user.id, role: input.role });
   if (roleErr) throw new Error(roleErr.message);
+
+  await supabaseAdmin.from("audit_events").insert({
+    actor_id: userId,
+    action: "user.create",
+    entity_type: "auth.users",
+    entity_id: data.user.id,
+    metadata: { email: input.email, role: input.role },
+  });
 
   return {
     id: data.user.id,
@@ -110,14 +131,29 @@ export async function assignRole(
   supabase: SupabaseClient,
   userId: string,
   targetUserId: string,
-  role: "super_admin" | "manager" | "front_desk" | "housekeeping" | "read_only",
+  role: StaffRole,
 ): Promise<void> {
   await requireAdmin(supabase, userId);
 
   if (role === "super_admin") {
-    // Prevent self-escalation: a non-admin can't reach here, but double-check.
-    const { data } = await supabase.rpc("is_admin", { _user_id: targetUserId });
-    if (data) throw new Error("Target user is already a super-admin.");
+    // The DB trigger (guard_super_admin) already blocks this for non-Ben accounts,
+    // but reject early with a clear message.
+    throw new Error("Super-admin cannot be assigned through the dashboard.");
+  }
+  if (role === "admin") {
+    // Only Ben can promote to admin.
+    await requireSuperAdmin(supabase, userId);
+  }
+
+  // Admins cannot change another admin's role; only Ben can.
+  if (role !== "admin") {
+    const { data: targetRoles } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", targetUserId);
+    if ((targetRoles ?? []).some((r) => (r as { role: string }).role === "admin")) {
+      await requireSuperAdmin(supabase, userId);
+    }
   }
 
   const { error } = await supabaseAdmin
@@ -126,29 +162,32 @@ export async function assignRole(
     .select("id");
   // Ignore unique violation (role already assigned).
   if (error && !error.message.includes("duplicate")) throw new Error(error.message);
+
+  await supabaseAdmin.from("audit_events").insert({
+    actor_id: userId,
+    action: "user.assign_role",
+    entity_type: "user_roles",
+    entity_id: targetUserId,
+    metadata: { role },
+  });
 }
 
-/** Remove a role from a user. Prevents removing the last active super-admin. */
+/** Remove a role from a user. Prevents demoting Ben or the last active super-admin. */
 export async function removeRole(
   supabase: SupabaseClient,
   userId: string,
   targetUserId: string,
-  role: "super_admin" | "manager" | "front_desk" | "housekeeping" | "read_only",
+  role: StaffRole,
 ): Promise<void> {
   await requireAdmin(supabase, userId);
 
   if (role === "super_admin") {
-    // Count active super-admins excluding the target.
-    const { data: current } = await supabaseAdmin
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "super_admin");
-    const count = (current ?? []).filter(
-      (r) => (r as { user_id: string }).user_id !== targetUserId,
-    ).length;
-    if (count === 0) {
-      throw new Error("Cannot remove the last active super-admin.");
-    }
+    // Only Ben may hold super_admin and it cannot be removed (DB trigger enforces).
+    throw new Error("Cannot remove the super-admin role from ben@view360.marketing.");
+  }
+  if (role === "admin") {
+    // Demoting an admin requires Ben.
+    await requireSuperAdmin(supabase, userId);
   }
 
   const { error } = await supabaseAdmin
@@ -157,6 +196,14 @@ export async function removeRole(
     .eq("user_id", targetUserId)
     .eq("role", role);
   if (error) throw new Error(error.message);
+
+  await supabaseAdmin.from("audit_events").insert({
+    actor_id: userId,
+    action: "user.remove_role",
+    entity_type: "user_roles",
+    entity_id: targetUserId,
+    metadata: { role },
+  });
 }
 
 /** Disable a user (ban). Prevents disabling the last active super-admin. */

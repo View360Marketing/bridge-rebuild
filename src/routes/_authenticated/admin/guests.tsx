@@ -10,7 +10,13 @@ import {
   mergeGuestsFn,
   exportGuestsCsvFn,
 } from "@/lib/booking/operations.functions";
-import { Search, Users, Download, GitMerge, X } from "lucide-react";
+import {
+  listGhlContactsFn,
+  syncGhlContactsFn,
+  getGhlSyncStatusFn,
+  getGhlConfigStatusFn,
+} from "@/lib/booking/ghl.functions";
+import { Search, Users, Download, GitMerge, X, RefreshCw, Cloud } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/guests")({
   head: () => ({
@@ -32,6 +38,7 @@ function GuestsPage() {
 
   return (
     <>
+      <GhlContactsSection />
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h1 className="font-serif text-3xl font-bold text-stone-900">Guests</h1>
@@ -251,6 +258,140 @@ function GuestDetail({ guestId, onClose }: { guestId: string; onClose: () => voi
         )}
       </div>
     </div>
+  );
+}
+
+function GhlContactsSection() {
+  const listContacts = useServerFn(listGhlContactsFn);
+  const syncContacts = useServerFn(syncGhlContactsFn);
+  const getSyncStatus = useServerFn(getGhlSyncStatusFn);
+  const getConfigStatus = useServerFn(getGhlConfigStatusFn);
+  const qc = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [syncing, setSyncing] = useState(false);
+
+  const { data: config } = useQuery({ queryKey: ["ghl-config"], queryFn: getConfigStatus });
+  const { data: contacts, isLoading } = useQuery({
+    queryKey: ["ghl-contacts", search],
+    queryFn: () => listContacts({ data: { search: search || undefined } }),
+  });
+  const { data: syncStatus } = useQuery({
+    queryKey: ["ghl-sync-status"],
+    queryFn: getSyncStatus,
+  });
+
+  const configured = config?.configured ?? false;
+
+  async function handleSync() {
+    setSyncing(true);
+    try {
+      const result = await syncContacts();
+      if (result.status === "failed") {
+        toast.error(result.error ?? "Sync failed");
+      } else {
+        toast.success(
+          `Synced: ${result.updated} updated, ${result.failed} failed`,
+        );
+      }
+      await qc.invalidateQueries({ queryKey: ["ghl-contacts"] });
+      await qc.invalidateQueries({ queryKey: ["ghl-sync-status"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  return (
+    <section className="bg-white rounded-2xl border border-stone-200 p-6 mb-6">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <Cloud className="w-5 h-5 text-[#2a382c]" />
+          <div>
+            <h2 className="font-serif text-xl font-bold text-stone-900">
+              CRM Contacts
+            </h2>
+            <p className="text-xs text-stone-500">
+              {configured
+                ? syncStatus?.lastSync
+                  ? `Last sync: ${syncStatus.lastSync.slice(0, 16).replace("T", " ")}`
+                  : "Not synced yet"
+                : "Not configured — set GHL_PRIVATE_TOKEN and GHL_LOCATION_ID in server secrets"}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={handleSync}
+          disabled={!configured || syncing}
+          className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] disabled:opacity-40 text-white font-semibold px-4 py-2.5 rounded-xl text-sm"
+        >
+          <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+          {syncing ? "Syncing…" : "Sync Now"}
+        </button>
+      </div>
+      {!configured && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+          <p className="text-xs text-amber-800">
+            GoHighLevel is not configured. Add GHL_PRIVATE_TOKEN and
+            GHL_LOCATION_ID in server secrets to import contacts.
+          </p>
+        </div>
+      )}
+      {configured && (
+        <>
+          <div className="relative mb-3">
+            <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search contacts…"
+              className="pl-9 pr-3 py-2 rounded-lg border border-stone-300 text-sm w-full"
+            />
+          </div>
+          {isLoading && <p className="text-sm text-stone-500">Loading contacts…</p>}
+          {contacts && contacts.length === 0 && !isLoading && (
+            <p className="text-sm text-stone-500">
+              No contacts {search ? "match your search" : "imported yet"}. Click Sync Now to import from CRM.
+            </p>
+          )}
+          {contacts && contacts.length > 0 && (
+            <div className="space-y-1 max-h-72 overflow-y-auto">
+              {contacts.map((c) => (
+                <div
+                  key={c.ghl_contact_id}
+                  className="flex items-center justify-between border border-stone-200 rounded-lg px-3 py-2"
+                >
+                  <div className="text-sm">
+                    <span className="font-medium text-stone-800">
+                      {[c.first_name, c.last_name].filter(Boolean).join(" ") || "Unknown"}
+                    </span>
+                    <span className="text-stone-500">
+                      {" "}{c.email ?? "no email"} · {c.phone ?? "no phone"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {c.linked_guest_id ? (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+                        Linked
+                      </span>
+                    ) : (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-500">
+                        Contact only
+                      </span>
+                    )}
+                    {c.dnd_opted_out && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">
+                        DND
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </section>
   );
 }
 
