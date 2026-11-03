@@ -128,3 +128,20 @@ export const togglePropertyEventFn = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) =>
     setPropertyEventActive(context.supabase, data.code, data.is_active),
   );
+
+// ---- Public single-event read by code (no auth) ---------------------------
+
+export const getPropertyEventByCodeFn = createServerFn({ method: "GET" })
+  .validator((d) => z.object({ code: z.string().min(1) }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
+      .from("property_events")
+      .select("*")
+      .eq("code", data.code)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Event not found");
+    return row as unknown as import("./seasonal.server").PropertyEventRow;
+  });

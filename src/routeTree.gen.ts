@@ -27,6 +27,8 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as BookingReviewRouteImport } from './routes/booking.review'
 import { Route as BookingStatusRouteImport } from './routes/booking.status'
+import { Route as EventsIndexRouteImport } from './routes/events.index'
+import { Route as EventsCodeRouteImport } from './routes/events.$code'
 import { Route as ReservationIdRouteImport } from './routes/reservation.$id'
 import { Route as StayIndexRouteImport } from './routes/stay.index'
 import { Route as StayUnitIdRouteImport } from './routes/stay.$unitId'
@@ -139,6 +141,16 @@ const BookingStatusRoute = BookingStatusRouteImport.update({
   id: '/booking/status',
   path: '/booking/status',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EventsRoute,
+} as any)
+const EventsCodeRoute = EventsCodeRouteImport.update({
+  id: '/$code',
+  path: '/$code',
+  getParentRoute: () => EventsRoute,
 } as any)
 const ReservationIdRoute = ReservationIdRouteImport.update({
   id: '/reservation/$id',
@@ -275,7 +287,7 @@ export interface FileRoutesByFullPath {
   '/amenities': typeof AmenitiesRoute
   '/christmas': typeof ChristmasRoute
   '/contact-us': typeof ContactUsRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -287,8 +299,10 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
+  '/events/$code': typeof EventsCodeRoute
   '/reservation/$id': typeof ReservationIdRoute
   '/stay/$unitId': typeof StayUnitIdRoute
+  '/events/': typeof EventsIndexRoute
   '/stay/': typeof StayIndexRoute
   '/admin/access-control': typeof AuthenticatedAdminAccessControlRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
@@ -317,7 +331,6 @@ export interface FileRoutesByTo {
   '/amenities': typeof AmenitiesRoute
   '/christmas': typeof ChristmasRoute
   '/contact-us': typeof ContactUsRoute
-  '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -327,8 +340,10 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
+  '/events/$code': typeof EventsCodeRoute
   '/reservation/$id': typeof ReservationIdRoute
   '/stay/$unitId': typeof StayUnitIdRoute
+  '/events': typeof EventsIndexRoute
   '/stay': typeof StayIndexRoute
   '/admin/access-control': typeof AuthenticatedAdminAccessControlRoute
   '/admin/calendar': typeof AuthenticatedAdminCalendarRoute
@@ -359,7 +374,7 @@ export interface FileRoutesById {
   '/amenities': typeof AmenitiesRoute
   '/christmas': typeof ChristmasRoute
   '/contact-us': typeof ContactUsRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
   '/gallery': typeof GalleryRoute
   '/massage-wellness': typeof MassageWellnessRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -371,8 +386,10 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
+  '/events/$code': typeof EventsCodeRoute
   '/reservation/$id': typeof ReservationIdRoute
   '/stay/$unitId': typeof StayUnitIdRoute
+  '/events/': typeof EventsIndexRoute
   '/stay/': typeof StayIndexRoute
   '/_authenticated/admin/access-control': typeof AuthenticatedAdminAccessControlRoute
   '/_authenticated/admin/calendar': typeof AuthenticatedAdminCalendarRoute
@@ -415,8 +432,10 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/booking/review'
     | '/booking/status'
+    | '/events/$code'
     | '/reservation/$id'
     | '/stay/$unitId'
+    | '/events/'
     | '/stay/'
     | '/admin/access-control'
     | '/admin/calendar'
@@ -445,7 +464,6 @@ export interface FileRouteTypes {
     | '/amenities'
     | '/christmas'
     | '/contact-us'
-    | '/events'
     | '/gallery'
     | '/massage-wellness'
     | '/privacy-policy'
@@ -455,8 +473,10 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/booking/review'
     | '/booking/status'
+    | '/events/$code'
     | '/reservation/$id'
     | '/stay/$unitId'
+    | '/events'
     | '/stay'
     | '/admin/access-control'
     | '/admin/calendar'
@@ -498,8 +518,10 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/booking/review'
     | '/booking/status'
+    | '/events/$code'
     | '/reservation/$id'
     | '/stay/$unitId'
+    | '/events/'
     | '/stay/'
     | '/_authenticated/admin/access-control'
     | '/_authenticated/admin/calendar'
@@ -530,7 +552,7 @@ export interface RootRouteChildren {
   AmenitiesRoute: typeof AmenitiesRoute
   ChristmasRoute: typeof ChristmasRoute
   ContactUsRoute: typeof ContactUsRoute
-  EventsRoute: typeof EventsRoute
+  EventsRoute: typeof EventsRouteWithChildren
   GalleryRoute: typeof GalleryRoute
   MassageWellnessRoute: typeof MassageWellnessRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
@@ -674,6 +696,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/booking/status'
       preLoaderRoute: typeof BookingStatusRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/events/': {
+      id: '/events/'
+      path: '/'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof EventsRoute
+    }
+    '/events/$code': {
+      id: '/events/$code'
+      path: '/$code'
+      fullPath: '/events/$code'
+      preLoaderRoute: typeof EventsCodeRouteImport
+      parentRoute: typeof EventsRoute
     }
     '/reservation/$id': {
       id: '/reservation/$id'
@@ -894,6 +930,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface EventsRouteChildren {
+  EventsCodeRoute: typeof EventsCodeRoute
+  EventsIndexRoute: typeof EventsIndexRoute
+}
+
+const EventsRouteChildren: EventsRouteChildren = {
+  EventsCodeRoute: EventsCodeRoute,
+  EventsIndexRoute: EventsIndexRoute,
+}
+
+const EventsRouteWithChildren =
+  EventsRoute._addFileChildren(EventsRouteChildren)
+
 interface StayRouteChildren {
   StayUnitIdRoute: typeof StayUnitIdRoute
   StayIndexRoute: typeof StayIndexRoute
@@ -913,7 +962,7 @@ const rootRouteChildren: RootRouteChildren = {
   AmenitiesRoute: AmenitiesRoute,
   ChristmasRoute: ChristmasRoute,
   ContactUsRoute: ContactUsRoute,
-  EventsRoute: EventsRoute,
+  EventsRoute: EventsRouteWithChildren,
   GalleryRoute: GalleryRoute,
   MassageWellnessRoute: MassageWellnessRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
