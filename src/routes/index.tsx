@@ -48,7 +48,7 @@ function Index() {
             Christmas 2026
           </span>
           <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight mb-4">
-            Book Your Christmas at The Bridges
+            Christmas at The Bridges — Reserve your tickets today
           </h2>
           <p className="text-white/85 text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto mb-7">
             Stay the night, celebrate together, and make Christmas memories with holiday events,
@@ -59,7 +59,7 @@ function Index() {
               to="/christmas"
               className="inline-flex items-center gap-2 bg-white hover:bg-stone-100 text-[#2a382c] font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-lg"
             >
-              Explore Christmas Events
+              See Christmas Events
             </Link>
             <a
               href="https://thebridgestn.holidayfuture.com/all-listings"

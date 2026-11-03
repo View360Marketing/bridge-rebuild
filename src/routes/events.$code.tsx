@@ -145,11 +145,9 @@ function EventDetailPage() {
             <div className="mt-7">
               <a
                 href={event.ticket_url}
-                target="_blank"
-                rel="noreferrer"
                 className="inline-flex items-center gap-2 bg-white hover:bg-stone-100 text-[#2a382c] font-semibold px-7 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors shadow-lg"
               >
-                <Ticket className="w-4 h-4" /> Get Tickets <ExternalLink className="w-3.5 h-3.5" />
+                <Ticket className="w-4 h-4" /> Get Tickets
               </a>
             </div>
           )}
@@ -266,11 +264,9 @@ function EventDetailPage() {
             {event.ticket_url && (
               <a
                 href={event.ticket_url}
-                target="_blank"
-                rel="noreferrer"
                 className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-7 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors shadow-sm"
               >
-                <Ticket className="w-4 h-4" /> Get Tickets <ExternalLink className="w-3.5 h-3.5" />
+                <Ticket className="w-4 h-4" /> Get Tickets
               </a>
             )}
             <a

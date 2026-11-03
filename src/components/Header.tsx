@@ -69,7 +69,7 @@ export function Header() {
                 className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
-              Christmas
+              Christmas Events
             </Link>
             <Link
               to="/massage-wellness"
@@ -185,7 +185,7 @@ export function Header() {
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-base font-medium text-stone-200 hover:bg-white/10"
           >
-            Christmas
+            Christmas Events
           </Link>
           <Link
             to="/massage-wellness"

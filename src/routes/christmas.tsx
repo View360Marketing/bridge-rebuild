@@ -317,8 +317,6 @@ function ChristmasPage() {
                       {e.ticket_url ? (
                         <a
                           href={e.ticket_url}
-                          target="_blank"
-                          rel="noreferrer"
                           className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
                         >
                           <Ticket className="w-4 h-4" /> Get Tickets
