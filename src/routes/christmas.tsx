@@ -87,7 +87,9 @@ function ChristmasPage() {
             <Snowflake className="w-3.5 h-3.5" /> Christmas 2026 at The Bridges
           </span>
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-white tracking-tight leading-[1.05] mb-6">
-            Book Your Christmas<br />at The Bridges
+            Book Your Christmas
+            <br />
+            at The Bridges
           </h1>
           <p className="text-white/90 text-base sm:text-lg leading-relaxed font-light max-w-2xl mx-auto mb-8">
             Stay the night, celebrate together, and make Christmas memories with holiday events,
@@ -195,13 +197,35 @@ function ChristmasPage() {
               admissions per room.
             </p>
             <ul className="space-y-2 text-sm text-stone-600">
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> For registered overnight guests only.</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Maximum four admissions per qualifying room.</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> If fewer than four guests are registered, only those guests receive admission.</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Additional guests purchase tickets separately.</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Event admission must be reserved in advance.</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Optional activities, specialty food, and additional experiences are excluded unless specifically listed as included.</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Event availability and capacity apply.</li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> For registered
+                overnight guests only.
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Maximum four
+                admissions per qualifying room.
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> If fewer than
+                four guests are registered, only those guests receive admission.
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Additional
+                guests purchase tickets separately.
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Event admission
+                must be reserved in advance.
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Optional
+                activities, specialty food, and additional experiences are excluded unless
+                specifically listed as included.
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#3e5340] mt-0.5 shrink-0" /> Event
+                availability and capacity apply.
+              </li>
             </ul>
             <Link
               to="/contact-us"
@@ -211,15 +235,18 @@ function ChristmasPage() {
             </Link>
             <p className="text-xs text-stone-400 mt-3">
               Admission requests are reviewed by staff to verify your qualifying stay and remaining
-              event capacity. You will see “Admission request received,” not “Tickets issued,”
-              until verified.
+              event capacity. You will see “Admission request received,” not “Tickets issued,” until
+              verified.
             </p>
           </div>
         </div>
       </section>
 
       {/* Christmas Events */}
-      <section id="christmas-events" className="py-16 lg:py-20 bg-[#faf8f5] border-b border-stone-200">
+      <section
+        id="christmas-events"
+        className="py-16 lg:py-20 bg-[#faf8f5] border-b border-stone-200"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center">
             <span className="text-xs font-bold uppercase tracking-widest text-[#3e5340] block mb-2">
@@ -238,27 +265,40 @@ function ChristmasPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {confirmedEvents.map((e) => {
                 const calEv = {
+                  code: e.id,
                   title: e.title,
-                  startDate: e.event_date,
-                  endDate: e.end_date ?? e.event_date,
-                  startTime: e.start_time ?? undefined,
-                  endTime: e.end_time ?? undefined,
-                  location: e.location ?? "The Bridges, Waynesboro, TN",
+                  description: e.description ?? null,
+                  eventDate: e.event_date,
+                  endDate: e.end_date ?? null,
+                  startTime: e.start_time ?? null,
+                  endTime: e.end_time ?? null,
+                  location: e.location ?? null,
                 };
                 return (
-                  <div key={e.id} className="bg-white rounded-3xl border border-stone-200 p-6 shadow-xs flex flex-col">
+                  <div
+                    key={e.id}
+                    className="bg-white rounded-3xl border border-stone-200 p-6 shadow-xs flex flex-col"
+                  >
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-12 rounded-2xl bg-[#657B6A]/15 text-[#2a382c] flex flex-col items-center justify-center shrink-0">
-                        <span className="text-[10px] font-bold uppercase leading-none">{fmtDateShort(e.event_date).split(" ")[0]}</span>
-                        <span className="text-lg font-bold leading-none">{fmtDateShort(e.event_date).split(" ")[1]}</span>
+                        <span className="text-[10px] font-bold uppercase leading-none">
+                          {fmtDateShort(e.event_date).split(" ")[0]}
+                        </span>
+                        <span className="text-lg font-bold leading-none">
+                          {fmtDateShort(e.event_date).split(" ")[1]}
+                        </span>
                       </div>
                       <div>
-                        <h3 className="font-serif text-lg font-bold text-stone-900 leading-tight">{e.title}</h3>
+                        <h3 className="font-serif text-lg font-bold text-stone-900 leading-tight">
+                          {e.title}
+                        </h3>
                         <p className="text-xs text-stone-500">{fmtDate(e.event_date)}</p>
                       </div>
                     </div>
                     {e.description && (
-                      <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">{e.description}</p>
+                      <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">
+                        {e.description}
+                      </p>
                     )}
                     {(e.start_time || e.end_time) && (
                       <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
@@ -294,9 +334,21 @@ function ChristmasPage() {
                       <span className="text-xs text-stone-500 flex items-center gap-1.5">
                         <CalendarPlus className="w-3.5 h-3.5" /> Add to:
                       </span>
-                      <a href={generateGoogleCalendarUrl(calEv)} target="_blank" rel="noreferrer" className="text-xs font-medium text-[#2a382c] hover:underline">Google</a>
+                      <a
+                        href={generateGoogleCalendarUrl(calEv)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-medium text-[#2a382c] hover:underline"
+                      >
+                        Google
+                      </a>
                       <span className="text-stone-300">·</span>
-                      <button onClick={() => downloadIcs(calEv)} className="text-xs font-medium text-[#2a382c] hover:underline">Apple / Outlook</button>
+                      <button
+                        onClick={() => downloadIcs(calEv)}
+                        className="text-xs font-medium text-[#2a382c] hover:underline"
+                      >
+                        Apple / Outlook
+                      </button>
                     </div>
                   </div>
                 );
@@ -367,7 +419,10 @@ function ChristmasPage() {
                 with The Bridges catering: $500 for 5 hours, plus catering costs. Tables and chairs
                 included. These rates exclude weddings.
               </p>
-              <Link to="/contact-us" className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#2a382c] hover:underline pt-2">
+              <Link
+                to="/contact-us"
+                className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#2a382c] hover:underline pt-2"
+              >
                 Request a Holiday Party Date <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -375,12 +430,17 @@ function ChristmasPage() {
               <div className="w-12 h-12 rounded-2xl bg-[#2a382c]/10 text-[#2a382c] flex items-center justify-center">
                 <Users className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl font-bold text-stone-900">Private Restaurant Rental</h3>
+              <h3 className="font-serif text-xl font-bold text-stone-900">
+                Private Restaurant Rental
+              </h3>
               <p className="text-xs text-stone-600 leading-relaxed">
                 $250 for 5 hours. Up to 75 guests. Guests may bring their own food or arrange The
                 Bridges catering.
               </p>
-              <Link to="/contact-us" className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#2a382c] hover:underline pt-2">
+              <Link
+                to="/contact-us"
+                className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#2a382c] hover:underline pt-2"
+              >
                 Request a Holiday Party Date <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
