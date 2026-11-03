@@ -318,58 +318,61 @@ function ChristmasPage() {
                         </div>
                       </div>
                     )}
-                    {e.description && (
-                      <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">
-                        {e.description}
-                      </p>
-                    )}
-                    {(e.start_time || e.end_time) && (
-                      <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-2">
-                        <Clock className="w-3.5 h-3.5" />
-                        {e.start_time}
-                        {e.start_time && e.end_time ? "–" : ""}
-                        {e.end_time}
-                      </div>
-                    )}
-                    {e.location && (
-                      <div className="flex items-center gap-1.5 text-xs text-stone-500 mt-1">
-                        <Compass className="w-3.5 h-3.5" /> {e.location}
-                      </div>
-                    )}
-                    <div className="mt-3 pt-3 border-t border-stone-200 flex flex-wrap items-center gap-3">
-                      {e.ticket_url ? (
-                        <a
-                          href={e.ticket_url}
-                          className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
-                        >
-                          <Ticket className="w-4 h-4" /> Get Tickets
-                        </a>
-                      ) : (
-                        <Link
-                          to="/contact-us"
-                          className="inline-flex items-center gap-2 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
-                        >
-                          <Phone className="w-4 h-4" /> Inquire / Reserve
-                        </Link>
+                    <div className="p-5 flex-1 flex flex-col gap-3">
+                      {e.description && (
+                        <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">
+                          {e.description}
+                        </p>
                       )}
-                      <span className="text-xs text-stone-500 flex items-center gap-1.5">
-                        <CalendarPlus className="w-3.5 h-3.5" /> Add to:
-                      </span>
-                      <a
-                        href={generateGoogleCalendarUrl(calEv)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs font-medium text-[#2a382c] hover:underline"
-                      >
-                        Google
-                      </a>
-                      <span className="text-stone-300">·</span>
-                      <button
-                        onClick={() => downloadIcs(calEv)}
-                        className="text-xs font-medium text-[#2a382c] hover:underline"
-                      >
-                        Apple / Outlook
-                      </button>
+                      {(e.start_time || e.end_time) && (
+                        <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                          <Clock className="w-3.5 h-3.5" />
+                          {e.start_time}
+                          {e.start_time && e.end_time ? "–" : ""}
+                          {e.end_time}
+                          <span className="text-stone-400">Central Time</span>
+                        </div>
+                      )}
+                      {e.location && (
+                        <div className="flex items-center gap-1.5 text-xs text-stone-500">
+                          <Compass className="w-3.5 h-3.5" /> {e.location}
+                        </div>
+                      )}
+                      <div className="mt-1 pt-3 border-t border-stone-200 flex flex-wrap items-center gap-3">
+                        {e.ticket_url ? (
+                          <a
+                            href={e.ticket_url}
+                            className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
+                          >
+                            <Ticket className="w-4 h-4" /> Get Tickets
+                          </a>
+                        ) : (
+                          <Link
+                            to="/contact-us"
+                            className="inline-flex items-center gap-2 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
+                          >
+                            <Phone className="w-4 h-4" /> Inquire / Reserve
+                          </Link>
+                        )}
+                        <span className="text-xs text-stone-500 flex items-center gap-1.5">
+                          <CalendarPlus className="w-3.5 h-3.5" /> Add to:
+                        </span>
+                        <a
+                          href={generateGoogleCalendarUrl(calEv)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-medium text-[#2a382c] hover:underline"
+                        >
+                          Google
+                        </a>
+                        <span className="text-stone-300">·</span>
+                        <button
+                          onClick={() => downloadIcs(calEv)}
+                          className="text-xs font-medium text-[#2a382c] hover:underline"
+                        >
+                          Apple / Outlook
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
