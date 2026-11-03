@@ -277,24 +277,47 @@ function ChristmasPage() {
                 return (
                   <div
                     key={e.id}
-                    className="bg-white rounded-3xl border border-stone-200 p-6 shadow-xs flex flex-col"
+                    className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-xs flex flex-col"
                   >
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 rounded-2xl bg-[#657B6A]/15 text-[#2a382c] flex flex-col items-center justify-center shrink-0">
-                        <span className="text-[10px] font-bold uppercase leading-none">
-                          {fmtDateShort(e.event_date).split(" ")[0]}
-                        </span>
-                        <span className="text-lg font-bold leading-none">
-                          {fmtDateShort(e.event_date).split(" ")[1]}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="font-serif text-lg font-bold text-stone-900 leading-tight">
+                    {e.image_url ? (
+                      <div className="relative h-44 sm:h-52 overflow-hidden">
+                        <img
+                          src={e.image_url}
+                          alt={e.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a231c]/85 via-[#1a231c]/30 to-transparent" />
+                        <div className="absolute top-3 left-3">
+                          <div className="bg-white/95 backdrop-blur-sm rounded-xl px-2.5 py-1 text-center shadow-md">
+                            <span className="text-[10px] font-bold uppercase leading-none text-[#2a382c] block">
+                              {fmtDateShort(e.event_date).split(" ")[0]}
+                            </span>
+                            <span className="text-base font-bold leading-none text-[#2a382c] block">
+                              {fmtDateShort(e.event_date).split(" ")[1]}
+                            </span>
+                          </div>
+                        </div>
+                        <h3 className="absolute bottom-3 left-4 right-4 font-serif text-lg font-bold text-white leading-tight drop-shadow">
                           {e.title}
                         </h3>
-                        <p className="text-xs text-stone-500">{fmtDate(e.event_date)}</p>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-3 p-5 bg-[#2a382c] text-white">
+                        <div className="w-12 h-12 rounded-2xl bg-white/15 flex flex-col items-center justify-center shrink-0">
+                          <span className="text-[10px] font-bold uppercase leading-none">
+                            {fmtDateShort(e.event_date).split(" ")[0]}
+                          </span>
+                          <span className="text-lg font-bold leading-none">
+                            {fmtDateShort(e.event_date).split(" ")[1]}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-serif text-lg font-bold leading-tight">{e.title}</h3>
+                          <p className="text-xs text-white/70">{fmtDate(e.event_date)}</p>
+                        </div>
+                      </div>
+                    )}
                     {e.description && (
                       <p className="text-sm text-stone-600 leading-relaxed whitespace-pre-line">
                         {e.description}
