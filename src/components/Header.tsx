@@ -24,10 +24,10 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation Links - rounded bubbly pill pill-bar */}
-          <nav className="hidden xl:flex items-center space-x-1 lg:space-x-1.5 px-4 py-2 rounded-full bg-[#657B6A]/90 hover:bg-[#657B6A] backdrop-blur-md text-white text-sm font-medium shadow-lg border border-white/20 transition-colors">
+          <nav className="hidden lg:flex items-center space-x-1 lg:space-x-1 px-3.5 py-1.5 rounded-full bg-[#657B6A] text-white text-[13px] font-medium shadow-lg border border-white/20 transition-colors">
             <Link
               to="/"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
                 className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
@@ -37,71 +37,72 @@ export function Header() {
             </Link>
             <Link
               to="/amenities"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               Amenities
             </Link>
             <Link
               to="/weddings-events"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               The Willows
             </Link>
             <Link
               to="/events"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               Events
             </Link>
             <Link
               to="/christmas"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               Christmas Events
             </Link>
             <Link
               to="/massage-wellness"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               Massage &amp; Wellness
             </Link>
             <Link
               to="/about-us"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               About Us
             </Link>
             <Link
               to="/gallery"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               Gallery
             </Link>
             <Link
               to="/contact-us"
-              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              className="px-2.5 py-1.5 rounded-full hover:bg-black/15 transition-colors whitespace-nowrap"
               activeProps={{
-                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+                className: "px-2.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
               }}
             >
               Contact Us
@@ -130,7 +131,7 @@ export function Header() {
           </div>
 
           {/* Mobile hamburger */}
-          <div className="flex xl:hidden items-center space-x-2">
+          <div className="flex lg:hidden items-center space-x-2">
             <a
               href="tel:+19317225589"
               className="p-2.5 rounded-full bg-[#657B6A] text-white sm:hidden border border-white/25 shadow-md"
@@ -151,7 +152,7 @@ export function Header() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="xl:hidden mx-3 sm:mx-6 rounded-2xl bg-[#657B6A]/98 border border-white/25 px-4 pt-3 pb-6 space-y-2 backdrop-blur-xl shadow-2xl text-white">
+        <div className="lg:hidden mx-3 sm:mx-6 rounded-2xl bg-[#657B6A]/98 border border-white/25 px-4 pt-3 pb-6 space-y-2 backdrop-blur-xl shadow-2xl text-white">
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}
