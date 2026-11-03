@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as AmenitiesRouteImport } from './routes/amenities'
+import { Route as ChristmasRouteImport } from './routes/christmas'
 import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GalleryRouteImport } from './routes/gallery'
@@ -67,6 +68,11 @@ const AboutUsRoute = AboutUsRouteImport.update({
 const AmenitiesRoute = AmenitiesRouteImport.update({
   id: '/amenities',
   path: '/amenities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChristmasRoute = ChristmasRouteImport.update({
+  id: '/christmas',
+  path: '/christmas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactUsRoute = ContactUsRouteImport.update({
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about-us': typeof AboutUsRoute
   '/amenities': typeof AmenitiesRoute
+  '/christmas': typeof ChristmasRoute
   '/contact-us': typeof ContactUsRoute
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about-us': typeof AboutUsRoute
   '/amenities': typeof AmenitiesRoute
+  '/christmas': typeof ChristmasRoute
   '/contact-us': typeof ContactUsRoute
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
@@ -349,6 +357,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about-us': typeof AboutUsRoute
   '/amenities': typeof AmenitiesRoute
+  '/christmas': typeof ChristmasRoute
   '/contact-us': typeof ContactUsRoute
   '/events': typeof EventsRoute
   '/gallery': typeof GalleryRoute
@@ -392,6 +401,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about-us'
     | '/amenities'
+    | '/christmas'
     | '/contact-us'
     | '/events'
     | '/gallery'
@@ -433,6 +443,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about-us'
     | '/amenities'
+    | '/christmas'
     | '/contact-us'
     | '/events'
     | '/gallery'
@@ -473,6 +484,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about-us'
     | '/amenities'
+    | '/christmas'
     | '/contact-us'
     | '/events'
     | '/gallery'
@@ -516,6 +528,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutUsRoute: typeof AboutUsRoute
   AmenitiesRoute: typeof AmenitiesRoute
+  ChristmasRoute: typeof ChristmasRoute
   ContactUsRoute: typeof ContactUsRoute
   EventsRoute: typeof EventsRoute
   GalleryRoute: typeof GalleryRoute
@@ -562,6 +575,13 @@ declare module '@tanstack/react-router' {
       path: '/amenities'
       fullPath: '/amenities'
       preLoaderRoute: typeof AmenitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/christmas': {
+      id: '/christmas'
+      path: '/christmas'
+      fullPath: '/christmas'
+      preLoaderRoute: typeof ChristmasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact-us': {
@@ -891,6 +911,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutUsRoute: AboutUsRoute,
   AmenitiesRoute: AmenitiesRoute,
+  ChristmasRoute: ChristmasRoute,
   ContactUsRoute: ContactUsRoute,
   EventsRoute: EventsRoute,
   GalleryRoute: GalleryRoute,

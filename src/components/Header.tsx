@@ -63,6 +63,15 @@ export function Header() {
               Events
             </Link>
             <Link
+              to="/christmas"
+              className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
+              activeProps={{
+                className: "px-3.5 py-1.5 rounded-full text-white bg-black/25 font-semibold",
+              }}
+            >
+              Christmas
+            </Link>
+            <Link
               to="/massage-wellness"
               className="px-3.5 py-1.5 rounded-full hover:bg-black/15 transition-colors"
               activeProps={{
@@ -170,6 +179,13 @@ export function Header() {
             className="block px-3 py-2 rounded-md text-base font-medium text-stone-200 hover:bg-white/10"
           >
             Events
+          </Link>
+          <Link
+            to="/christmas"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-md text-base font-medium text-stone-200 hover:bg-white/10"
+          >
+            Christmas
           </Link>
           <Link
             to="/massage-wellness"
