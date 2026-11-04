@@ -25,6 +25,7 @@ import { Route as TheAlpineRouteImport } from './routes/the-alpine'
 import { Route as WeddingsEventsRouteImport } from './routes/weddings-events'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as ApiImportHostawayPhotosRouteImport } from './routes/api/import-hostaway-photos'
 import { Route as BookingReviewRouteImport } from './routes/booking.review'
 import { Route as BookingStatusRouteImport } from './routes/booking.status'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
@@ -130,6 +131,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiImportHostawayPhotosRoute = ApiImportHostawayPhotosRouteImport.update({
+  id: '/api/import-hostaway-photos',
+  path: '/api/import-hostaway-photos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingReviewRoute = BookingReviewRouteImport.update({
@@ -297,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/api/import-hostaway-photos': typeof ApiImportHostawayPhotosRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
   '/events/$code': typeof EventsCodeRoute
@@ -338,6 +345,7 @@ export interface FileRoutesByTo {
   '/the-alpine': typeof TheAlpineRoute
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin/login': typeof AdminLoginRoute
+  '/api/import-hostaway-photos': typeof ApiImportHostawayPhotosRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
   '/events/$code': typeof EventsCodeRoute
@@ -384,6 +392,7 @@ export interface FileRoutesById {
   '/weddings-events': typeof WeddingsEventsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/api/import-hostaway-photos': typeof ApiImportHostawayPhotosRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
   '/events/$code': typeof EventsCodeRoute
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/weddings-events'
     | '/admin'
     | '/admin/login'
+    | '/api/import-hostaway-photos'
     | '/booking/review'
     | '/booking/status'
     | '/events/$code'
@@ -471,6 +481,7 @@ export interface FileRouteTypes {
     | '/the-alpine'
     | '/weddings-events'
     | '/admin/login'
+    | '/api/import-hostaway-photos'
     | '/booking/review'
     | '/booking/status'
     | '/events/$code'
@@ -516,6 +527,7 @@ export interface FileRouteTypes {
     | '/weddings-events'
     | '/_authenticated/admin'
     | '/admin/login'
+    | '/api/import-hostaway-photos'
     | '/booking/review'
     | '/booking/status'
     | '/events/$code'
@@ -561,6 +573,7 @@ export interface RootRouteChildren {
   TheAlpineRoute: typeof TheAlpineRoute
   WeddingsEventsRoute: typeof WeddingsEventsRoute
   AdminLoginRoute: typeof AdminLoginRoute
+  ApiImportHostawayPhotosRoute: typeof ApiImportHostawayPhotosRoute
   BookingReviewRoute: typeof BookingReviewRoute
   BookingStatusRoute: typeof BookingStatusRoute
   ReservationIdRoute: typeof ReservationIdRoute
@@ -681,6 +694,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/import-hostaway-photos': {
+      id: '/api/import-hostaway-photos'
+      path: '/api/import-hostaway-photos'
+      fullPath: '/api/import-hostaway-photos'
+      preLoaderRoute: typeof ApiImportHostawayPhotosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/booking/review': {
@@ -971,6 +991,7 @@ const rootRouteChildren: RootRouteChildren = {
   TheAlpineRoute: TheAlpineRoute,
   WeddingsEventsRoute: WeddingsEventsRoute,
   AdminLoginRoute: AdminLoginRoute,
+  ApiImportHostawayPhotosRoute: ApiImportHostawayPhotosRoute,
   BookingReviewRoute: BookingReviewRoute,
   BookingStatusRoute: BookingStatusRoute,
   ReservationIdRoute: ReservationIdRoute,
