@@ -79,6 +79,41 @@ export async function upsertRatePlan(
   return data;
 }
 
+export async function updateRatePlan(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string,
+  input: Partial<RatePlanInput>,
+) {
+  await requireManager(supabase, userId);
+  const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (input["code"] !== undefined) patch["code"] = input["code"];
+  if (input["name"] !== undefined) patch["name"] = input["name"];
+  if (input["room_type_id"] !== undefined) patch["room_type_id"] = input["room_type_id"] ?? null;
+  if (input["unit_id"] !== undefined) patch["unit_id"] = input["unit_id"] ?? null;
+  if (input["base_nightly_cents"] !== undefined)
+    patch["base_nightly_cents"] = input["base_nightly_cents"];
+  if (input["weekend_nightly_cents"] !== undefined)
+    patch["weekend_nightly_cents"] = input["weekend_nightly_cents"] ?? null;
+  if (input["additional_adult_cents"] !== undefined)
+    patch["additional_adult_cents"] = input["additional_adult_cents"];
+  if (input["additional_child_cents"] !== undefined)
+    patch["additional_child_cents"] = input["additional_child_cents"];
+  if (input["weekend_days"] !== undefined) patch["weekend_days"] = input["weekend_days"];
+  if (input["is_active"] !== undefined) patch["is_active"] = input["is_active"];
+  if (input["effective_from"] !== undefined)
+    patch["effective_from"] = input["effective_from"] ?? null;
+  if (input["effective_to"] !== undefined) patch["effective_to"] = input["effective_to"] ?? null;
+  const { data, error } = await supabase
+    .from("rate_plans")
+    .update(patch)
+    .eq("id", id)
+    .select("*")
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
 export async function listDateOverrides(supabase: SupabaseClient) {
   const { data, error } = await supabase.from("date_rate_overrides").select("*").order("stay_date");
   if (error) throw new Error(error.message);

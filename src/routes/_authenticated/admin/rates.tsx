@@ -4,8 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  listRatePlansFn,
-  upsertRatePlanFn,
   listDateOverridesFn,
   addDateOverrideFn,
   listRestrictionsFn,
@@ -15,9 +13,10 @@ import {
   listPromotionsFn,
   listPoliciesFn,
 } from "@/lib/booking/operations.functions";
-import { listUnitsFn, listRoomTypesFn } from "@/lib/booking/rooms.functions";
-import { todayPropertyLocal, addDays } from "@/lib/booking/dates";
+import { listUnitsFn } from "@/lib/booking/rooms.functions";
+import { todayPropertyLocal } from "@/lib/booking/dates";
 import { Plus, X, DollarSign, CalendarDays, Ban, Percent, FileText } from "lucide-react";
+import { RatePlansTab } from "@/components/admin/RatePlansTab";
 
 export const Route = createFileRoute("/_authenticated/admin/rates")({
   head: () => ({
@@ -145,165 +144,6 @@ function TabButton({
     >
       {icon} {label}
     </button>
-  );
-}
-
-function RatePlansTab() {
-  const qc = useQueryClient();
-  const list = useServerFn(listRatePlansFn);
-  const upsert = useServerFn(upsertRatePlanFn);
-  const listRoomTypes = useServerFn(listRoomTypesFn);
-  const listUnits = useServerFn(listUnitsFn);
-  const { data, isLoading, error } = useQuery({ queryKey: ["admin-rate-plans"], queryFn: list });
-  useQuery({ queryKey: ["admin-room-types"], queryFn: listRoomTypes });
-  useQuery({ queryKey: ["admin-units"], queryFn: listUnits });
-  const [showForm, setShowForm] = useState(false);
-
-  async function refresh() {
-    await qc.invalidateQueries({ queryKey: ["admin-rate-plans"] });
-  }
-
-  if (isLoading) return <p className="text-sm text-stone-500">Loading rate plans…</p>;
-  if (error) return <ErrorBox message={(error as Error).message} />;
-
-  return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-stone-600">{data?.length ?? 0} rate plan(s)</p>
-        <button
-          onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-sm"
-        >
-          <Plus className="w-4 h-4" /> Add Rate Plan
-        </button>
-      </div>
-
-      {data && data.length > 0 ? (
-        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-stone-50 text-stone-600 text-xs uppercase tracking-wider">
-              <tr>
-                <th className="text-left px-4 py-3">Code</th>
-                <th className="text-left px-4 py-3">Name</th>
-                <th className="text-left px-4 py-3">Base / night</th>
-                <th className="text-left px-4 py-3">Weekend</th>
-                <th className="text-left px-4 py-3">Active</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {data.map((r) => (
-                <tr key={r.id} className="hover:bg-stone-50">
-                  <td className="px-4 py-3 font-mono text-xs">{r.code}</td>
-                  <td className="px-4 py-3">{r.name}</td>
-                  <td className="px-4 py-3">${((r.base_nightly_cents ?? 0) / 100).toFixed(2)}</td>
-                  <td className="px-4 py-3">
-                    {r.weekend_nightly_cents
-                      ? `$${(r.weekend_nightly_cents / 100).toFixed(2)}`
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    {r.is_active ? (
-                      <span className="text-xs text-emerald-600">Active</span>
-                    ) : (
-                      <span className="text-xs text-stone-400">Inactive</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <EmptyState
-          title="No rate plans configured"
-          body="Rate plans define nightly pricing. Create one before publishing rooms for booking."
-          actionLabel="Add Rate Plan"
-          onAction={() => setShowForm(true)}
-        />
-      )}
-
-      {showForm && (
-        <RatePlanForm
-          onClose={() => setShowForm(false)}
-          onSubmit={async (input) => {
-            try {
-              await upsert({ data: input });
-              toast.success("Rate plan created");
-              await refresh();
-              setShowForm(false);
-            } catch (e) {
-              toast.error((e as Error).message);
-            }
-          }}
-        />
-      )}
-    </>
-  );
-}
-
-function RatePlanForm({
-  onClose,
-  onSubmit,
-}: {
-  onClose: () => void;
-  onSubmit: (input: Record<string, unknown>) => void;
-}) {
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
-  const [base, setBase] = useState("15000");
-  const [weekend, setWeekend] = useState("20000");
-  return (
-    <Modal title="Add Rate Plan" onClose={onClose}>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit({
-            code,
-            name,
-            base_nightly_cents: Number(base),
-            weekend_nightly_cents: Number(weekend),
-            is_active: true,
-          });
-        }}
-        className="space-y-3"
-      >
-        <Field label="Code *">
-          <input
-            required
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className={inputCls}
-          />
-        </Field>
-        <Field label="Name *">
-          <input
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={inputCls}
-          />
-        </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Base nightly (cents)">
-            <input
-              type="number"
-              value={base}
-              onChange={(e) => setBase(e.target.value)}
-              className={inputCls}
-            />
-          </Field>
-          <Field label="Weekend nightly (cents)">
-            <input
-              type="number"
-              value={weekend}
-              onChange={(e) => setWeekend(e.target.value)}
-              className={inputCls}
-            />
-          </Field>
-        </div>
-        <FormActions onClose={onClose} label="Create Rate Plan" />
-      </form>
-    </Modal>
   );
 }
 

@@ -18,6 +18,7 @@ import {
 import {
   listRatePlans,
   upsertRatePlan,
+  updateRatePlan,
   listDateOverrides,
   addDateOverride,
   listRestrictions,
@@ -142,6 +143,33 @@ export const upsertRatePlanFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) =>
     upsertRatePlan(context.supabase, context.userId, data as RatePlanInput),
+  );
+
+export const updateRatePlanFn = createServerFn({ method: "POST" })
+  .validator((d) =>
+    z
+      .object({
+        id: z.string(),
+        patch: z.object({
+          code: z.string().optional(),
+          name: z.string().optional(),
+          room_type_id: z.string().nullable().optional(),
+          unit_id: z.string().nullable().optional(),
+          base_nightly_cents: z.number().int().min(0).optional(),
+          weekend_nightly_cents: z.number().int().min(0).nullable().optional(),
+          additional_adult_cents: z.number().int().min(0).optional(),
+          additional_child_cents: z.number().int().min(0).optional(),
+          weekend_days: z.array(z.number()).optional(),
+          is_active: z.boolean().optional(),
+          effective_from: z.string().nullable().optional(),
+          effective_to: z.string().nullable().optional(),
+        }),
+      })
+      .parse(d),
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) =>
+    updateRatePlan(context.supabase, context.userId, data.id, data.patch as Partial<RatePlanInput>),
   );
 
 export const listDateOverridesFn = createServerFn({ method: "GET" })
