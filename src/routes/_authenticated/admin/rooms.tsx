@@ -73,6 +73,7 @@ function RoomsPage() {
     "hostaway" | "all" | "published" | "draft" | "archived" | "unmatched"
   >("hostaway");
   const [kind, setKind] = useState("all");
+  const [sort, setSort] = useState<"room_asc" | "room_desc" | "name_asc" | "name_desc">("room_asc");
 
   async function refresh() {
     await qc.invalidateQueries({ queryKey: ["admin-units"] });
@@ -145,6 +146,21 @@ function RoomsPage() {
     if (filter === "archived") return u.is_archived;
     return !u.is_archived;
   });
+  const sorted = [...filtered].sort((a, b) => {
+    const an = roomNumber(a);
+    const bn = roomNumber(b);
+    if (an != null && bn != null) {
+      if (sort === "room_asc") return an - bn;
+      if (sort === "room_desc") return bn - an;
+    }
+    if (an != null && bn == null) return sort === "room_desc" ? 1 : -1;
+    if (an == null && bn != null) return sort === "room_desc" ? -1 : 1;
+    const aname = (a.public_name ?? a.unit_code).toLowerCase();
+    const bname = (b.public_name ?? b.unit_code).toLowerCase();
+    if (sort === "name_asc") return aname.localeCompare(bname);
+    if (sort === "name_desc") return bname.localeCompare(aname);
+    return aname.localeCompare(bname);
+  });
   const counts = {
     hostaway: all.filter((u) => u.hostaway_listing_id && !u.is_archived).length,
     unmatched: all.filter((u) => !u.hostaway_listing_id && !u.is_archived).length,
@@ -196,7 +212,7 @@ function RoomsPage() {
         ))}
       </div>
 
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <label htmlFor="unit-kind" className="text-sm text-stone-600">
           Accommodation type
         </label>
@@ -211,6 +227,22 @@ function RoomsPage() {
           <option value="cabin">Cabins</option>
           <option value="rv_site">RV packages / sites</option>
           <option value="suite">Suites</option>
+        </select>
+        <label htmlFor="unit-sort" className="text-sm text-stone-600 ml-2">
+          Sort by
+        </label>
+        <select
+          id="unit-sort"
+          value={sort}
+          onChange={(e) =>
+            setSort(e.target.value as "room_asc" | "room_desc" | "name_asc" | "name_desc")
+          }
+          className="border border-stone-300 rounded-lg p-2 text-sm bg-white"
+        >
+          <option value="room_asc">Room number: Low to high</option>
+          <option value="room_desc">Room number: High to low</option>
+          <option value="name_asc">Name: A–Z</option>
+          <option value="name_desc">Name: Z–A</option>
         </select>
       </div>
 
@@ -230,7 +262,7 @@ function RoomsPage() {
         </div>
       )}
 
-      {units.data && filtered.length === 0 && (
+      {units.data && sorted.length === 0 && (
         <div className="bg-white rounded-2xl border border-stone-200 p-10 text-center">
           <p className="font-medium text-stone-800">
             {filter === "all" ? "No units yet" : `No ${filter} units`}
@@ -241,9 +273,9 @@ function RoomsPage() {
         </div>
       )}
 
-      {filtered.length > 0 && (
+      {sorted.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filtered.map((u) => (
+          {sorted.map((u) => (
             <UnitCard
               key={u.id}
               unit={u}
@@ -303,6 +335,13 @@ function RoomsPage() {
       )}
     </>
   );
+}
+
+/** Extract the verified physical room number from public_name (e.g. "… — Room 11" → 11).
+ * Returns null for cabins, RV packages, and accommodations without a verified number. */
+function roomNumber(unit: UnitRow): number | null {
+  const m = /Room\s+(\d+)/i.exec(unit.public_name ?? "");
+  return m ? Number(m[1]) : null;
 }
 
 function roomLabel(unit: UnitRow): string {
