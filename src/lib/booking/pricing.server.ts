@@ -318,10 +318,18 @@ export async function computeQuote(
       // before enabling automatic promotional checkout (promotion.is_active).
       if (nights.length >= 3) {
         const thirdNight = nights[2]!;
-        const thirdNightRoom = nightly_breakdown
-          .filter((b) => b.date === thirdNight)
-          .reduce((sum, b) => sum + b.amount_cents, 0);
-        discount = thirdNightRoom;
+        // Only discount the third night if it falls within the promotion's
+        // effective window. Nights outside the window (e.g. a stay that
+        // straddles the season boundary) are not eligible for the free night.
+        const withinPromoWindow =
+          (!promotion.effective_from || thirdNight >= promotion.effective_from) &&
+          (!promotion.effective_to || thirdNight <= promotion.effective_to);
+        if (withinPromoWindow) {
+          const thirdNightRoom = nightly_breakdown
+            .filter((b) => b.date === thirdNight)
+            .reduce((sum, b) => sum + b.amount_cents, 0);
+          discount = thirdNightRoom;
+        }
       }
     } else if (promotion.discount_percent != null) {
       discount = Math.round(((subtotal + feesTotal) * promotion.discount_percent) / 100);
