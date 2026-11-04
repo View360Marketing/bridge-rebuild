@@ -58,7 +58,7 @@ function validateSourceUrl(url: string): URL {
 async function downloadPhoto(photo: ManifestPhoto): Promise<Uint8Array> {
   const url = validateSourceUrl(photo.download_url);
   const response = await fetch(url, {
-    redirect: "error",
+    redirect: "follow",
     signal: AbortSignal.timeout(30000),
   });
   if (!response.ok) throw new Error(`Image download HTTP ${response.status}`);
@@ -81,7 +81,7 @@ export type ImportProgress = {
   listings_incomplete: number;
 };
 
-export async function runPhotoImport(): Promise<ImportProgress> {
+export async function runPhotoImport(limit?: number): Promise<ImportProgress> {
   const manifest = JSON.parse(
     await readFile(resolve(here, "../../../data/hostaway-listings.json"), "utf8"),
   ) as Manifest;
@@ -117,11 +117,30 @@ export async function runPhotoImport(): Promise<ImportProgress> {
   const uploaded = new Set<string>();
   const failed: { sha256: string; error: string }[] = [];
 
+  // Check which images already exist in storage (skip on resume)
+  const allShas = [...uniqueAssets.keys()];
+  const existingShas = new Set<string>();
+  for (let i = 0; i < allShas.length; i += 100) {
+    const chunk = allShas.slice(i, i + 100);
+    const { data: existing } = await supabaseAdmin.storage
+      .from("unit-media")
+      .list("hostaway/assets", { limit: 1000, offset: i });
+    if (existing) {
+      for (const f of existing) {
+        const sha = f.name.replace(".webp", "");
+        if (uniqueAssets.has(sha)) existingShas.add(sha);
+      }
+    }
+  }
+  for (const s of existingShas) uploaded.add(s);
+
   // Upload unique images in bounded batches of 4
-  const queue = [...uniqueAssets.values()];
+  const queue = [...uniqueAssets.values()].filter((p) => !uploaded.has(p.sha256));
+  const effectiveLimit = limit ?? queue.length;
+  const toProcess = queue.slice(0, effectiveLimit);
   const BATCH_SIZE = 4;
-  for (let i = 0; i < queue.length; i += BATCH_SIZE) {
-    const batch = queue.slice(i, i + BATCH_SIZE);
+  for (let i = 0; i < toProcess.length; i += BATCH_SIZE) {
+    const batch = toProcess.slice(i, i + BATCH_SIZE);
     await Promise.all(
       batch.map(async (photo) => {
         try {

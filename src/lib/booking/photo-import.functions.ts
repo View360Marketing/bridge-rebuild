@@ -12,7 +12,9 @@ import { runPhotoImport } from "./photo-import.server";
  */
 export const runPhotoImportFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d) => z.object({ dryRun: z.boolean().optional() }).parse(d ?? {}))
+  .validator((d) =>
+    z.object({ dryRun: z.boolean().optional(), limit: z.number().int().min(1).max(137).optional() }).parse(d ?? {}),
+  )
   .handler(async ({ context, data }) => {
     // Only admins can trigger the photo import
     const { supabase } = context;
@@ -38,5 +40,5 @@ export const runPhotoImportFn = createServerFn({ method: "POST" })
         listings_incomplete: 35,
       };
     }
-    return runPhotoImport();
+    return runPhotoImport(data?.limit);
   });

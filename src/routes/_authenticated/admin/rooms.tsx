@@ -157,10 +157,13 @@ function RoomsPage() {
     if (importState.running) return;
     setImportState({ running: true, result: importState.result, error: null });
     try {
-      const res = (await runPhotoImport({ data: {} as never })) as ImportProgress;
+      const res = (await runPhotoImport({ data: { limit: 20 } as never })) as ImportProgress;
       setImportState({ running: false, result: res, error: null });
+      const moreLeft = res.uploaded < res.unique_images;
       toast.success(
-        `Photo import complete: ${res.uploaded}/${res.unique_images} images, ${res.gallery_links_copied}/${res.total_media} gallery links`,
+        moreLeft
+          ? `Imported ${res.uploaded}/${res.unique_images} unique images so far. Click again to continue the next batch.`
+          : `Photo import complete: ${res.uploaded}/${res.unique_images} images, ${res.gallery_links_copied}/${res.total_media} gallery links`,
       );
       await refresh();
     } catch (e) {

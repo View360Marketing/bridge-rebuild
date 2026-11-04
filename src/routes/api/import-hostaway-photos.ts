@@ -5,9 +5,11 @@ import { timingSafeEqual } from "crypto";
  * One-time photo import trigger.
  *
  * POST /api/import-hostaway-photos with header `x-cron-secret: <ICAL_CRON_SECRET>`.
+ * Optional query param `?limit=N` processes at most N new unique images per call
+ * (bounded batches for platform execution limits). Omit for all remaining.
  *
- * Downloads the 137 verified Hostaway images into the project's owned
- * unit-media storage and populates unit_media + primary_image_url.
+ * Downloads verified Hostaway images into the project's owned unit-media storage
+ * and populates unit_media + primary_image_url.
  *
  * Authorization: same shared secret as the iCal sync endpoint. If the
  * secret is not configured, returns 503 (never runs unauthenticated).
@@ -29,9 +31,13 @@ export const Route = createFileRoute("/api/import-hostaway-photos")({
           return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
         }
 
+        const url = new URL(request.url);
+        const limitParam = url.searchParams.get("limit");
+        const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
         const { runPhotoImport } = await import("@/lib/booking/photo-import.server");
         try {
-          const result = await runPhotoImport();
+          const result = await runPhotoImport(limit);
           return Response.json({ ok: true, ...result });
         } catch (e) {
           return Response.json({ ok: false, error: (e as Error).message }, { status: 500 });
