@@ -93,8 +93,9 @@ export const getReservationStatusFn = createServerFn({ method: "GET" })
         throw new Error("Unauthorized: invalid or expired access link.");
       }
     } else {
-      // No access token — require staff authorization.
-      const { data: isStaff } = await context.supabase.rpc("is_staff", {
+      // No access token — require staff authorization (service_role; EXECUTE revoked from authenticated).
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: isStaff } = await supabaseAdmin.rpc("is_staff", {
         _user_id: context.userId,
       });
       if (!isStaff) {
@@ -158,7 +159,8 @@ export const stripeWebhookDiagnosticsFn = createServerFn({ method: "GET" })
   .validator((d) => webhookDiagnosticsSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isStaff } = await supabaseAdmin.rpc("is_staff", {
       _user_id: context.userId,
     });
     if (!isStaff) throw new Error("Staff role required.");
@@ -192,7 +194,8 @@ export const createStripeWebhookFn = createServerFn({ method: "POST" })
   .validator((d) => createWebhookSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isStaff } = await supabaseAdmin.rpc("is_staff", {
       _user_id: context.userId,
     });
     if (!isStaff) throw new Error("Staff role required.");
@@ -227,11 +230,11 @@ export const staffCreateCheckoutFn = createServerFn({ method: "POST" })
   .validator((d) => staffCheckoutSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isStaff } = await supabaseAdmin.rpc("is_staff", {
       _user_id: context.userId,
     });
     if (!isStaff) throw new Error("Staff role required to generate payment links.");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     return createCheckout(supabaseAdmin, {
       reservation_id: data.reservation_id,
       origin: data.origin,
@@ -245,11 +248,11 @@ export const listPaymentTransactionsFn = createServerFn({ method: "GET" })
   .validator((d) => txSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isStaff } = await supabaseAdmin.rpc("is_staff", {
       _user_id: context.userId,
     });
     if (!isStaff) throw new Error("Staff role required.");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: txns, error } = await supabaseAdmin
       .from("payment_transactions")
       .select(
