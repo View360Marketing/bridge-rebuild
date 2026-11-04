@@ -26,7 +26,6 @@ import { Route as WeddingsEventsRouteImport } from './routes/weddings-events'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ApiImportHostawayPhotosRouteImport } from './routes/api/import-hostaway-photos'
-import { Route as ApiRunPhotoImportNowRouteImport } from './routes/api/run-photo-import-now'
 import { Route as BookingReviewRouteImport } from './routes/booking.review'
 import { Route as BookingStatusRouteImport } from './routes/booking.status'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
@@ -137,11 +136,6 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
 const ApiImportHostawayPhotosRoute = ApiImportHostawayPhotosRouteImport.update({
   id: '/api/import-hostaway-photos',
   path: '/api/import-hostaway-photos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiRunPhotoImportNowRoute = ApiRunPhotoImportNowRouteImport.update({
-  id: '/api/run-photo-import-now',
-  path: '/api/run-photo-import-now',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingReviewRoute = BookingReviewRouteImport.update({
@@ -310,7 +304,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/api/import-hostaway-photos': typeof ApiImportHostawayPhotosRoute
-  '/api/run-photo-import-now': typeof ApiRunPhotoImportNowRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
   '/events/$code': typeof EventsCodeRoute
@@ -353,7 +346,6 @@ export interface FileRoutesByTo {
   '/weddings-events': typeof WeddingsEventsRoute
   '/admin/login': typeof AdminLoginRoute
   '/api/import-hostaway-photos': typeof ApiImportHostawayPhotosRoute
-  '/api/run-photo-import-now': typeof ApiRunPhotoImportNowRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
   '/events/$code': typeof EventsCodeRoute
@@ -401,7 +393,6 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/api/import-hostaway-photos': typeof ApiImportHostawayPhotosRoute
-  '/api/run-photo-import-now': typeof ApiRunPhotoImportNowRoute
   '/booking/review': typeof BookingReviewRoute
   '/booking/status': typeof BookingStatusRoute
   '/events/$code': typeof EventsCodeRoute
@@ -449,7 +440,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/login'
     | '/api/import-hostaway-photos'
-    | '/api/run-photo-import-now'
     | '/booking/review'
     | '/booking/status'
     | '/events/$code'
@@ -492,7 +482,6 @@ export interface FileRouteTypes {
     | '/weddings-events'
     | '/admin/login'
     | '/api/import-hostaway-photos'
-    | '/api/run-photo-import-now'
     | '/booking/review'
     | '/booking/status'
     | '/events/$code'
@@ -539,7 +528,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/admin/login'
     | '/api/import-hostaway-photos'
-    | '/api/run-photo-import-now'
     | '/booking/review'
     | '/booking/status'
     | '/events/$code'
@@ -586,7 +574,6 @@ export interface RootRouteChildren {
   WeddingsEventsRoute: typeof WeddingsEventsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ApiImportHostawayPhotosRoute: typeof ApiImportHostawayPhotosRoute
-  ApiRunPhotoImportNowRoute: typeof ApiRunPhotoImportNowRoute
   BookingReviewRoute: typeof BookingReviewRoute
   BookingStatusRoute: typeof BookingStatusRoute
   ReservationIdRoute: typeof ReservationIdRoute
@@ -714,13 +701,6 @@ declare module '@tanstack/react-router' {
       path: '/api/import-hostaway-photos'
       fullPath: '/api/import-hostaway-photos'
       preLoaderRoute: typeof ApiImportHostawayPhotosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/run-photo-import-now': {
-      id: '/api/run-photo-import-now'
-      path: '/api/run-photo-import-now'
-      fullPath: '/api/run-photo-import-now'
-      preLoaderRoute: typeof ApiRunPhotoImportNowRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/booking/review': {
@@ -1012,7 +992,6 @@ const rootRouteChildren: RootRouteChildren = {
   WeddingsEventsRoute: WeddingsEventsRoute,
   AdminLoginRoute: AdminLoginRoute,
   ApiImportHostawayPhotosRoute: ApiImportHostawayPhotosRoute,
-  ApiRunPhotoImportNowRoute: ApiRunPhotoImportNowRoute,
   BookingReviewRoute: BookingReviewRoute,
   BookingStatusRoute: BookingStatusRoute,
   ReservationIdRoute: ReservationIdRoute,
