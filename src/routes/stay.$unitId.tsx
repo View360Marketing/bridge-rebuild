@@ -11,9 +11,9 @@ import { todayPropertyLocal, addDays, nightCount } from "@/lib/booking/dates";
 import { ArrowRight, BedDouble, Users, CheckCircle2, ArrowLeft, Bath } from "lucide-react";
 
 export const Route = createFileRoute("/stay/$unitId")({
-  head: ({ params }) => ({
+  head: () => ({
     meta: [
-      { title: `Stay at The Bridges | Room ${params.unitId}` },
+      { title: "Accommodation Details | The Bridges" },
       {
         name: "description",
         content: "View room details and availability at The Bridges, Waynesboro, TN.",
