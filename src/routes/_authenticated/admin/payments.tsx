@@ -9,7 +9,12 @@ import {
   reverseManualPaymentFn,
 } from "@/lib/booking/operations.functions";
 import { listReservationsFn } from "@/lib/booking/reservations.functions";
-import { DollarSign, Plus, X, CreditCard } from "lucide-react";
+import {
+  staffCreateCheckoutFn,
+  listPaymentTransactionsFn,
+  getStripeConfigStatusFn,
+} from "@/lib/booking/payments.functions";
+import { DollarSign, Plus, X, CreditCard, Copy, Loader2, Link2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/payments")({
   head: () => ({
@@ -27,6 +32,7 @@ function PaymentsPage() {
   const listPayments = useServerFn(listManualPaymentsFn);
   const record = useServerFn(recordManualPaymentFn);
   const reverse = useServerFn(reverseManualPaymentFn);
+  const getStripeStatus = useServerFn(getStripeConfigStatusFn);
   const {
     data: reservations,
     isLoading,
@@ -34,6 +40,10 @@ function PaymentsPage() {
   } = useQuery({
     queryKey: ["admin-reservations-payments"],
     queryFn: () => listRes({ data: { limit: 100 } }),
+  });
+  const { data: stripeStatus } = useQuery({
+    queryKey: ["stripe-config-status"],
+    queryFn: getStripeStatus,
   });
   const [selected, setSelected] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -48,16 +58,36 @@ function PaymentsPage() {
       <div className="mb-6">
         <h1 className="font-serif text-3xl font-bold text-stone-900">Payments</h1>
         <p className="text-sm text-stone-500 mt-1">
-          Reservation balances, manual payments, and reversals.
+          Reservation balances, Stripe checkout links, manual payments, and reversals.
         </p>
       </div>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-900 mb-6">
-        <p className="font-medium">Stripe status</p>
-        <p className="mt-1 text-amber-800">
-          Stripe is connected in test mode. No live charges are processed. Manual entries below
-          record funds collected outside this website (cash/check/external terminal) — they do not
-          trigger a Stripe charge.
+      <div
+        className={`border rounded-2xl p-4 text-sm mb-6 ${
+          stripeStatus?.configured
+            ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+            : "bg-amber-50 border-amber-200 text-amber-900"
+        }`}
+      >
+        <p className="font-medium flex items-center gap-2">
+          <CreditCard className="w-4 h-4" /> Stripe status
+        </p>
+        <p className={`mt-1 ${stripeStatus?.configured ? "text-emerald-800" : "text-amber-800"}`}>
+          {stripeStatus?.configured ? (
+            <>
+              Stripe is connected in <strong>{stripeStatus.environment} mode</strong>. Checkout
+              links collect real payments through Stripe's hosted checkout. Manual entries below
+              record funds collected outside this website (cash/check/external terminal) — they do
+              not trigger a Stripe charge.
+            </>
+          ) : (
+            <>
+              Stripe is not configured. Set <code>STRIPE_SECRET_KEY</code>,{" "}
+              <code>STRIPE_WEBHOOK_SECRET</code>, and <code>STRIPE_PUBLISHABLE_KEY</code> server
+              secrets to enable online checkout. Manual entries below record funds collected outside
+              this website.
+            </>
+          )}
         </p>
       </div>
 
@@ -133,6 +163,7 @@ function PaymentsPage() {
               reference={sel.booking_reference}
               totalCents={sel.total_cents ?? 0}
               paidCents={sel.paid_cents ?? 0}
+              stripeConfigured={stripeStatus?.configured ?? false}
               listPayments={listPayments}
               reverse={reverse}
               onRecord={() => setShowForm(true)}
@@ -176,6 +207,7 @@ function PaymentDetail({
   reference,
   totalCents,
   paidCents,
+  stripeConfigured,
   listPayments,
   reverse,
   onRecord,
@@ -185,16 +217,60 @@ function PaymentDetail({
   reference: string;
   totalCents: number;
   paidCents: number;
+  stripeConfigured: boolean;
   listPayments: ReturnType<typeof useServerFn<typeof listManualPaymentsFn>>;
   reverse: ReturnType<typeof useServerFn<typeof reverseManualPaymentFn>>;
   onRecord: () => void;
   onRefresh: () => Promise<void>;
 }) {
+  const qc = useQueryClient();
+  const createStaffCheckout = useServerFn(staffCreateCheckoutFn);
+  const listTxns = useServerFn(listPaymentTransactionsFn);
   const { data, isLoading } = useQuery({
     queryKey: ["admin-manual-payments", reservationId],
     queryFn: () => listPayments({ data: { reservation_id: reservationId } }),
   });
+  const { data: txns, isLoading: txnsLoading } = useQuery({
+    queryKey: ["admin-stripe-txns", reservationId],
+    queryFn: () => listTxns({ data: { reservation_id: reservationId } }),
+  });
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
   const balance = totalCents - paidCents;
+
+  async function handleCreateLink() {
+    setLinkLoading(true);
+    try {
+      const result = await createStaffCheckout({
+        data: { reservation_id: reservationId, origin: window.location.origin },
+      });
+      if (result.checkout_url) {
+        setCheckoutUrl(result.checkout_url);
+        toast.success("Stripe checkout link generated.");
+      } else {
+        toast.error("No balance due or Stripe is not configured.");
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setLinkLoading(false);
+    }
+  }
+
+  async function handleCopy() {
+    if (!checkoutUrl) return;
+    try {
+      await navigator.clipboard.writeText(checkoutUrl);
+      setCopied(true);
+      toast.success("Payment link copied to clipboard.");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Could not copy. Copy the link manually.");
+    }
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-5">
       <h3 className="font-serif text-lg font-bold text-stone-900">{reference}</h3>
@@ -214,17 +290,133 @@ function PaymentDetail({
           </p>
         </div>
       </div>
+
+      {/* Stripe checkout link */}
       {balance > 0 && (
-        <button
-          onClick={onRecord}
-          className="w-full mt-4 inline-flex items-center justify-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-sm"
-        >
-          <Plus className="w-4 h-4" /> Record Payment
-        </button>
+        <div className="mt-5 border-t border-stone-100 pt-4">
+          <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <CreditCard className="w-3.5 h-3.5" /> Stripe Checkout
+          </p>
+          {stripeConfigured ? (
+            <>
+              {!checkoutUrl ? (
+                <button
+                  onClick={handleCreateLink}
+                  disabled={linkLoading}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-[#635BFF] hover:bg-[#5851ed] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors disabled:opacity-60"
+                >
+                  {linkLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Generating…
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="w-4 h-4" /> Collect Payment via Stripe
+                    </>
+                  )}
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-lg px-3 py-2">
+                    <input
+                      readOnly
+                      value={checkoutUrl}
+                      className="flex-1 text-xs text-stone-700 bg-transparent truncate outline-none"
+                    />
+                    <button
+                      onClick={handleCopy}
+                      className="text-[#2a382c] hover:text-[#1b251e] shrink-0"
+                      title="Copy link"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {copied && <p className="text-xs text-emerald-600">Copied to clipboard.</p>}
+                  <a
+                    href={checkoutUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block text-center w-full bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors"
+                  >
+                    Open Checkout
+                  </a>
+                  <button
+                    onClick={() => setCheckoutUrl(null)}
+                    className="w-full text-xs text-stone-500 hover:text-stone-700"
+                  >
+                    Generate new link
+                  </button>
+                </div>
+              )}
+              <p className="mt-2 text-xs text-stone-400">
+                Generates a Stripe-hosted checkout for the outstanding balance. Share the link with
+                the guest — payment is confirmed automatically via webhook.
+              </p>
+            </>
+          ) : (
+            <p className="text-xs text-stone-500">
+              Stripe is not configured. Add server secrets to enable online checkout links.
+            </p>
+          )}
+        </div>
       )}
+
+      {/* Stripe transactions */}
       <div className="mt-5">
         <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-2">
-          Payment History
+          Stripe Transactions
+        </p>
+        {txnsLoading ? (
+          <p className="text-sm text-stone-500">Loading…</p>
+        ) : (txns ?? []).length === 0 ? (
+          <p className="text-sm text-stone-400">No Stripe transactions recorded.</p>
+        ) : (
+          <div className="space-y-2">
+            {(txns ?? []).map((t) => (
+              <div
+                key={t.id}
+                className="flex items-center justify-between text-sm border border-stone-100 rounded-lg px-3 py-2"
+              >
+                <div>
+                  <p className="font-medium">
+                    ${((t.amount_cents ?? 0) / 100).toFixed(2)} ·{" "}
+                    <span className="capitalize">{t.status}</span>
+                  </p>
+                  <p className="text-xs text-stone-500 font-mono">
+                    {t.provider_transaction_id?.slice(0, 20) ?? "—"}
+                  </p>
+                </div>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full ${
+                    t.status === "succeeded"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-stone-100 text-stone-600"
+                  }`}
+                >
+                  {t.environment}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Manual payment record */}
+      {balance > 0 && (
+        <div className="mt-5 border-t border-stone-100 pt-4">
+          <button
+            onClick={onRecord}
+            className="w-full inline-flex items-center justify-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold px-4 py-2.5 rounded-xl text-sm"
+          >
+            <Plus className="w-4 h-4" /> Record Manual Payment
+          </button>
+        </div>
+      )}
+
+      {/* Manual payment history */}
+      <div className="mt-5">
+        <p className="text-xs font-medium text-stone-500 uppercase tracking-wider mb-2">
+          Manual Payment History
         </p>
         {isLoading ? (
           <p className="text-sm text-stone-500">Loading…</p>
@@ -251,6 +443,9 @@ function PaymentDetail({
                       await reverse({ data: { payment_id: p.id } });
                       toast.success("Payment reversed");
                       await onRefresh();
+                      await qc.invalidateQueries({
+                        queryKey: ["admin-manual-payments", reservationId],
+                      });
                     } catch (e) {
                       toast.error((e as Error).message);
                     }

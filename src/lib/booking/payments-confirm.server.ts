@@ -116,6 +116,10 @@ export async function processWebhookEvent(event: StripeWebhookEvent): Promise<vo
     const reservationId =
       metadata["reservation_id"] ?? (obj["client_reference_id"] as string | undefined);
 
+    // Detect the actual Stripe environment from config (test vs live).
+    const stripeStatus = getStripeConfig();
+    const environment = stripeStatus.configured ? stripeStatus.config.environment : "test";
+
     if (
       event.type === "checkout.session.completed" ||
       event.type === "checkout.session.async_payment_succeeded"
@@ -123,14 +127,51 @@ export async function processWebhookEvent(event: StripeWebhookEvent): Promise<vo
       const paymentIntent = (obj["payment_intent"] as string) ?? null;
       const amountTotal = (obj["amount_total"] as number) ?? 0;
       const currency = (obj["currency"] as string) ?? "usd";
-      if (reservationId && paymentIntent) {
+      const sessionId = (obj["id"] as string) ?? null;
+
+      // Verify the payment amount matches the expected amount on the
+      // payment_attempt before confirming. A success event with an unpaid
+      // or mismatched amount must not mark the reservation paid.
+      let amountValid = true;
+      let attemptId: string | undefined;
+      if (sessionId) {
+        const { data: attempt } = await supabaseAdmin
+          .from("payment_attempts")
+          .select("id, expected_amount_cents, currency")
+          .eq("provider_session_id", sessionId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+        const a = attempt as { id: string; expected_amount_cents: number; currency: string } | null;
+        if (a) {
+          attemptId = a.id;
+          if (amountTotal !== a.expected_amount_cents) {
+            amountValid = false;
+          }
+          if (currency.toLowerCase() !== a.currency.toLowerCase()) {
+            amountValid = false;
+          }
+        }
+      }
+
+      // Only confirm if the checkout session's payment_status indicates paid.
+      const paymentStatus = (obj["payment_status"] as string) ?? "unpaid";
+      if (reservationId && paymentIntent && paymentStatus === "paid" && amountValid) {
         await confirmReservationPayment(
           reservationId,
           paymentIntent,
           amountTotal,
           currency,
-          "test",
+          environment,
+          attemptId,
         );
+      } else if (reservationId && paymentIntent && !amountValid) {
+        // Amount mismatch — flag for staff review, do not confirm.
+        await supabaseAdmin
+          .from("inbound_events")
+          .update({ status: "failed", error: `Amount mismatch: expected vs ${amountTotal}` })
+          .eq("provider", "stripe")
+          .eq("provider_event_id", event.id);
       }
     } else if (event.type === "checkout.session.expired") {
       const sessionId = obj["id"] as string;

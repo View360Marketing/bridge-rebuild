@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { getReservationStatusFn } from "@/lib/booking/payments.functions";
+import { getReservationStatusFn, createCheckoutFn } from "@/lib/booking/payments.functions";
 import {
   Loader2,
   CheckCircle2,
@@ -14,6 +14,7 @@ import {
   BedDouble,
   Users,
 } from "lucide-react";
+import { toast } from "sonner";
 
 type StatusSearch = {
   reservation: string;
@@ -47,9 +48,11 @@ export const Route = createFileRoute("/booking/status")({
 function BookingStatusPage() {
   const { reservation, session_id, canceled, token } = Route.useSearch();
   const getStatus = useServerFn(getReservationStatusFn);
+  const createCheckout = useServerFn(createCheckoutFn);
   const [status, setStatus] = useState<Awaited<ReturnType<typeof getStatus>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [paying, setPaying] = useState(false);
 
   async function refresh() {
     if (!reservation) {
@@ -67,6 +70,29 @@ function BookingStatusPage() {
       setError((e as Error).message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handlePay() {
+    if (!reservation) return;
+    setPaying(true);
+    try {
+      const checkout = await createCheckout({
+        data: {
+          reservation_id: reservation,
+          origin: window.location.origin,
+          ...(token ? { access_token: token } : {}),
+        },
+      });
+      if (checkout.checkout_url) {
+        window.location.href = checkout.checkout_url;
+      } else {
+        toast.error("No payment is due or Stripe is not configured.");
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setPaying(false);
     }
   }
 
@@ -195,16 +221,13 @@ function BookingStatusPage() {
                 {status.amount_due_cents > 0 &&
                   status.stripe_configured &&
                   status.status !== "confirmed" && (
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        void refresh();
-                      }}
-                      className="mt-4 block text-center w-full bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-6 py-3 rounded-lg text-sm uppercase tracking-wider transition-colors"
+                    <button
+                      onClick={handlePay}
+                      disabled={paying}
+                      className="mt-4 block text-center w-full bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-6 py-3 rounded-lg text-sm uppercase tracking-wider transition-colors disabled:opacity-60"
                     >
-                      Complete payment
-                    </a>
+                      {paying ? "Redirecting…" : "Complete payment"}
+                    </button>
                   )}
                 {!status.stripe_configured && status.amount_due_cents > 0 && (
                   <p className="mt-4 text-xs text-stone-500">

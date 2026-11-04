@@ -136,7 +136,63 @@ export const staffRefundFn = createServerFn({ method: "POST" })
 /** Public: Stripe configuration status (for the booking UI to show honest states). */
 export const getStripeConfigStatusFn = createServerFn({ method: "GET" }).handler(async () => {
   const status = getStripeConfig();
-  return { configured: status.configured };
+  if (status.configured) {
+    return { configured: true, environment: status.config.environment };
+  }
+  return { configured: false, environment: null };
 });
+
+/** Staff: generate a Stripe Checkout link for a reservation's outstanding balance. */
+const staffCheckoutSchema = z.object({
+  reservation_id: z.string(),
+  origin: z.string(),
+});
+
+export const staffCreateCheckoutFn = createServerFn({ method: "POST" })
+  .validator((d) => staffCheckoutSchema.parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+      _user_id: context.userId,
+    });
+    if (!isStaff) throw new Error("Staff role required to generate payment links.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return createCheckout(supabaseAdmin, {
+      reservation_id: data.reservation_id,
+      origin: data.origin,
+    });
+  });
+
+/** Staff: list Stripe payment transactions for a reservation. */
+const txSchema = z.object({ reservation_id: z.string() });
+
+export const listPaymentTransactionsFn = createServerFn({ method: "GET" })
+  .validator((d) => txSchema.parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+      _user_id: context.userId,
+    });
+    if (!isStaff) throw new Error("Staff role required.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: txns, error } = await supabaseAdmin
+      .from("payment_transactions")
+      .select(
+        "id, provider, provider_transaction_id, amount_cents, currency, status, environment, captured_at",
+      )
+      .eq("reservation_id", data.reservation_id)
+      .order("captured_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (txns ?? []) as {
+      id: string;
+      provider: string;
+      provider_transaction_id: string;
+      amount_cents: number;
+      currency: string;
+      status: string;
+      environment: string;
+      captured_at: string | null;
+    }[];
+  });
 
 export type { CheckoutResult, ReservationStatusView };

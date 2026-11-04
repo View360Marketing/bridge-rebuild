@@ -423,7 +423,8 @@ function BookingReviewPage() {
                 )}
                 {stripeStatus?.configured && (
                   <p className="mt-3 text-xs text-stone-500 text-center flex items-center justify-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> Secure payment via Stripe (test mode)
+                    <ShieldCheck className="w-3.5 h-3.5" /> Secure payment via Stripe
+                    {stripeStatus.environment === "test" ? " (test mode)" : ""}
                   </p>
                 )}
                 {reservationResult && !checkoutUrl && !stripeStatus?.configured && (
