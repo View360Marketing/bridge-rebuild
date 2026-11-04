@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
@@ -26,6 +27,12 @@ type ReviewSearch = {
 };
 
 export const Route = createFileRoute("/booking/review")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/admin/login" });
+    return { user: data.user };
+  },
   validateSearch: (search: Record<string, unknown>): ReviewSearch => ({
     unit_id: (search["unit_id"] as string) ?? "",
     checkin: (search["checkin"] as string) ?? addDays(todayPropertyLocal(), 1),

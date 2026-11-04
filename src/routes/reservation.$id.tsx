@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -19,6 +20,12 @@ import { toast } from "sonner";
 type ResSearch = { token: string };
 
 export const Route = createFileRoute("/reservation/$id")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/admin/login" });
+    return { user: data.user };
+  },
   validateSearch: (search: Record<string, unknown>): ResSearch => ({
     token: (search["token"] as string) ?? "",
   }),
