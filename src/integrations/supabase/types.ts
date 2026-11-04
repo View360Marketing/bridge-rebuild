@@ -351,6 +351,35 @@ export type Database = {
         }
         Relationships: []
       }
+      hostaway_catalog: {
+        Row: {
+          imported_at: string
+          listing_id: string
+          source: Json
+          unit_id: string
+        }
+        Insert: {
+          imported_at?: string
+          listing_id: string
+          source: Json
+          unit_id: string
+        }
+        Update: {
+          imported_at?: string
+          listing_id?: string
+          source?: Json
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hostaway_catalog_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: true
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       housekeeping_tasks: {
         Row: {
           assigned_to: string | null
@@ -1891,6 +1920,7 @@ export type Database = {
           alt_text: string | null
           caption: string | null
           created_at: string
+          hostaway_image_id: string | null
           id: string
           image_url: string
           is_primary: boolean
@@ -1902,6 +1932,7 @@ export type Database = {
           alt_text?: string | null
           caption?: string | null
           created_at?: string
+          hostaway_image_id?: string | null
           id?: string
           image_url: string
           is_primary?: boolean
@@ -1913,6 +1944,7 @@ export type Database = {
           alt_text?: string | null
           caption?: string | null
           created_at?: string
+          hostaway_image_id?: string | null
           id?: string
           image_url?: string
           is_primary?: boolean
@@ -1944,6 +1976,12 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          hostaway_listing_id: string | null
+          hostaway_media_copied: number
+          hostaway_media_expected: number
+          hostaway_record_kind: string | null
+          hostaway_review_required: boolean
+          hostaway_source_url: string | null
           ical_export_token: string | null
           ical_import_url: string | null
           ical_last_attempt_at: string | null
@@ -1979,6 +2017,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          hostaway_listing_id?: string | null
+          hostaway_media_copied?: number
+          hostaway_media_expected?: number
+          hostaway_record_kind?: string | null
+          hostaway_review_required?: boolean
+          hostaway_source_url?: string | null
           ical_export_token?: string | null
           ical_import_url?: string | null
           ical_last_attempt_at?: string | null
@@ -2014,6 +2058,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          hostaway_listing_id?: string | null
+          hostaway_media_copied?: number
+          hostaway_media_expected?: number
+          hostaway_record_kind?: string | null
+          hostaway_review_required?: boolean
+          hostaway_source_url?: string | null
           ical_export_token?: string | null
           ical_import_url?: string | null
           ical_last_attempt_at?: string | null
