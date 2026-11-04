@@ -13,7 +13,24 @@ import {
   type IcalUnit,
   type ImportOutcome,
 } from "@/lib/booking/ical.functions";
-import { RefreshCw, Copy, Check, AlertTriangle, ExternalLink, CalendarSync } from "lucide-react";
+import {
+  stripeWebhookDiagnosticsFn,
+  createStripeWebhookFn,
+  getStripeConfigStatusFn,
+} from "@/lib/booking/payments.functions";
+import {
+  RefreshCw,
+  Copy,
+  Check,
+  AlertTriangle,
+  ExternalLink,
+  CalendarSync,
+  CreditCard,
+  Loader2,
+  Plus,
+  ShieldCheck,
+} from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/integrations")({
   head: () => ({
@@ -376,15 +393,7 @@ function WebhooksSection() {
         a webhook.
       </p>
       <div className="space-y-3">
-        <div className="border border-stone-200 rounded-xl p-4">
-          <p className="font-medium text-stone-900 text-sm">Stripe (incoming)</p>
-          <p className="text-xs text-stone-500 mt-1">
-            <code className="text-stone-700">POST /api/webhooks/stripe</code> — verifies the Stripe
-            signature against the raw body with the official SDK and the webhook signing secret.
-            Confirms reservations only after server-validated payment. Status:{" "}
-            <span className="text-amber-600">pending STRIPE_WEBHOOK_SECRET configuration</span>.
-          </p>
-        </div>
+        <StripeWebhookCard />
         <div className="border border-stone-200 rounded-xl p-4">
           <p className="font-medium text-stone-900 text-sm">Outgoing webhooks</p>
           <p className="text-xs text-stone-500 mt-1">
@@ -396,6 +405,175 @@ function WebhooksSection() {
         </div>
       </div>
     </section>
+  );
+}
+
+function StripeWebhookCard() {
+  const getDiagnostics = useServerFn(stripeWebhookDiagnosticsFn);
+  const createWebhook = useServerFn(createStripeWebhookFn);
+  const getStripeStatus = useServerFn(getStripeConfigStatusFn);
+  const qc = useQueryClient();
+  const { data: stripeStatus } = useQuery({
+    queryKey: ["stripe-config-status"],
+    queryFn: getStripeStatus,
+  });
+  const { data: diag, isLoading } = useQuery({
+    queryKey: ["stripe-webhook-diagnostics"],
+    queryFn: () => getDiagnostics({ data: {} }),
+  });
+  const [registering, setRegistering] = useState(false);
+  const [newSecret, setNewSecret] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const webhookUrl = diag?.webhookUrl ?? "https://thebridgestn.com/api/webhooks/stripe";
+  const hasWebhookSecret = stripeStatus?.hasWebhookSecret ?? false;
+  const matchingEndpoint = diag?.ok ? diag.matchingEndpoint : null;
+  const endpoints = diag?.ok ? diag.endpoints : [];
+
+  async function handleRegister() {
+    setRegistering(true);
+    try {
+      const result = await createWebhook({ data: {} });
+      if (result.ok && result.secret) {
+        setNewSecret(result.secret);
+        toast.success("Stripe webhook endpoint registered. Copy the signing secret below.");
+        qc.invalidateQueries({ queryKey: ["stripe-webhook-diagnostics"] });
+      } else {
+        toast.error(result.error || "Could not register the webhook endpoint.");
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setRegistering(false);
+    }
+  }
+
+  return (
+    <div className="border border-stone-200 rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <CreditCard className="w-4 h-4 text-[#2a382c]" />
+        <p className="font-medium text-stone-900 text-sm">Stripe (incoming)</p>
+        {hasWebhookSecret ? (
+          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3" /> Signature verified
+          </span>
+        ) : (
+          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+            Signing secret not configured
+          </span>
+        )}
+      </div>
+      <p className="text-xs text-stone-500 mt-1">
+        <code className="text-stone-700">POST {webhookUrl}</code> — verifies the Stripe signature
+        against the raw body with HMAC-SHA256 and the webhook signing secret. Confirms reservations
+        only after server-validated payment.
+      </p>
+
+      <div className="mt-3 flex items-center gap-2 bg-stone-50 rounded-lg px-3 py-2">
+        <span className="text-xs text-stone-500 shrink-0">Webhook URL:</span>
+        <code className="text-xs text-stone-700 truncate flex-1">{webhookUrl}</code>
+        <button
+          onClick={() => {
+            navigator.clipboard?.writeText(webhookUrl);
+            toast.success("Webhook URL copied.");
+          }}
+          className="text-stone-500 hover:text-stone-800 shrink-0"
+          title="Copy URL"
+        >
+          <Copy className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mt-4 mb-2">
+        Stripe endpoints
+      </p>
+      {isLoading ? (
+        <p className="text-xs text-stone-500">Checking Stripe…</p>
+      ) : !diag?.ok ? (
+        <p className="text-xs text-red-600">
+          Could not reach Stripe: {diag?.error ?? "unknown error"}
+        </p>
+      ) : endpoints.length === 0 ? (
+        <p className="text-xs text-stone-500">No webhook endpoints registered in Stripe yet.</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {endpoints.map((ep) => (
+            <li
+              key={ep.id}
+              className="flex items-center justify-between text-xs border border-stone-100 rounded-lg px-3 py-1.5"
+            >
+              <span className="font-mono text-stone-600 truncate">{ep.url}</span>
+              <span
+                className={`px-1.5 py-0.5 rounded-full shrink-0 ml-2 ${
+                  ep.url === webhookUrl
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-100 text-stone-600"
+                }`}
+              >
+                {ep.url === webhookUrl ? "matches this site" : "other"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {!hasWebhookSecret && (
+        <div className="mt-3 flex flex-col gap-2">
+          <button
+            onClick={handleRegister}
+            disabled={registering}
+            className="inline-flex items-center justify-center gap-2 bg-[#635BFF] hover:bg-[#5851ed] text-white text-sm font-semibold px-4 py-2 rounded-lg disabled:opacity-60"
+          >
+            {registering ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Registering…
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" /> Register webhook in Stripe
+              </>
+            )}
+          </button>
+          {newSecret && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-2">
+              <p className="text-xs text-emerald-800 font-medium">
+                Endpoint registered. Copy this signing secret and add it as the{" "}
+                <code>STRIPE_WEBHOOK_SECRET</code> server secret:
+              </p>
+              <div className="flex items-center gap-2 bg-white border border-emerald-300 rounded px-2 py-1.5">
+                <code className="text-xs text-emerald-900 font-mono truncate flex-1">{newSecret}</code>
+                <button
+                  onClick={() => {
+                    navigator.clipboard?.writeText(newSecret);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="text-emerald-700 hover:text-emerald-900 shrink-0"
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-emerald-700">
+                After adding the secret, the signature badge above will turn green.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {hasWebhookSecret && matchingEndpoint && (
+        <p className="text-xs text-emerald-700 mt-3 flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5" /> A matching Stripe endpoint is registered and the
+          signing secret is configured.
+        </p>
+      )}
+      {hasWebhookSecret && !matchingEndpoint && (
+        <p className="text-xs text-amber-600 mt-3">
+          Signing secret is configured but no Stripe endpoint matches this site's URL. Register the
+          webhook URL above in your Stripe dashboard.
+        </p>
+      )}
+    </div>
   );
 }
 

@@ -76,9 +76,12 @@ function PaymentsPage() {
           {stripeStatus?.configured ? (
             <>
               Stripe is connected in <strong>{stripeStatus.environment} mode</strong>. Checkout
-              links collect real payments through Stripe's hosted checkout. Manual entries below
-              record funds collected outside this website (cash/check/external terminal) — they do
-              not trigger a Stripe charge.
+              links collect real payments through Stripe's hosted checkout.{" "}
+              {stripeStatus.hasWebhookSecret
+                ? "Webhook signature verification is active — payments are confirmed automatically."
+                : "Webhook signature verification is NOT active — add the STRIPE_WEBHOOK_SECRET server secret and register the endpoint in Stripe (Integrations page) to auto-confirm payments."}{" "}
+              Manual entries below record funds collected outside this website (cash/check/external
+              terminal) — they do not trigger a Stripe charge.
             </>
           ) : (
             <>

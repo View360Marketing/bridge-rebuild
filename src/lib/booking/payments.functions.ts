@@ -13,7 +13,12 @@ import {
   resolveAccessCapability,
   guestCancelReservation,
 } from "./payments-access.server";
-import { getStripeConfig } from "./stripe.server";
+import {
+  getStripeConfig,
+  listStripeWebhookEndpoints,
+  createStripeWebhookEndpoint,
+  type StripeWebhookEndpoint,
+} from "./stripe.server";
 
 /** Public: create a guest reservation + inventory hold (no auth; idempotent). */
 const guestReservationSchema = z.object({
@@ -137,10 +142,86 @@ export const staffRefundFn = createServerFn({ method: "POST" })
 export const getStripeConfigStatusFn = createServerFn({ method: "GET" }).handler(async () => {
   const status = getStripeConfig();
   if (status.configured) {
-    return { configured: true, environment: status.config.environment };
+    return {
+      configured: true,
+      environment: status.config.environment,
+      hasWebhookSecret: status.hasWebhookSecret,
+    };
   }
-  return { configured: false, environment: null };
+  return { configured: false, environment: null, hasWebhookSecret: false };
 });
+
+/** Staff: Stripe webhook diagnostics — list existing endpoints and check our URL. */
+const webhookDiagnosticsSchema = z.object({});
+
+export const stripeWebhookDiagnosticsFn = createServerFn({ method: "GET" })
+  .validator((d) => webhookDiagnosticsSchema.parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+      _user_id: context.userId,
+    });
+    if (!isStaff) throw new Error("Staff role required.");
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://thebridgestn.com";
+    const webhookUrl = `${origin}/api/webhooks/stripe`;
+    const listResult = await listStripeWebhookEndpoints();
+    if (!listResult.ok) {
+      return {
+        ok: false,
+        error: listResult.error,
+        webhookUrl,
+        matchingEndpoint: null,
+        endpoints: [] as StripeWebhookEndpoint[],
+      };
+    }
+    const matching = listResult.endpoints.find(
+      (e: StripeWebhookEndpoint) => e.url === webhookUrl,
+    );
+    return {
+      ok: true,
+      webhookUrl,
+      matchingEndpoint: matching ?? null,
+      endpoints: listResult.endpoints,
+      hasMore: listResult.hasMore,
+    };
+  });
+
+/** Staff: Create the Stripe webhook endpoint and return its signing secret. */
+const createWebhookSchema = z.object({});
+
+export const createStripeWebhookFn = createServerFn({ method: "POST" })
+  .validator((d) => createWebhookSchema.parse(d))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isStaff } = await context.supabase.rpc("is_staff", {
+      _user_id: context.userId,
+    });
+    if (!isStaff) throw new Error("Staff role required.");
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://thebridgestn.com";
+    const webhookUrl = `${origin}/api/webhooks/stripe`;
+    const events = [
+      "checkout.session.completed",
+      "checkout.session.async_payment_succeeded",
+      "checkout.session.expired",
+      "payment_intent.payment_failed",
+      "charge.refunded",
+    ];
+    const result = await createStripeWebhookEndpoint({ url: webhookUrl, events });
+    if (!result.ok) {
+      return { ok: false, error: result.error, secret: null, endpoint: null };
+    }
+    return {
+      ok: true,
+      secret: result.endpoint.secret ?? null,
+      endpoint: result.endpoint,
+    };
+  });
 
 /** Staff: generate a Stripe Checkout link for a reservation's outstanding balance. */
 const staffCheckoutSchema = z.object({

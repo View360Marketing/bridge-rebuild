@@ -13,27 +13,29 @@
 
 export type StripeConfig = {
   secretKey: string;
-  webhookSecret: string;
+  webhookSecret: string | null;
   publishableKey?: string | undefined;
   environment: "test" | "live";
   accountId?: string | undefined;
 };
 
 export type StripeConfigStatus =
-  { configured: true; config: StripeConfig } | { configured: false; reason: string };
+  | { configured: true; hasWebhookSecret: true; config: StripeConfig }
+  | { configured: true; hasWebhookSecret: false; config: StripeConfig }
+  | { configured: false; reason: string };
 
-/** Read Stripe config from server env. Returns a not-configured status honestly. */
+/** Read Stripe config from server env. API key alone enables checkout; webhook secret is separate. */
 export function getStripeConfig(): StripeConfigStatus {
   const secretKey = process.env["STRIPE_SECRET_KEY"];
-  const webhookSecret = process.env["STRIPE_WEBHOOK_SECRET"];
-  if (!secretKey || !webhookSecret) {
+  if (!secretKey) {
     return {
       configured: false,
       reason:
-        "Stripe is not configured. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET server secrets to enable test-mode payments.",
+        "Stripe is not configured. Set STRIPE_SECRET_KEY server secret to enable checkout.",
     };
   }
   const environment: "test" | "live" = secretKey.startsWith("sk_test_") ? "test" : "live";
+  const webhookSecret = process.env["STRIPE_WEBHOOK_SECRET"] ?? null;
   const config: StripeConfig = {
     secretKey,
     webhookSecret,
@@ -43,10 +45,99 @@ export function getStripeConfig(): StripeConfigStatus {
   if (publishableKey) config.publishableKey = publishableKey;
   const accountId = process.env["STRIPE_ACCOUNT_ID"];
   if (accountId) config.accountId = accountId;
-  return { configured: true, config };
+  if (webhookSecret) {
+    return { configured: true, hasWebhookSecret: true, config };
+  }
+  return { configured: true, hasWebhookSecret: false, config };
 }
 
 const STRIPE_API = "https://api.stripe.com/v1";
+
+export type StripeWebhookEndpoint = {
+  id: string;
+  url: string;
+  status: string;
+  enabled_events: string[];
+  secret?: string | null;
+};
+
+export type StripeWebhookEndpointsResult =
+  | { ok: true; endpoints: StripeWebhookEndpoint[]; hasMore: boolean }
+  | { ok: false; error: string };
+
+/** List webhook endpoints from Stripe. Paginated (100 per page). */
+export async function listStripeWebhookEndpoints(): Promise<StripeWebhookEndpointsResult> {
+  const status = getStripeConfig();
+  if (!status.configured) return { ok: false, error: status.reason };
+  try {
+    const res = await fetch(`${STRIPE_API}/webhook_endpoints?limit=100`, {
+      headers: { Authorization: `Bearer ${status.config.secretKey}` },
+    });
+    const json = (await res.json()) as Record<string, unknown> & {
+      error?: { message: string };
+      data?: StripeWebhookEndpoint[];
+      has_more?: boolean;
+    };
+    if (!res.ok) return { ok: false, error: json.error?.message ?? res.statusText };
+    return {
+      ok: true,
+      endpoints: json.data ?? [],
+      hasMore: json.has_more ?? false,
+    };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
+export type CreateWebhookResult =
+  | { ok: true; endpoint: StripeWebhookEndpoint }
+  | { ok: false; error: string };
+
+/** Create a webhook endpoint in Stripe. Returns the signing secret. */
+export async function createStripeWebhookEndpoint(params: {
+  url: string;
+  events: string[];
+}): Promise<CreateWebhookResult> {
+  const status = getStripeConfig();
+  if (!status.configured) return { ok: false, error: status.reason };
+  try {
+    const body = new URLSearchParams();
+    body.set("url", params.url);
+    body.set("enabled", "true");
+    for (let i = 0; i < params.events.length; i++) {
+      body.set(`enabled_events[${i}]`, params.events[i]!);
+    }
+    const res = await fetch(`${STRIPE_API}/webhook_endpoints`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${status.config.secretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: body.toString(),
+    });
+    const json = (await res.json()) as Record<string, unknown> & {
+      error?: { message: string };
+      id?: string;
+      url?: string;
+      status?: string;
+      enabled_events?: string[];
+      secret?: string;
+    };
+    if (!res.ok) return { ok: false, error: json.error?.message ?? res.statusText };
+    return {
+      ok: true,
+      endpoint: {
+        id: json.id ?? "",
+        url: json.url ?? "",
+        status: json.status ?? "enabled",
+        enabled_events: json.enabled_events ?? params.events,
+        secret: json.secret ?? null,
+      },
+    };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
 
 export type CheckoutSession = {
   id: string;
@@ -204,6 +295,12 @@ export async function verifyWebhookSignature(
 ): Promise<WebhookVerifyResult> {
   const status = getStripeConfig();
   if (!status.configured) return { valid: false, reason: status.reason };
+  if (!status.hasWebhookSecret) {
+    return {
+      valid: false,
+      reason: "STRIPE_WEBHOOK_SECRET is not configured. Webhook signature verification is unavailable.",
+    };
+  }
 
   const parts = signatureHeader.split(",").reduce<Record<string, string>>((acc, p) => {
     const [k, v] = p.split("=");
@@ -217,9 +314,13 @@ export async function verifyWebhookSignature(
   }
 
   const signedPayload = `${timestamp}.${rawBody}`;
+  const secret = status.config.webhookSecret;
+  if (!secret) {
+    return { valid: false, reason: "STRIPE_WEBHOOK_SECRET is not configured." };
+  }
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(status.config.webhookSecret),
+    new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
