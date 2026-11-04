@@ -52,6 +52,12 @@ export type UnitRow = {
   ical_export_token: string | null;
   ical_sync_status: string | null;
   ical_last_synced_at: string | null;
+  hostaway_listing_id?: string | null;
+  hostaway_source_url?: string | null;
+  hostaway_record_kind?: string | null;
+  hostaway_review_required?: boolean;
+  hostaway_media_expected?: number;
+  hostaway_media_copied?: number;
 };
 
 export type UnitMediaRow = {
@@ -84,6 +90,7 @@ export type UnitInput = {
   cleaning_fee_cents?: number | undefined;
   is_published?: boolean | undefined;
   is_closed?: boolean | undefined;
+  hostaway_review_required?: boolean | undefined;
   sort_order?: number | undefined;
   primary_image_url?: string | null | undefined;
   airbnb_listing_id?: string | null | undefined;

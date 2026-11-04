@@ -95,6 +95,8 @@ const unitInputSchema = z.object({
   cleaning_fee_cents: z.number().int().min(0).optional(),
   is_published: z.boolean().optional(),
   is_closed: z.boolean().optional(),
+  hostaway_review_required: z.boolean().optional(),
+  primary_image_url: z.string().url().nullable().optional(),
   sort_order: z.number().int().optional(),
 });
 

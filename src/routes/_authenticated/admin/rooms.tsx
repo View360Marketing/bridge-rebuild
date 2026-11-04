@@ -69,7 +69,10 @@ function RoomsPage() {
   const [editing, setEditing] = useState<UnitRow | null>(null);
   const [managingPhotos, setManagingPhotos] = useState<UnitRow | null>(null);
   const [saving, setSaving] = useState(false);
-  const [filter, setFilter] = useState<"all" | "published" | "draft" | "archived">("all");
+  const [filter, setFilter] = useState<
+    "hostaway" | "all" | "published" | "draft" | "archived" | "unmatched"
+  >("hostaway");
+  const [kind, setKind] = useState("all");
 
   async function refresh() {
     await qc.invalidateQueries({ queryKey: ["admin-units"] });
@@ -134,13 +137,18 @@ function RoomsPage() {
 
   const all = (units.data ?? []) as UnitRow[];
   const filtered = all.filter((u) => {
+    if (kind !== "all" && u.unit_kind !== kind) return false;
+    if (filter === "hostaway") return !!u.hostaway_listing_id && !u.is_archived;
+    if (filter === "unmatched") return !u.hostaway_listing_id && !u.is_archived;
     if (filter === "published") return u.is_published && !u.is_archived;
     if (filter === "draft") return !u.is_published && !u.is_archived;
     if (filter === "archived") return u.is_archived;
-    return true;
+    return !u.is_archived;
   });
   const counts = {
-    all: all.length,
+    hostaway: all.filter((u) => u.hostaway_listing_id && !u.is_archived).length,
+    unmatched: all.filter((u) => !u.hostaway_listing_id && !u.is_archived).length,
+    all: all.filter((u) => !u.is_archived).length,
     published: all.filter((u) => u.is_published && !u.is_archived).length,
     draft: all.filter((u) => !u.is_published && !u.is_archived).length,
     archived: all.filter((u) => u.is_archived).length,
@@ -152,8 +160,8 @@ function RoomsPage() {
         <div>
           <h1 className="font-serif text-3xl font-bold text-stone-900">Rooms & Properties</h1>
           <p className="text-sm text-stone-500 mt-1">
-            {counts.all} units · {counts.published} published · {counts.draft} draft ·{" "}
-            {counts.archived} archived
+            {counts.hostaway} Hostaway listings · {counts.published} published · {counts.draft}{" "}
+            draft · {counts.archived} archived
           </p>
         </div>
         <div className="flex gap-2">
@@ -172,8 +180,8 @@ function RoomsPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 border-b border-stone-200">
-        {(["all", "published", "draft", "archived"] as const).map((f) => (
+      <div className="flex flex-wrap gap-1 mb-4 border-b border-stone-200">
+        {(["hostaway", "all", "published", "draft", "unmatched", "archived"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -188,6 +196,32 @@ function RoomsPage() {
         ))}
       </div>
 
+      <div className="flex items-center gap-3 mb-6">
+        <label htmlFor="unit-kind" className="text-sm text-stone-600">
+          Accommodation type
+        </label>
+        <select
+          id="unit-kind"
+          value={kind}
+          onChange={(e) => setKind(e.target.value)}
+          className="border border-stone-300 rounded-lg p-2 text-sm bg-white"
+        >
+          <option value="all">All types</option>
+          <option value="room">Rooms</option>
+          <option value="cabin">Cabins</option>
+          <option value="rv_site">RV packages / sites</option>
+          <option value="suite">Suites</option>
+        </select>
+      </div>
+
+      {units.data && counts.hostaway === 0 && filter === "hostaway" && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+          The verified Hostaway catalog has not been applied to this database yet. Existing records
+          remain in All and Unmatched. Apply the catalog migration and run the server photo importer
+          before marking setup complete.
+        </div>
+      )}
+
       {units.isLoading && <p className="text-sm text-stone-500">Loading units…</p>}
       {units.isError && (
         <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-sm text-rose-800">
@@ -201,7 +235,9 @@ function RoomsPage() {
           <p className="font-medium text-stone-800">
             {filter === "all" ? "No units yet" : `No ${filter} units`}
           </p>
-          <p className="text-sm text-stone-500 mt-1">Add one or import a CSV to get started.</p>
+          <p className="text-sm text-stone-500 mt-1">
+            Choose another view, or add an accommodation.
+          </p>
         </div>
       )}
 
@@ -330,12 +366,39 @@ function UnitCard({
             </p>
           </div>
         </div>
-        <span className="text-xs text-stone-500 capitalize">{unit.unit_kind}</span>
+        <span className="text-xs text-stone-500 capitalize">
+          {unit.hostaway_record_kind === "rv_package_offer"
+            ? "RV package · shared site allocation required"
+            : unit.unit_kind}
+        </span>
         <div className="flex items-center gap-3 text-xs text-stone-600">
           <span>{unit.max_guests} guests</span>
           <span className="text-stone-300">·</span>
-          <span>${(unit.base_rate_cents / 100).toFixed(0)}/night</span>
+          <span>${(unit.base_rate_cents / 100).toFixed(2)}/night</span>
         </div>
+
+        {unit.hostaway_source_url && (
+          <a
+            href={unit.hostaway_source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-[#2a382c] hover:underline"
+          >
+            <ExternalLink className="w-3 h-3" /> Hostaway listing #{unit.hostaway_listing_id}
+          </a>
+        )}
+        {unit.hostaway_listing_id && (
+          <p className="text-xs text-stone-500">
+            Photos copied: {unit.hostaway_media_copied ?? 0}/{unit.hostaway_media_expected ?? 0}
+          </p>
+        )}
+        {unit.hostaway_review_required && (
+          <p className="text-xs text-amber-800 bg-amber-50 rounded-lg p-2">
+            {unit.hostaway_record_kind === "rv_package_offer"
+              ? "Package offer only. Direct booking is closed until shared RV inventory is configured."
+              : "Review occupancy limits, rates, taxes, fees, policies and calendars before opening direct booking."}
+          </p>
+        )}
 
         {unit.airbnb_url && (
           <a
@@ -370,15 +433,17 @@ function UnitCard({
           >
             <ImagePlus className="w-4 h-4" />
           </button>
-          {!unit.is_archived && (
-            <button
-              onClick={onPublish}
-              className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600"
-              title={unit.is_published ? "Unpublish" : "Publish"}
-            >
-              {unit.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          )}
+          {!unit.is_archived &&
+            !unit.hostaway_review_required &&
+            unit.hostaway_record_kind !== "rv_package_offer" && (
+              <button
+                onClick={onPublish}
+                className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-600"
+                title={unit.is_published ? "Unpublish" : "Publish"}
+              >
+                {unit.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            )}
           <button
             onClick={onArchive}
             className="p-1.5 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 ml-auto"

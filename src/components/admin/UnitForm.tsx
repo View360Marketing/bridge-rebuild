@@ -34,11 +34,27 @@ export function UnitForm({
     cleaning_fee_cents: String(unit?.cleaning_fee_cents ?? 0),
     description: unit?.description ?? "",
     is_published: unit?.is_published ? "true" : "false",
+    is_closed: unit?.is_closed ? "true" : "false",
+    hostaway_review_required: unit?.hostaway_review_required ?? false,
     primary_image_url: unit?.primary_image_url ?? "",
   });
+  const [error, setError] = useState("");
+  const isRvOffer = unit?.hostaway_record_kind === "rv_package_offer";
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
+    if (
+      unit?.hostaway_listing_id &&
+      !form.hostaway_review_required &&
+      !isRvOffer &&
+      Number(form.max_adults) + Number(form.max_children) === 0
+    ) {
+      setError(
+        "Set the approved adult and child occupancy limits before approving this accommodation.",
+      );
+      return;
+    }
     onSubmit({
       unit_code: form.unit_code,
       public_name: form.public_name || undefined,
@@ -56,6 +72,10 @@ export function UnitForm({
       base_rate_cents: Number(form.base_rate_cents),
       cleaning_fee_cents: Number(form.cleaning_fee_cents),
       is_published: form.is_published === "true",
+      is_closed: form.is_closed === "true",
+      ...(unit?.hostaway_listing_id
+        ? { hostaway_review_required: form.hostaway_review_required }
+        : {}),
       primary_image_url: form.primary_image_url || undefined,
     });
   }
@@ -65,6 +85,17 @@ export function UnitForm({
   return (
     <Modal onClose={onClose} title={isEdit ? "Edit Unit" : "Add Unit"}>
       <form onSubmit={submit} className="space-y-4">
+        {error && (
+          <p role="alert" className="text-sm text-rose-700 bg-rose-50 rounded-lg p-3">
+            {error}
+          </p>
+        )}
+        {isRvOffer && (
+          <p className="text-sm text-amber-900 bg-amber-50 rounded-lg p-3">
+            This is an RV package offer for the shared six-site park. The RV is not included. Direct
+            booking stays closed until shared site allocation is configured.
+          </p>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <Field label="Unit Code *">
             <input
@@ -160,7 +191,9 @@ export function UnitForm({
           <Field label="Bedrooms">
             <input
               type="number"
-              value={form.bedrooms}
+              disabled={isRvOffer}
+              placeholder={isRvOffer ? "Not applicable" : ""}
+              value={isRvOffer ? "" : form.bedrooms}
               onChange={(e) => setForm({ ...form, bedrooms: e.target.value })}
               className={inputCls}
             />
@@ -168,7 +201,9 @@ export function UnitForm({
           <Field label="Beds">
             <input
               type="number"
-              value={form.beds}
+              disabled={isRvOffer}
+              placeholder={isRvOffer ? "Not applicable" : ""}
+              value={isRvOffer ? "" : form.beds}
               onChange={(e) => setForm({ ...form, beds: e.target.value })}
               className={inputCls}
             />
@@ -176,7 +211,9 @@ export function UnitForm({
           <Field label="Bathrooms">
             <input
               type="number"
-              value={form.bathrooms}
+              disabled={isRvOffer}
+              placeholder={isRvOffer ? "Not applicable" : ""}
+              value={isRvOffer ? "" : form.bathrooms}
               onChange={(e) => setForm({ ...form, bathrooms: e.target.value })}
               className={inputCls}
             />
@@ -198,6 +235,37 @@ export function UnitForm({
             />
           </Field>
         </div>
+
+        {unit?.hostaway_listing_id && !isRvOffer && (
+          <label className="flex gap-2 items-start text-sm text-stone-700 bg-stone-50 rounded-lg p-3">
+            <input
+              type="checkbox"
+              checked={!form.hostaway_review_required}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  hostaway_review_required: !e.target.checked,
+                  is_closed: e.target.checked ? form.is_closed : "true",
+                  is_published: e.target.checked ? form.is_published : "false",
+                })
+              }
+              className="mt-1"
+            />
+            I have reviewed the occupancy limits, pricing, taxes, fees, policies and calendar setup
+            for this accommodation.
+          </label>
+        )}
+        <Field label="Booking availability">
+          <select
+            value={form.is_closed}
+            disabled={isRvOffer || form.hostaway_review_required}
+            onChange={(e) => setForm({ ...form, is_closed: e.target.value })}
+            className={inputCls}
+          >
+            <option value="true">Closed to bookings</option>
+            <option value="false">Open to bookings</option>
+          </select>
+        </Field>
         <Field label="Cover Image URL">
           <input
             value={form.primary_image_url}
@@ -216,6 +284,7 @@ export function UnitForm({
         </Field>
         <Field label="Publish?">
           <select
+            disabled={isRvOffer || form.hostaway_review_required}
             value={form.is_published}
             onChange={(e) => setForm({ ...form, is_published: e.target.value })}
             className={inputCls}
