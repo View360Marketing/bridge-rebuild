@@ -163,9 +163,7 @@ export const stripeWebhookDiagnosticsFn = createServerFn({ method: "GET" })
     });
     if (!isStaff) throw new Error("Staff role required.");
     const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : "https://thebridgestn.com";
+      typeof window !== "undefined" ? window.location.origin : "https://thebridgestn.com";
     const webhookUrl = `${origin}/api/webhooks/stripe`;
     const listResult = await listStripeWebhookEndpoints();
     if (!listResult.ok) {
@@ -177,9 +175,7 @@ export const stripeWebhookDiagnosticsFn = createServerFn({ method: "GET" })
         endpoints: [] as StripeWebhookEndpoint[],
       };
     }
-    const matching = listResult.endpoints.find(
-      (e: StripeWebhookEndpoint) => e.url === webhookUrl,
-    );
+    const matching = listResult.endpoints.find((e: StripeWebhookEndpoint) => e.url === webhookUrl);
     return {
       ok: true,
       webhookUrl,
@@ -201,9 +197,7 @@ export const createStripeWebhookFn = createServerFn({ method: "POST" })
     });
     if (!isStaff) throw new Error("Staff role required.");
     const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : "https://thebridgestn.com";
+      typeof window !== "undefined" ? window.location.origin : "https://thebridgestn.com";
     const webhookUrl = `${origin}/api/webhooks/stripe`;
     const events = [
       "checkout.session.completed",

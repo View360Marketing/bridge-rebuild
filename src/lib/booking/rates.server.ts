@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 /**
  * Rates & rules management — base rates, date overrides, restrictions,
@@ -40,8 +41,8 @@ export type RestrictionInput = {
   is_closed?: boolean;
 };
 
-async function requireManager(supabase: SupabaseClient, userId: string): Promise<void> {
-  const { data } = await supabase.rpc("is_manager", { _user_id: userId });
+async function requireManager(_supabase: SupabaseClient, userId: string): Promise<void> {
+  const { data } = await supabaseAdmin.rpc("is_manager", { _user_id: userId });
   if (!data) throw new Error("Manager role required for this operation.");
 }
 

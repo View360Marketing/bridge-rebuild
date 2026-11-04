@@ -98,7 +98,7 @@ export async function mergeGuests(
   sourceId: string,
   targetId: string,
 ): Promise<{ merged: number }> {
-  const { data } = await supabase.rpc("is_staff", { _user_id: userId });
+  const { data } = await supabaseAdmin.rpc("is_staff", { _user_id: userId });
   if (!data) throw new Error("Staff role required for this operation.");
   if (sourceId === targetId) throw new Error("Cannot merge a guest into itself.");
 

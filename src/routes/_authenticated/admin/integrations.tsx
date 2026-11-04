@@ -541,7 +541,9 @@ function StripeWebhookCard() {
                 <code>STRIPE_WEBHOOK_SECRET</code> server secret:
               </p>
               <div className="flex items-center gap-2 bg-white border border-emerald-300 rounded px-2 py-1.5">
-                <code className="text-xs text-emerald-900 font-mono truncate flex-1">{newSecret}</code>
+                <code className="text-xs text-emerald-900 font-mono truncate flex-1">
+                  {newSecret}
+                </code>
                 <button
                   onClick={() => {
                     navigator.clipboard?.writeText(newSecret);

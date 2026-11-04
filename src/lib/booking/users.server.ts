@@ -16,14 +16,14 @@ export type StaffUser = {
   is_active: boolean;
 };
 
-async function requireAdmin(supabase: SupabaseClient, userId: string): Promise<void> {
-  const { data } = await supabase.rpc("is_admin", { _user_id: userId });
+async function requireAdmin(_supabase: SupabaseClient, userId: string): Promise<void> {
+  const { data } = await supabaseAdmin.rpc("is_admin", { _user_id: userId });
   if (!data) throw new Error("Administrator role required for user management.");
 }
 
 /** Super-admin-only check (Ben). Used for destructive/sensitive operations. */
-async function requireSuperAdmin(supabase: SupabaseClient, userId: string): Promise<void> {
-  const { data } = await supabase.rpc("is_super_admin", { _user_id: userId });
+async function requireSuperAdmin(_supabase: SupabaseClient, userId: string): Promise<void> {
+  const { data } = await supabaseAdmin.rpc("is_super_admin", { _user_id: userId });
   if (!data)
     throw new Error("Only the super-admin (ben@view360.marketing) may perform this action.");
 }
@@ -281,7 +281,7 @@ export async function setUserPassword(
   }
 
   // Prevent lower-privilege escalation against super-admins if caller is somehow not super_admin
-  const { data: isAdmin } = await supabase.rpc("is_admin", { _user_id: adminUserId });
+  const { data: isAdmin } = await supabaseAdmin.rpc("is_admin", { _user_id: adminUserId });
   if (!isAdmin) {
     throw new Error("Only super-administrators can set user passwords.");
   }

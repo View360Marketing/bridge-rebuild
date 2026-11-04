@@ -29,8 +29,8 @@ export type ManualPaymentInput = {
   notes?: string;
 };
 
-async function requireStaff(supabase: SupabaseClient, userId: string): Promise<void> {
-  const { data } = await supabase.rpc("is_staff", { _user_id: userId });
+async function requireStaff(_supabase: SupabaseClient, userId: string): Promise<void> {
+  const { data } = await supabaseAdmin.rpc("is_staff", { _user_id: userId });
   if (!data) throw new Error("Staff role required for this operation.");
 }
 

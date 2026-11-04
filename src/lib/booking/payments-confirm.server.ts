@@ -266,7 +266,7 @@ export async function staffRefund(
   userId: string,
   input: { reservation_id: string; amount_cents?: number | undefined; reason?: string | undefined },
 ): Promise<{ refund_id: string; status: string }> {
-  const { data: staff } = await supabase.rpc("is_manager", { _user_id: userId });
+  const { data: staff } = await supabaseAdmin.rpc("is_manager", { _user_id: userId });
   if (!staff) throw new Error("Manager role required to issue refunds.");
 
   const { data: r } = await supabase

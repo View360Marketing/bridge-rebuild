@@ -84,13 +84,13 @@ export type GroupPickupInput = {
   children: number;
 };
 
-async function requireManager(supabase: SupabaseClient, userId: string): Promise<void> {
-  const { data } = await supabase.rpc("is_manager", { _user_id: userId });
+async function requireManager(_supabase: SupabaseClient, userId: string): Promise<void> {
+  const { data } = await supabaseAdmin.rpc("is_manager", { _user_id: userId });
   if (!data) throw new Error("Manager role required for this operation.");
 }
 
-async function requireStaff(supabase: SupabaseClient, userId: string): Promise<void> {
-  const { data } = await supabase.rpc("is_staff", { _user_id: userId });
+async function requireStaff(_supabase: SupabaseClient, userId: string): Promise<void> {
+  const { data } = await supabaseAdmin.rpc("is_staff", { _user_id: userId });
   if (!data) throw new Error("Staff role required for this operation.");
 }
 

@@ -30,8 +30,7 @@ export function getStripeConfig(): StripeConfigStatus {
   if (!secretKey) {
     return {
       configured: false,
-      reason:
-        "Stripe is not configured. Set STRIPE_SECRET_KEY server secret to enable checkout.",
+      reason: "Stripe is not configured. Set STRIPE_SECRET_KEY server secret to enable checkout.",
     };
   }
   const environment: "test" | "live" = secretKey.startsWith("sk_test_") ? "test" : "live";
@@ -62,8 +61,7 @@ export type StripeWebhookEndpoint = {
 };
 
 export type StripeWebhookEndpointsResult =
-  | { ok: true; endpoints: StripeWebhookEndpoint[]; hasMore: boolean }
-  | { ok: false; error: string };
+  { ok: true; endpoints: StripeWebhookEndpoint[]; hasMore: boolean } | { ok: false; error: string };
 
 /** List webhook endpoints from Stripe. Paginated (100 per page). */
 export async function listStripeWebhookEndpoints(): Promise<StripeWebhookEndpointsResult> {
@@ -90,8 +88,7 @@ export async function listStripeWebhookEndpoints(): Promise<StripeWebhookEndpoin
 }
 
 export type CreateWebhookResult =
-  | { ok: true; endpoint: StripeWebhookEndpoint }
-  | { ok: false; error: string };
+  { ok: true; endpoint: StripeWebhookEndpoint } | { ok: false; error: string };
 
 /** Create a webhook endpoint in Stripe. Returns the signing secret. */
 export async function createStripeWebhookEndpoint(params: {
@@ -298,7 +295,8 @@ export async function verifyWebhookSignature(
   if (!status.hasWebhookSecret) {
     return {
       valid: false,
-      reason: "STRIPE_WEBHOOK_SECRET is not configured. Webhook signature verification is unavailable.",
+      reason:
+        "STRIPE_WEBHOOK_SECRET is not configured. Webhook signature verification is unavailable.",
     };
   }
 
