@@ -1,0 +1,102 @@
+[
+  {
+    "sha": "7f7a5fddcd9965eaf3d64dafa36716f47a62b85a95b55469f412867953180307",
+    "ok": true,
+    "dest": "data/hostaway-img/7f7a5fddcd9965eaf3d64dafa36716f47a62b85a95b55469f412867953180307.webp"
+  },
+  {
+    "sha": "f070c4dcdacb352d8c3f23cd6dc85ee87ab47abb2646b1bbfc2f41c6116f3c8d",
+    "ok": true,
+    "dest": "data/hostaway-img/f070c4dcdacb352d8c3f23cd6dc85ee87ab47abb2646b1bbfc2f41c6116f3c8d.webp"
+  },
+  {
+    "sha": "79c7395955d752450cc6f0462f546093691dbeab311689b3ea5426cab1c72b83",
+    "ok": true,
+    "dest": "data/hostaway-img/79c7395955d752450cc6f0462f546093691dbeab311689b3ea5426cab1c72b83.webp"
+  },
+  {
+    "sha": "bb7c2058ef503a82c315d3d9f0c9ed098b87663f036c6a50b0f7989e87f553ca",
+    "ok": true,
+    "dest": "data/hostaway-img/bb7c2058ef503a82c315d3d9f0c9ed098b87663f036c6a50b0f7989e87f553ca.webp"
+  },
+  {
+    "sha": "884957b1370e4f3606b1171e25977282f254bc5c2da956d9c07a74d8a6db316a",
+    "ok": true,
+    "dest": "data/hostaway-img/884957b1370e4f3606b1171e25977282f254bc5c2da956d9c07a74d8a6db316a.webp"
+  },
+  {
+    "sha": "ec40dce1aa8eef1dacc6a7a9f9506f781951e80fc6c44914986651838df70bec",
+    "ok": true,
+    "dest": "data/hostaway-img/ec40dce1aa8eef1dacc6a7a9f9506f781951e80fc6c44914986651838df70bec.webp"
+  },
+  {
+    "sha": "a44f85b9395bf760042b86003f7d2ccd4ca28acf25c0177431aadb65cd0934b5",
+    "ok": true,
+    "dest": "data/hostaway-img/a44f85b9395bf760042b86003f7d2ccd4ca28acf25c0177431aadb65cd0934b5.webp"
+  },
+  {
+    "sha": "a5a4b86c98fce5a2a26bcba00040432e1da8c8d955a03c6a6e533c7d2bb939af",
+    "ok": true,
+    "dest": "data/hostaway-img/a5a4b86c98fce5a2a26bcba00040432e1da8c8d955a03c6a6e533c7d2bb939af.webp"
+  },
+  {
+    "sha": "d922d2f36c1263ed55ada797c9821fd30a8e3e4077a1b52df92e2878f2945cd2",
+    "ok": true,
+    "dest": "data/hostaway-img/d922d2f36c1263ed55ada797c9821fd30a8e3e4077a1b52df92e2878f2945cd2.webp"
+  },
+  {
+    "sha": "fd6f39f21030b2a919e5f7c678ef6271d9b895b3ffa3ad7dbda232914b4df3c3",
+    "ok": true,
+    "dest": "data/hostaway-img/fd6f39f21030b2a919e5f7c678ef6271d9b895b3ffa3ad7dbda232914b4df3c3.webp"
+  },
+  {
+    "sha": "73f8e6983b3804a5ab691b576ae2bf7644373d991f6e5f1a915950a36916da48",
+    "ok": true,
+    "dest": "data/hostaway-img/73f8e6983b3804a5ab691b576ae2bf7644373d991f6e5f1a915950a36916da48.webp"
+  },
+  {
+    "sha": "b4677e4ad6da183626d10b2ff6a3e71d42408d2a3f2272d784faccbbd2bd9637",
+    "ok": true,
+    "dest": "data/hostaway-img/b4677e4ad6da183626d10b2ff6a3e71d42408d2a3f2272d784faccbbd2bd9637.webp"
+  },
+  {
+    "sha": "8f56e030b8f48e4eaa966763944caca4f0036996bb3c1be3b2aa41ad5076a70d",
+    "ok": true,
+    "dest": "data/hostaway-img/8f56e030b8f48e4eaa966763944caca4f0036996bb3c1be3b2aa41ad5076a70d.webp"
+  },
+  {
+    "sha": "6e73b076143d7334e63d305d7a7addf2738e7784deefec0a23d785a37ed51059",
+    "ok": true,
+    "dest": "data/hostaway-img/6e73b076143d7334e63d305d7a7addf2738e7784deefec0a23d785a37ed51059.webp"
+  },
+  {
+    "sha": "a3a1a48ccaed0c58ac77e714188a48306b4dbab50e1297be6a96aa8a36e153dd",
+    "ok": true,
+    "dest": "data/hostaway-img/a3a1a48ccaed0c58ac77e714188a48306b4dbab50e1297be6a96aa8a36e153dd.webp"
+  },
+  {
+    "sha": "3bfeb315abf00aee86fe00ed4bfef6d54dfbff85b355ca2ecc0102d16c8a2592",
+    "ok": true,
+    "dest": "data/hostaway-img/3bfeb315abf00aee86fe00ed4bfef6d54dfbff85b355ca2ecc0102d16c8a2592.webp"
+  },
+  {
+    "sha": "2b076d0e18c4d5a36143f85e2547a303f517069286a6809de4d0c3272c30bcf7",
+    "ok": true,
+    "dest": "data/hostaway-img/2b076d0e18c4d5a36143f85e2547a303f517069286a6809de4d0c3272c30bcf7.webp"
+  },
+  {
+    "sha": "f9aa0a0288ca3c287a5189ba758f774d97046a163db5429c735b896fee87b9fa",
+    "ok": true,
+    "dest": "data/hostaway-img/f9aa0a0288ca3c287a5189ba758f774d97046a163db5429c735b896fee87b9fa.webp"
+  },
+  {
+    "sha": "733c63e47fbae34ce1affc534daffb9f2c664fbed7c345f8458bad017d47a332",
+    "ok": true,
+    "dest": "data/hostaway-img/733c63e47fbae34ce1affc534daffb9f2c664fbed7c345f8458bad017d47a332.webp"
+  },
+  {
+    "sha": "3fc3dd51348e260acea031ec6c8d55b9585bd5353fb543e2d68ad8a0d461b9e1",
+    "ok": true,
+    "dest": "data/hostaway-img/3fc3dd51348e260acea031ec6c8d55b9585bd5353fb543e2d68ad8a0d461b9e1.webp"
+  }
+]
