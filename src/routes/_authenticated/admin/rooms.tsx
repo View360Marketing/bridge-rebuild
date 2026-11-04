@@ -32,6 +32,7 @@ import {
   ImagePlus,
   ExternalLink,
   AlertCircle,
+  Search,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/rooms")({
@@ -74,6 +75,7 @@ function RoomsPage() {
   >("hostaway");
   const [kind, setKind] = useState("all");
   const [sort, setSort] = useState<"room_asc" | "room_desc" | "name_asc" | "name_desc">("room_asc");
+  const [search, setSearch] = useState("");
 
   async function refresh() {
     await qc.invalidateQueries({ queryKey: ["admin-units"] });
@@ -137,15 +139,24 @@ function RoomsPage() {
   }
 
   const all = (units.data ?? []) as UnitRow[];
-  const filtered = all.filter((u) => {
-    if (kind !== "all" && u.unit_kind !== kind) return false;
-    if (filter === "hostaway") return !!u.hostaway_listing_id && !u.is_archived;
-    if (filter === "unmatched") return !u.hostaway_listing_id && !u.is_archived;
-    if (filter === "published") return u.is_published && !u.is_archived;
-    if (filter === "draft") return !u.is_published && !u.is_archived;
-    if (filter === "archived") return u.is_archived;
-    return !u.is_archived;
-  });
+  const q = search.trim().toLowerCase();
+  const filtered = all
+    .filter((u) => {
+      if (kind !== "all" && u.unit_kind !== kind) return false;
+      if (filter === "hostaway") return !!u.hostaway_listing_id && !u.is_archived;
+      if (filter === "unmatched") return !u.hostaway_listing_id && !u.is_archived;
+      if (filter === "published") return u.is_published && !u.is_archived;
+      if (filter === "draft") return !u.is_published && !u.is_archived;
+      if (filter === "archived") return u.is_archived;
+      if (!u.is_archived) return true;
+      return false;
+    })
+    .filter((u) => {
+      if (!q) return true;
+      const haystack =
+        `${u.public_name ?? ""} ${u.unit_code ?? ""} ${u.hostaway_listing_id ?? ""}`.toLowerCase();
+      return haystack.includes(q);
+    });
   const sorted = [...filtered].sort((a, b) => {
     const an = roomNumber(a);
     const bn = roomNumber(b);
@@ -244,6 +255,16 @@ function RoomsPage() {
           <option value="name_asc">Name: A–Z</option>
           <option value="name_desc">Name: Z–A</option>
         </select>
+
+        <div className="relative ml-auto">
+          <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search room or name…"
+            className="pl-9 pr-3 py-2 rounded-lg border border-stone-300 text-sm w-56 bg-white"
+          />
+        </div>
       </div>
 
       {units.data && counts.hostaway === 0 && filter === "hostaway" && (
