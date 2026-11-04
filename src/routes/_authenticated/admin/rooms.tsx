@@ -18,9 +18,7 @@ import {
   validateCsvImportFn,
   confirmCsvImportFn,
 } from "@/lib/booking/rooms.functions";
-import { runPhotoImportFn } from "@/lib/booking/photo-import.functions";
 import type { UnitRow } from "@/lib/booking/rooms.server";
-import type { ImportProgress } from "@/lib/booking/photo-import.server";
 import { UnitForm } from "@/components/admin/UnitForm";
 import { PhotoManager } from "@/components/admin/PhotoManager";
 import { CsvImportModal } from "@/components/admin/CsvImportModal";
@@ -34,10 +32,6 @@ import {
   ImagePlus,
   ExternalLink,
   AlertCircle,
-  ImageIcon,
-  Loader2,
-  CheckCircle2,
-  XCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/rooms")({
@@ -65,22 +59,10 @@ function RoomsPage() {
   const deleteMedia = useServerFn(deleteUnitMediaFn);
   const validateCsv = useServerFn(validateCsvImportFn);
   const confirmCsv = useServerFn(confirmCsvImportFn);
-  const runPhotoImport = useServerFn(runPhotoImportFn);
 
   const properties = useQuery({ queryKey: ["admin-properties"], queryFn: listProperties });
   const roomTypes = useQuery({ queryKey: ["admin-room-types"], queryFn: listRoomTypes });
   const units = useQuery({ queryKey: ["admin-units"], queryFn: listUnits });
-  const photoStatus = useQuery({
-    queryKey: ["photo-import-status"],
-    queryFn: () => listUnits({} as never),
-    enabled: false,
-  });
-
-  const [importState, setImportState] = useState<{
-    running: boolean;
-    result: ImportProgress | null;
-    error: string | null;
-  }>({ running: false, result: null, error: null });
 
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
@@ -153,42 +135,6 @@ function RoomsPage() {
     }
   }
 
-  async function handlePhotoImport() {
-    if (importState.running) return;
-    setImportState({ running: true, result: importState.result, error: null });
-    try {
-      const res = (await runPhotoImport({ data: { limit: 20 } as never })) as ImportProgress;
-      setImportState({ running: false, result: res, error: null });
-      const moreLeft = res.uploaded < res.unique_images;
-      toast.success(
-        moreLeft
-          ? `Imported ${res.uploaded}/${res.unique_images} unique images so far. Click again to continue the next batch.`
-          : `Photo import complete: ${res.uploaded}/${res.unique_images} images, ${res.gallery_links_copied}/${res.total_media} gallery links`,
-      );
-      await refresh();
-    } catch (e) {
-      const msg = (e as Error).message;
-      setImportState({ running: false, result: null, error: msg });
-      toast.error(`Photo import failed: ${msg}`);
-    }
-  }
-
-  const photoStats = (() => {
-    const allU = (units.data ?? []) as UnitRow[];
-    const hw = allU.filter((u) => u.hostaway_listing_id && !u.is_archived);
-    const withCover = hw.filter(
-      (u) => u.primary_image_url && u.primary_image_url.includes("/unit-media/hostaway/"),
-    ).length;
-    const copiedTotal = hw.reduce((s, u) => s + (u.hostaway_media_copied ?? 0), 0);
-    const expectedTotal = hw.reduce((s, u) => s + (u.hostaway_media_expected ?? 0), 0);
-    return {
-      listings: hw.length,
-      withCover,
-      copied: copiedTotal,
-      expected: expectedTotal,
-    };
-  })();
-
   const all = (units.data ?? []) as UnitRow[];
   const filtered = all.filter((u) => {
     if (kind !== "all" && u.unit_kind !== kind) return false;
@@ -232,111 +178,6 @@ function RoomsPage() {
             <Plus className="w-4 h-4" /> Add Unit
           </button>
         </div>
-      </div>
-
-      {/* Hostaway Photo Import */}
-      <div className="mb-6 rounded-2xl border border-stone-200 bg-white p-5">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-[#2a382c]/10 p-2.5">
-              <ImageIcon className="w-5 h-5 text-[#2a382c]" />
-            </div>
-            <div>
-              <h2 className="font-serif text-lg font-bold text-stone-900">
-                Import Hostaway Photos
-              </h2>
-              <p className="text-sm text-stone-500 mt-0.5">
-                Copies verified images into owned storage · 137 unique files · 1,031 gallery
-                associations
-              </p>
-              <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 text-xs text-stone-600">
-                <span>
-                  <strong className="text-stone-900">{photoStats.listings}</strong>/35 listings
-                </span>
-                <span>
-                  <strong className="text-stone-900">{photoStats.withCover}</strong>/35 covers set
-                </span>
-                <span>
-                  <strong className="text-stone-900">{photoStats.copied}</strong>/
-                  {photoStats.expected} gallery links
-                </span>
-                {importState.result && (
-                  <span className="text-emerald-700">
-                    <strong>{importState.result.uploaded}</strong>/
-                    {importState.result.unique_images} unique images copied
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={handlePhotoImport}
-            disabled={importState.running}
-            className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-4 py-2.5 rounded-xl text-sm"
-          >
-            {importState.running ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Importing…
-              </>
-            ) : (
-              <>
-                <ImagePlus className="w-4 h-4" /> Start Photo Import
-              </>
-            )}
-          </button>
-        </div>
-
-        {importState.running && (
-          <div className="mt-3 flex items-center gap-2 text-sm text-stone-600">
-            <Loader2 className="w-4 h-4 animate-spin text-[#2a382c]" />
-            Downloading and uploading {photoStats.expected || 1031} gallery photos in bounded
-            batches. Keep this page open until complete.
-          </div>
-        )}
-
-        {importState.result && !importState.running && (
-          <div className="mt-3 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-800">
-            <div className="flex items-center gap-2 font-medium">
-              <CheckCircle2 className="w-4 h-4" />
-              Import complete
-            </div>
-            <div className="mt-1 grid grid-cols-2 sm:grid-cols-4 gap-2 text-emerald-700">
-              <span>
-                Unique images: {importState.result.uploaded}/{importState.result.unique_images}
-              </span>
-              <span>
-                Gallery links: {importState.result.gallery_links_copied}/
-                {importState.result.total_media}
-              </span>
-              <span>Complete listings: {importState.result.listings_complete}/35</span>
-              <span>Failed: {importState.result.failed.length}</span>
-            </div>
-            {importState.result.failed.length > 0 && (
-              <div className="mt-2 text-xs text-rose-700">
-                {importState.result.failed.slice(0, 5).map((f, i) => (
-                  <div key={i}>
-                    {f.sha256}: {f.error}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {importState.error && !importState.running && (
-          <div className="mt-3 rounded-xl bg-rose-50 border border-rose-200 p-3 text-sm text-rose-800">
-            <div className="flex items-center gap-2 font-medium">
-              <XCircle className="w-4 h-4" /> Import failed
-            </div>
-            <p className="mt-1 text-rose-700">{importState.error}</p>
-            <button
-              onClick={handlePhotoImport}
-              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-rose-900 hover:underline"
-            >
-              <Loader2 className="w-3 h-3" /> Retry
-            </button>
-          </div>
-        )}
       </div>
 
       <div className="flex flex-wrap gap-1 mb-4 border-b border-stone-200">
