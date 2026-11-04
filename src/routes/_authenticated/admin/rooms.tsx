@@ -305,6 +305,23 @@ function RoomsPage() {
   );
 }
 
+function roomLabel(unit: UnitRow): string {
+  if (unit.hostaway_record_kind === "rv_package_offer") {
+    return "RV package · shared site allocation required";
+  }
+  if (unit.unit_kind === "cabin") {
+    return "Cabin";
+  }
+  // Extract the verified room number from public_name (e.g. "Gateway to Nature's Beauty — Room 11" → "Room 11")
+  const m = /Room\s+(\d+)/i.exec(unit.public_name ?? "");
+  if (m) return `Room ${m[1]}`;
+  // Rooms without a verified physical number (e.g. Crockett's Lookout)
+  if (unit.unit_kind === "room") {
+    return "Room — number unconfirmed";
+  }
+  return unit.unit_kind ?? "—";
+}
+
 function UnitCard({
   unit,
   onEdit,
@@ -366,11 +383,7 @@ function UnitCard({
             </p>
           </div>
         </div>
-        <span className="text-xs text-stone-500 capitalize">
-          {unit.hostaway_record_kind === "rv_package_offer"
-            ? "RV package · shared site allocation required"
-            : unit.unit_kind}
-        </span>
+        <span className="text-xs text-stone-500">{roomLabel(unit)}</span>
         <div className="flex items-center gap-3 text-xs text-stone-600">
           <span>{unit.max_guests} guests</span>
           <span className="text-stone-300">·</span>
