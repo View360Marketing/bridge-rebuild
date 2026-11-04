@@ -16,7 +16,7 @@ import {
 import { listUnitsFn } from "@/lib/booking/rooms.functions";
 import { todayPropertyLocal } from "@/lib/booking/dates";
 import { Plus, X, DollarSign, CalendarDays, Ban, Percent, FileText } from "lucide-react";
-import { RatePlansTab } from "@/components/admin/RatePlansTab";
+import { RatePlansTab as RatePlansTabComponent } from "@/components/admin/RatePlansTab";
 
 export const Route = createFileRoute("/_authenticated/admin/rates")({
   head: () => ({
@@ -97,7 +97,7 @@ function RatesPage() {
         />
       </div>
 
-      {tab === "plans" && <RatePlansTab />}
+      {tab === "plans" && <RatePlansTabComponent />}
       {tab === "overrides" && <DateOverridesTab />}
       {tab === "restrictions" && <RestrictionsTab />}
       {tab === "fees" && <SimpleListTab queryFn={listFeesFn} queryKey="admin-fees" title="Fees" />}
