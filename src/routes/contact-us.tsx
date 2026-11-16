@@ -51,6 +51,7 @@ function ContactPage() {
       email,
       phone,
       calendar_notes: message,
+      message,
     };
     payload.formLabels = {
       first_name: "First Name",
@@ -58,6 +59,7 @@ function ContactPage() {
       email: "Email",
       phone: "Phone",
       calendar_notes: "Your Message",
+      message: "Your Message",
     };
     postTrackingEvent(payload, {
       customFields: {
