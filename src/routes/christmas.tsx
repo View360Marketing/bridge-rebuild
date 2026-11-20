@@ -338,6 +338,20 @@ function ChristmasPage() {
                           <Compass className="w-3.5 h-3.5" /> {e.location}
                         </div>
                       )}
+                      {/* Special group rate note for The Holiday */}
+                      {e.code === "dec-10-the-holiday-movie-night" && (
+                        <div className="bg-[#f4eee6] border border-[#e5ded3] rounded-2xl p-4 my-1 text-xs text-stone-700 space-y-2">
+                          <p className="font-medium text-stone-900 leading-relaxed">
+                            Coming with a group? Groups of 5 or more can book by phone for $15 per person. Call 931-722-5589 to reserve at the group rate. This discount is available by phone only.
+                          </p>
+                          <a
+                            href="tel:+19317225589"
+                            className="inline-flex items-center gap-1.5 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-colors shadow-xs"
+                          >
+                            <Phone className="w-3.5 h-3.5" /> Call for Group Pricing
+                          </a>
+                        </div>
+                      )}
                       <div className="mt-1 pt-3 border-t border-stone-200 flex flex-wrap items-center gap-3">
                         {e.ticket_url ? (
                           <a
@@ -356,6 +370,13 @@ function ChristmasPage() {
                             <Phone className="w-4 h-4" /> Inquire / Reserve
                           </Link>
                         )}
+                        <Link
+                          to="/events/$code"
+                          params={{ code: e.code }}
+                          className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
+                        >
+                          Event Details <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
                         <span className="text-xs text-stone-500 flex items-center gap-1.5">
                           <CalendarPlus className="w-3.5 h-3.5" /> Add to:
                         </span>
@@ -393,6 +414,186 @@ function ChristmasPage() {
             >
               <Users className="w-4 h-4" /> Request Group Pricing
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Holiday Movie Night Showcases: The Holiday & Polar Express */}
+      <section className="py-16 lg:py-20 bg-white border-b border-stone-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="text-xs font-bold uppercase tracking-widest text-[#3e5340] block mb-2">
+              Holiday Movie Nights
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
+              Cozy Christmas Movie Showcases
+            </h2>
+            <p className="text-stone-600 text-sm mt-3 leading-relaxed">
+              Step inside for memorable holiday screenings, festive treats, and seasonal magic.
+            </p>
+          </div>
+
+          <div className="space-y-16">
+            {/* The Holiday Showcase */}
+            <div className="bg-[#faf8f5] rounded-3xl border border-stone-200 overflow-hidden shadow-xs p-6 lg:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-5 flex flex-col items-center">
+                <div className="rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-white max-w-xs w-full">
+                  <img
+                    src="https://vibe.filesafe.space/1790196628861484830/attachments/eeacb6b7-f915-47e0-b531-9adb80627f7a.jpg"
+                    alt="The Holiday Girls Night Movie Experience"
+                    className="w-full h-auto object-contain block"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-3 max-w-xs w-full">
+                  <div className="rounded-lg overflow-hidden h-16 border border-stone-200">
+                    <img
+                      src="https://vibe.filesafe.space/1790196628861484830/attachments/b7a46cd7-e0a5-438b-a5af-a4ae4aafd388.jpg"
+                      alt="The Holiday scene"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="rounded-lg overflow-hidden h-16 border border-stone-200">
+                    <img
+                      src="https://vibe.filesafe.space/1790196628861484830/attachments/4da8c69e-d32b-44a2-98b5-013201686727.jpg"
+                      alt="The Holiday scene"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="rounded-lg overflow-hidden h-16 border border-stone-200">
+                    <img
+                      src="https://vibe.filesafe.space/1790196628861484830/attachments/e8c73b76-117c-41aa-b019-48f42bf7f798.jpg"
+                      alt="The Holiday scene"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#3e5340] bg-[#3e5340]/10 px-3 py-1 rounded-full">
+                  Thursday, December 10, 2026 · 6:00–9:00 PM CST
+                </div>
+                <h3 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 leading-tight">
+                  The Holiday Girls Night Movie Experience
+                </h3>
+                <p className="text-sm text-stone-500 flex items-center gap-1.5">
+                  <Compass className="w-4 h-4 text-[#3e5340]" /> The Willows at The Bridges
+                </p>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  Make it a Christmas girls’ night at The Bridges! Gather your friends for a cozy indoor showing of <em>The Holiday</em> at The Willows. Wear pajamas or something comfortable and bring a chair or blanket. Ask about qualifying room stays that include up to four complimentary event admissions per room for registered overnight guests.
+                </p>
+                
+                {/* Pricing & Group discount callout */}
+                <div className="bg-white rounded-2xl p-5 border border-stone-200 space-y-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-stone-900">$20</span>
+                    <span className="text-xs text-stone-500 font-medium">per person standard admission</span>
+                  </div>
+                  <div className="bg-[#f4eee6] rounded-xl p-3.5 border border-[#e5ded3] text-xs text-stone-700 space-y-2">
+                    <p className="font-semibold text-stone-900">
+                      Coming with a group? Groups of 5 or more can book by phone for $15 per person. Call 931-722-5589 to reserve at the group rate. This discount is available by phone only.
+                    </p>
+                    <a
+                      href="tel:+19317225589"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2a382c] hover:text-[#1b251e] underline"
+                    >
+                      <Phone className="w-3.5 h-3.5" /> Call for Group Pricing (931-722-5589)
+                    </a>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <a
+                    href="https://api.view360brands.com/events/event-details/6aea3f499ae34d9035158c61"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-sm"
+                  >
+                    <Ticket className="w-4 h-4" /> Get Tickets ($20)
+                  </a>
+                  <a
+                    href="tel:+19317225589"
+                    className="inline-flex items-center gap-2 bg-white border border-stone-300 hover:border-stone-400 text-[#2a382c] font-semibold px-5 py-3 rounded-full text-xs uppercase tracking-wider transition-colors"
+                  >
+                    <Phone className="w-4 h-4" /> Call for Group Pricing
+                  </a>
+                  <Link
+                    to="/events/$code"
+                    params={{ code: "dec-10-the-holiday-movie-night" }}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#2a382c] hover:underline px-2 py-1"
+                  >
+                    Full Event Details <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Polar Express Showcase */}
+            <div className="bg-[#faf8f5] rounded-3xl border border-stone-200 overflow-hidden shadow-xs p-6 lg:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-5 flex flex-col items-center">
+                <div className="rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-white max-w-xs w-full">
+                  <img
+                    src="https://vibe.filesafe.space/1790196628861484830/attachments/eb671a71-2127-4074-92bf-6f34c8756a59.png"
+                    alt="Polar Express Movie Night Experience"
+                    className="w-full h-auto object-contain block"
+                  />
+                </div>
+                <div className="mt-3 max-w-xs w-full rounded-lg overflow-hidden h-20 border border-stone-200">
+                  <img
+                    src="https://vibe.filesafe.space/1790196628861484830/attachments/82bbdcae-fba9-464c-8abd-e86ac7b3536a.jpg"
+                    alt="The Polar Express train"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#3e5340] bg-[#3e5340]/10 px-3 py-1 rounded-full">
+                  Saturday, December 19, 2026 · 6:00–9:00 PM CST
+                </div>
+                <h3 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900 leading-tight">
+                  Polar Express Movie Night Experience at The Bridges
+                </h3>
+                <p className="text-sm text-stone-500 flex items-center gap-1.5">
+                  <Compass className="w-4 h-4 text-[#3e5340]" /> The Bridges · Waynesboro, TN
+                </p>
+                <p className="text-stone-600 text-sm leading-relaxed">
+                  All aboard for Christmas memories at The Bridges! Put on your Christmas pajamas for a family-friendly holiday experience featuring <em>The Polar Express</em> screening, golden admission tickets, hot chocolate, popcorn, a special bell, holiday photo opportunities, a letter-to-Santa station, and lights at The Bridges.
+                </p>
+                
+                {/* Pricing summary */}
+                <div className="bg-white rounded-2xl p-5 border border-stone-200 flex flex-wrap items-center gap-6 text-xs text-stone-600">
+                  <div>
+                    <span className="block text-xl font-bold text-stone-900">$15</span>
+                    <span>Adults (Ages 13+)</span>
+                  </div>
+                  <div className="border-l border-stone-200 pl-6">
+                    <span className="block text-xl font-bold text-stone-900">$25</span>
+                    <span>Children (Ages 4–12)</span>
+                  </div>
+                  <div className="border-l border-stone-200 pl-6">
+                    <span className="block text-xl font-bold text-stone-900">FREE</span>
+                    <span>Ages 3 &amp; Under</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <a
+                    href="https://api.view360brands.com/events/event-details/6aea3f670629fec47d1e66b1"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 bg-[#2a382c] hover:bg-[#1b251e] text-white font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-sm"
+                  >
+                    <Ticket className="w-4 h-4" /> Get Tickets
+                  </a>
+                  <Link
+                    to="/events/$code"
+                    params={{ code: "dec-19-polar-express-movie-night" }}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#2a382c] hover:underline px-2 py-1"
+                  >
+                    Full Event Details <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

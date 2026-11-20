@@ -113,46 +113,73 @@ function EventDetailPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative py-20 lg:py-28 overflow-hidden">
-        {event.image_url ? (
-          <>
-            <div className="absolute inset-0">
-              <img src={event.image_url} alt={event.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#1a231c]/80 via-[#1a231c]/60 to-[#1a231c]/80" />
-            </div>
-          </>
-        ) : (
-          <div className="absolute inset-0 bg-[#1a231c]" />
-        )}
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#bfd8b8] mb-4">
-            <Calendar className="w-3.5 h-3.5" /> {fmtDate(event.event_date)}
-          </span>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-4">
-            {event.title}
-          </h1>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-white/85 text-sm">
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="w-4 h-4" /> {timeLabel}
-            </span>
-            {event.location && (
-              <span className="inline-flex items-center gap-1.5">
-                <Compass className="w-4 h-4" /> {event.location}
-              </span>
-            )}
+      <section className="relative py-16 sm:py-24 bg-[#1a231c] text-white overflow-hidden">
+        {event.image_url && (
+          <div className="absolute inset-0">
+            <img
+              src={event.image_url}
+              alt={event.title}
+              className="w-full h-full object-cover opacity-20 filter blur-xs"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#1a231c]/90 via-[#1a231c]/80 to-[#1a231c]" />
           </div>
-          {event.ticket_url && (
-            <div className="mt-7">
-              <a
-                href={event.ticket_url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 bg-white hover:bg-stone-100 text-[#2a382c] font-semibold px-7 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors shadow-lg"
-              >
-                <Ticket className="w-4 h-4" /> Get Tickets
-              </a>
+        )}
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Link
+            to="/christmas"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#bfd8b8] hover:text-white transition-colors mb-6"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Christmas Events
+          </Link>
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+            {event.image_url && (
+              <div className="w-48 sm:w-56 shrink-0 rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-stone-900">
+                <img
+                  src={event.image_url}
+                  alt={event.title}
+                  className="w-full h-auto object-contain block"
+                />
+              </div>
+            )}
+            <div className="flex-1 text-center md:text-left">
+              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#bfd8b8] bg-white/10 px-3 py-1 rounded-full mb-3 border border-white/15">
+                <Calendar className="w-3.5 h-3.5" /> {fmtDate(event.event_date)}
+              </span>
+              <h1 className="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight mb-4">
+                {event.title}
+              </h1>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-white/85 text-sm">
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" /> {timeLabel}
+                </span>
+                {event.location && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Compass className="w-4 h-4" /> {event.location}
+                  </span>
+                )}
+              </div>
+              {event.ticket_url && (
+                <div className="mt-6 flex flex-wrap items-center justify-center md:justify-start gap-3">
+                  <a
+                    href={event.ticket_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 bg-white hover:bg-stone-100 text-[#2a382c] font-semibold px-7 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-lg"
+                  >
+                    <Ticket className="w-4 h-4" /> Get Tickets
+                  </a>
+                  {event.code === "dec-10-the-holiday-movie-night" && (
+                    <a
+                      href="tel:+19317225589"
+                      className="inline-flex items-center gap-2 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors border border-white/25 shadow-lg"
+                    >
+                      <Phone className="w-4 h-4" /> Call for Group Pricing
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </section>
 
@@ -249,17 +276,91 @@ function EventDetailPage() {
             </div>
           </div>
 
-          {/* Group pricing note */}
-          <div className="mt-6 bg-white rounded-2xl border border-stone-200 p-5 text-sm text-stone-600">
-            <p className="mb-2">
-              Advance purchase or reservation is required. No unreserved ticket sales at the door.
-              To reserve with cash payment, call{" "}
-              <a href="tel:+19317225589" className="font-semibold text-[#2a382c] hover:underline">
-                931-722-5589
-              </a>
-              . Groups of 11 or more tickets: call us about group pricing.
-            </p>
-          </div>
+          {/* The Holiday specific group pricing block & photo showcase */}
+          {event.code === "dec-10-the-holiday-movie-night" ? (
+            <>
+              {/* Group discount callout */}
+              <div className="mt-8 bg-gradient-to-br from-[#2a382c] to-[#1e2a20] text-white rounded-3xl p-6 sm:p-8 shadow-md">
+                <div className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-widest text-[#bfd8b8] mb-2">
+                  <Users className="w-4 h-4" /> Group Discount Available
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white mb-2">
+                  Coming with a group?
+                </h3>
+                <p className="text-stone-200 text-sm sm:text-base leading-relaxed mb-5">
+                  Groups of 5 or more can book by phone for $15 per person. Call 931-722-5589 to
+                  reserve at the group rate. This discount is available by phone only.
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <a
+                    href="tel:+19317225589"
+                    className="inline-flex items-center gap-2 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-lg border border-white/20"
+                  >
+                    <Phone className="w-4 h-4" /> Call for Group Pricing
+                  </a>
+                  {event.ticket_url && (
+                    <a
+                      href={event.ticket_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 bg-white hover:bg-stone-100 text-[#2a382c] font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors"
+                    >
+                      <Ticket className="w-4 h-4" /> Standard Admission ($20)
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Photo Showcase */}
+              <div className="mt-10 bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-xs">
+                <h3 className="font-serif text-xl font-bold text-stone-900 mb-1">
+                  Movie Showcase Gallery
+                </h3>
+                <p className="text-stone-500 text-xs mb-5">
+                  A cozy indoor showing of The Holiday at The Willows. Wear pajamas and bring a chair
+                  or blanket.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="rounded-2xl overflow-hidden shadow-xs border border-stone-200 bg-stone-100 aspect-4/3">
+                    <img
+                      src="https://vibe.filesafe.space/1790196628861484830/attachments/b7a46cd7-e0a5-438b-a5af-a4ae4aafd388.jpg"
+                      alt="The Holiday — cozy evening"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <div className="rounded-2xl overflow-hidden shadow-xs border border-stone-200 bg-stone-100 aspect-4/3">
+                    <img
+                      src="https://vibe.filesafe.space/1790196628861484830/attachments/4da8c69e-d32b-44a2-98b5-013201686727.jpg"
+                      alt="The Holiday — winter romance"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <div className="rounded-2xl overflow-hidden shadow-xs border border-stone-200 bg-stone-100 aspect-4/3">
+                    <img
+                      src="https://vibe.filesafe.space/1790196628861484830/attachments/e8c73b76-117c-41aa-b019-48f42bf7f798.jpg"
+                      alt="The Holiday — warm moments"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            /* General group pricing note for other events */
+            <div className="mt-6 bg-white rounded-2xl border border-stone-200 p-5 text-sm text-stone-600">
+              <p className="mb-2">
+                Advance purchase or reservation is required. No unreserved ticket sales at the door.
+                To reserve with cash payment, call{" "}
+                <a
+                  href="tel:+19317225589"
+                  className="font-semibold text-[#2a382c] hover:underline"
+                >
+                  931-722-5589
+                </a>
+                . Groups of 11 or more tickets: call us about group pricing.
+              </p>
+            </div>
+          )}
 
           {/* Bottom CTA */}
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -273,12 +374,21 @@ function EventDetailPage() {
                 <Ticket className="w-4 h-4" /> Get Tickets
               </a>
             )}
-            <a
-              href="tel:+19317225589"
-              className="inline-flex items-center gap-2 bg-white border border-stone-300 hover:border-stone-400 text-[#2a382c] font-semibold px-6 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors"
-            >
-              <Phone className="w-4 h-4" /> Call 931-722-5589
-            </a>
+            {event.code === "dec-10-the-holiday-movie-night" ? (
+              <a
+                href="tel:+19317225589"
+                className="inline-flex items-center gap-2 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-6 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors"
+              >
+                <Phone className="w-4 h-4" /> Call for Group Pricing
+              </a>
+            ) : (
+              <a
+                href="tel:+19317225589"
+                className="inline-flex items-center gap-2 bg-white border border-stone-300 hover:border-stone-400 text-[#2a382c] font-semibold px-6 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors"
+              >
+                <Phone className="w-4 h-4" /> Call 931-722-5589
+              </a>
+            )}
           </div>
         </div>
       </section>
