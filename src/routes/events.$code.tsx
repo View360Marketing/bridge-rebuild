@@ -168,7 +168,7 @@ function EventDetailPage() {
                   >
                     <Ticket className="w-4 h-4" /> Get Tickets
                   </a>
-                  {event.code === "dec-10-the-holiday-movie-night" && (
+                  {event.code === "dec-10-holiday-movie-night" && (
                     <a
                       href="tel:+19317225589"
                       className="inline-flex items-center gap-2 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors border border-white/25 shadow-lg"
@@ -277,7 +277,7 @@ function EventDetailPage() {
           </div>
 
           {/* The Holiday specific group pricing block & photo showcase */}
-          {event.code === "dec-10-the-holiday-movie-night" ? (
+          {event.code === "dec-10-holiday-movie-night" ? (
             <>
               {/* Group discount callout */}
               <div className="mt-8 bg-gradient-to-br from-[#2a382c] to-[#1e2a20] text-white rounded-3xl p-6 sm:p-8 shadow-md">
@@ -317,8 +317,8 @@ function EventDetailPage() {
                   Movie Showcase Gallery
                 </h3>
                 <p className="text-stone-500 text-xs mb-5">
-                  A cozy indoor showing of The Holiday at The Willows. Wear pajamas and bring a chair
-                  or blanket.
+                  A cozy indoor showing of The Holiday at The Willows. Wear pajamas and bring a
+                  chair or blanket.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="rounded-2xl overflow-hidden shadow-xs border border-stone-200 bg-stone-100 aspect-4/3">
@@ -351,10 +351,7 @@ function EventDetailPage() {
               <p className="mb-2">
                 Advance purchase or reservation is required. No unreserved ticket sales at the door.
                 To reserve with cash payment, call{" "}
-                <a
-                  href="tel:+19317225589"
-                  className="font-semibold text-[#2a382c] hover:underline"
-                >
+                <a href="tel:+19317225589" className="font-semibold text-[#2a382c] hover:underline">
                   931-722-5589
                 </a>
                 . Groups of 11 or more tickets: call us about group pricing.
@@ -374,7 +371,7 @@ function EventDetailPage() {
                 <Ticket className="w-4 h-4" /> Get Tickets
               </a>
             )}
-            {event.code === "dec-10-the-holiday-movie-night" ? (
+            {event.code === "dec-10-holiday-movie-night" ? (
               <a
                 href="tel:+19317225589"
                 className="inline-flex items-center gap-2 bg-[#657B6A] hover:bg-[#596d5e] text-white font-semibold px-6 py-3.5 rounded-full text-xs uppercase tracking-wider transition-colors"

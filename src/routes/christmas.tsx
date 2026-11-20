@@ -339,10 +339,12 @@ function ChristmasPage() {
                         </div>
                       )}
                       {/* Special group rate note for The Holiday */}
-                      {e.code === "dec-10-the-holiday-movie-night" && (
+                      {e.code === "dec-10-holiday-movie-night" && (
                         <div className="bg-[#f4eee6] border border-[#e5ded3] rounded-2xl p-4 my-1 text-xs text-stone-700 space-y-2">
                           <p className="font-medium text-stone-900 leading-relaxed">
-                            Coming with a group? Groups of 5 or more can book by phone for $15 per person. Call 931-722-5589 to reserve at the group rate. This discount is available by phone only.
+                            Coming with a group? Groups of 5 or more can book by phone for $15 per
+                            person. Call 931-722-5589 to reserve at the group rate. This discount is
+                            available by phone only.
                           </p>
                           <a
                             href="tel:+19317225589"
@@ -479,18 +481,26 @@ function ChristmasPage() {
                   <Compass className="w-4 h-4 text-[#3e5340]" /> The Willows at The Bridges
                 </p>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  Make it a Christmas girls’ night at The Bridges! Gather your friends for a cozy indoor showing of <em>The Holiday</em> at The Willows. Wear pajamas or something comfortable and bring a chair or blanket. Ask about qualifying room stays that include up to four complimentary event admissions per room for registered overnight guests.
+                  Make it a Christmas girls’ night at The Bridges! Gather your friends for a cozy
+                  indoor showing of <em>The Holiday</em> at The Willows. Wear pajamas or something
+                  comfortable and bring a chair or blanket. Ask about qualifying room stays that
+                  include up to four complimentary event admissions per room for registered
+                  overnight guests.
                 </p>
-                
+
                 {/* Pricing & Group discount callout */}
                 <div className="bg-white rounded-2xl p-5 border border-stone-200 space-y-3">
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl font-bold text-stone-900">$20</span>
-                    <span className="text-xs text-stone-500 font-medium">per person standard admission</span>
+                    <span className="text-xs text-stone-500 font-medium">
+                      per person standard admission
+                    </span>
                   </div>
                   <div className="bg-[#f4eee6] rounded-xl p-3.5 border border-[#e5ded3] text-xs text-stone-700 space-y-2">
                     <p className="font-semibold text-stone-900">
-                      Coming with a group? Groups of 5 or more can book by phone for $15 per person. Call 931-722-5589 to reserve at the group rate. This discount is available by phone only.
+                      Coming with a group? Groups of 5 or more can book by phone for $15 per person.
+                      Call 931-722-5589 to reserve at the group rate. This discount is available by
+                      phone only.
                     </p>
                     <a
                       href="tel:+19317225589"
@@ -518,7 +528,7 @@ function ChristmasPage() {
                   </a>
                   <Link
                     to="/events/$code"
-                    params={{ code: "dec-10-the-holiday-movie-night" }}
+                    params={{ code: "dec-10-holiday-movie-night" }}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-[#2a382c] hover:underline px-2 py-1"
                   >
                     Full Event Details <ArrowRight className="w-3.5 h-3.5" />
@@ -556,9 +566,12 @@ function ChristmasPage() {
                   <Compass className="w-4 h-4 text-[#3e5340]" /> The Bridges · Waynesboro, TN
                 </p>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  All aboard for Christmas memories at The Bridges! Put on your Christmas pajamas for a family-friendly holiday experience featuring <em>The Polar Express</em> screening, golden admission tickets, hot chocolate, popcorn, a special bell, holiday photo opportunities, a letter-to-Santa station, and lights at The Bridges.
+                  All aboard for Christmas memories at The Bridges! Put on your Christmas pajamas
+                  for a family-friendly holiday experience featuring <em>The Polar Express</em>{" "}
+                  screening, golden admission tickets, hot chocolate, popcorn, a special bell,
+                  holiday photo opportunities, a letter-to-Santa station, and lights at The Bridges.
                 </p>
-                
+
                 {/* Pricing summary */}
                 <div className="bg-white rounded-2xl p-5 border border-stone-200 flex flex-wrap items-center gap-6 text-xs text-stone-600">
                   <div>
