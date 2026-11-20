@@ -542,16 +542,9 @@ function ChristmasPage() {
               <div className="lg:col-span-5 flex flex-col items-center">
                 <div className="rounded-2xl overflow-hidden shadow-md border border-stone-200 bg-white max-w-xs w-full">
                   <img
-                    src="https://vibe.filesafe.space/1790196628861484830/attachments/eb671a71-2127-4074-92bf-6f34c8756a59.png"
+                    src="https://vibe.filesafe.space/1790196628861484830/attachments/1022b455-c3ef-44d4-aded-49a24fa7c380.png"
                     alt="Polar Express Movie Night Experience"
                     className="w-full h-auto object-contain block"
-                  />
-                </div>
-                <div className="mt-3 max-w-xs w-full rounded-lg overflow-hidden h-20 border border-stone-200">
-                  <img
-                    src="https://vibe.filesafe.space/1790196628861484830/attachments/82bbdcae-fba9-464c-8abd-e86ac7b3536a.jpg"
-                    alt="The Polar Express train"
-                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
